@@ -3,6 +3,41 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#c2185b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="KS Catálogo" />
+  <link id="pwa-manifest" rel="manifest" />
+  <script>
+    (function () {
+      const iconSvg = encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">' +
+          '<rect width="192" height="192" rx="36" fill="#c2185b"/>' +
+          '<text x="96" y="118" font-family="Arial,sans-serif" font-size="76" font-weight="bold" fill="#ffffff" text-anchor="middle">KS</text>' +
+        '</svg>'
+      );
+      const manifest = {
+        name: "KS Cosmetics Mayoreo",
+        short_name: "KS Catálogo",
+        start_url: "./",
+        scope: "./",
+        display: "standalone",
+        background_color: "#fdf6f9",
+        theme_color: "#c2185b",
+        icons: [
+          {
+            src: "data:image/svg+xml," + iconSvg,
+            sizes: "192x192",
+            type: "image/svg+xml",
+            purpose: "any"
+          }
+        ]
+      };
+      const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+      document.getElementById("pwa-manifest").href = URL.createObjectURL(blob);
+    })();
+  </script>
   <title>KS Cosmetics Mayoreo — Demo App</title>
   <style>
     :root {
@@ -2071,6 +2106,22 @@
     }
 
     init();
+
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      const swCode = `
+        self.addEventListener("install", (e) => self.skipWaiting());
+        self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
+        self.addEventListener("fetch", (event) => {
+          if (event.request.method !== "GET") return;
+          event.respondWith(
+            fetch(event.request).catch(() => caches.match(event.request))
+          );
+        });
+      `;
+      const swBlob = new Blob([swCode], { type: "application/javascript" });
+      const swUrl = URL.createObjectURL(swBlob);
+      navigator.serviceWorker.register(swUrl).catch(() => {});
+    }
   </script>
 </body>
 </html>

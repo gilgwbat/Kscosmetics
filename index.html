@@ -1,0 +1,2076 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KS Cosmetics Mayoreo — Demo App</title>
+  <style>
+    :root {
+      --bg: #fdf6f9;
+      --card: #ffffff;
+      --ink: #23121c;
+      --muted: #6f5564;
+      --primary: #c2185b;
+      --primary-dark: #880e4f;
+      --accent: #f48fb1;
+      --soft: #fce4ec;
+      --ok: #1b5e20;
+      --ok-bg: #e8f5e9;
+      --warn: #8d4e00;
+      --warn-bg: #fff8e1;
+      --gold: #6d4c00;
+      --gold-bg: #fff3cd;
+      --border: #f0d6e0;
+      --shadow: 0 8px 24px rgba(136, 14, 79, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      padding-bottom: 88px;
+      line-height: 1.45;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+    }
+
+    .header-top {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), #ec407a);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .brand-title { font-weight: 800; font-size: 16px; }
+    .brand-sub { font-size: 12px; color: var(--muted); }
+
+    .badge-sync {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--ok-bg);
+      color: var(--ok);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .badge-wholesale-user {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--gold-bg);
+      color: var(--gold);
+      border: 1px solid #f5d67b;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 999px;
+      margin-left: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      transition: transform 0.12s ease, opacity 0.15s ease;
+    }
+
+    button:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      padding: 9px 14px;
+    }
+
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--border);
+      font-weight: 600;
+      padding: 8px 12px;
+    }
+
+    .btn-soft {
+      background: var(--soft);
+      color: var(--primary-dark);
+      font-weight: 700;
+      padding: 8px 12px;
+    }
+
+    .btn-gold {
+      background: var(--gold-bg);
+      color: var(--gold);
+      border: 1px solid #f5d67b;
+      font-weight: 800;
+      padding: 9px 12px;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .banner-carousel {
+      position: relative;
+      background: linear-gradient(120deg, var(--primary-dark), var(--primary));
+      color: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      min-height: 150px;
+    }
+
+    .banner-slide-bg {
+      position: relative;
+      padding: 20px;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .banner-slide-bg.has-image::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(35, 10, 24, 0.82) 0%, rgba(35, 10, 24, 0.45) 100%);
+    }
+
+    .banner-content {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+    }
+
+    .banner-content h1 { font-size: 20px; margin-bottom: 4px; }
+    .banner-content p { font-size: 13px; opacity: 0.96; }
+
+    .banner-controls {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .banner-dot-btn {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.45);
+      padding: 0;
+    }
+
+    .banner-dot-btn.active {
+      background: #fff;
+      transform: scale(1.2);
+    }
+
+    .banner-arrow {
+      background: rgba(255, 255, 255, 0.22);
+      color: #fff;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 8px;
+    }
+
+    .wholesale-pill-banner {
+      display: inline-block;
+      margin-top: 8px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-input, .brand-select {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font: inherit;
+    }
+
+    .search-input {
+      flex: 1 1 210px;
+    }
+
+    .brand-select {
+      min-width: 175px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .cats {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .cat-btn {
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .cat-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .thumb {
+      position: relative;
+      height: 140px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 46px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #fce4ec, #fff0f5);
+    }
+
+    .fav-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .video-tag {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(35, 18, 28, 0.85);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    .prod-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .prod-cat { font-size: 11px; text-transform: uppercase; color: var(--primary); font-weight: 700; }
+    .prod-brand {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .prod-title { font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 4px; }
+
+    .shades {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .shade-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+    }
+
+    .shade-dot.selected {
+      box-shadow: 0 0 0 2px var(--primary);
+      transform: scale(1.1);
+    }
+
+    .shade-label { font-size: 12px; color: var(--muted); }
+
+    .prices {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .price-main { font-size: 17px; font-weight: 800; color: var(--primary-dark); }
+    .price-sub { font-size: 12px; color: var(--muted); }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .card-actions .btn-primary { flex: 1; padding: 9px 10px; font-size: 13px; }
+    .card-actions .btn-soft { padding: 9px 10px; font-size: 12px; }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 6px;
+      z-index: 25;
+    }
+
+    .nav-item {
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      position: relative;
+    }
+
+    .nav-item.active { color: var(--primary); }
+
+    .cart-count {
+      background: var(--primary);
+      color: #fff;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      margin-left: 4px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(24, 9, 18, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 40;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.22);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .close-btn {
+      background: var(--soft);
+      color: var(--ink);
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-weight: 800;
+    }
+
+    .admin-section {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .admin-section h4 {
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--primary-dark);
+    }
+
+    .field { margin-bottom: 10px; }
+    .field label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font: inherit;
+      background: #fff;
+    }
+
+    .list-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #edd6e0;
+      font-size: 12px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f7e6ed;
+      font-size: 13px;
+    }
+
+    .qty-box { display: flex; align-items: center; gap: 6px; }
+    .qty-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: var(--soft);
+      color: var(--primary-dark);
+      font-weight: 800;
+    }
+
+    .summary-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+
+    .status-banner {
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status-retail {
+      background: var(--soft);
+      color: var(--primary-dark);
+    }
+
+    .status-pending-total {
+      background: var(--warn-bg);
+      color: var(--warn);
+    }
+
+    .status-wholesale-ok {
+      background: var(--ok-bg);
+      color: var(--ok);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .swatch-preview {
+      height: 84px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.45);
+      margin: 10px 0;
+      transition: transform 0.35s ease, filter 0.35s ease;
+    }
+
+    .swatch-preview.animating {
+      transform: scale(1.03) skewX(-4deg);
+      filter: brightness(1.08);
+    }
+
+    .video-box {
+      background: #180b12;
+      color: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+
+    .demo-accounts-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 14px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 76px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--ink);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-top">
+      <div class="brand-box">
+        <div class="logo">KS</div>
+        <div>
+          <div class="brand-title">
+            KS Cosmetics Mayoreo
+            <span id="headerRoleBadge"></span>
+          </div>
+          <div class="brand-sub">kscosmeticsmayoreo.com · <span class="badge-sync" id="syncStatusBadge">● Sincronizado con Tiendanube</span></div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-soft" id="authBtn" onclick="openModal('authModal')">Entrar</button>
+        <button class="btn-outline" onclick="openModal('adminModal')">Admin</button>
+        <button class="btn-primary" onclick="openModal('cartModal')">
+          Bolsa <span class="cart-count" id="headerCartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="banner-carousel" id="promoBanner"></section>
+
+    <div class="toolbar">
+      <input
+        type="search"
+        class="search-input"
+        id="searchInput"
+        placeholder="Buscar producto, marca o tono..."
+        oninput="renderProducts()"
+      />
+      <select class="brand-select" id="brandFilter" onchange="selectBrand(this.value)">
+        <option value="Todas">Todas las marcas</option>
+      </select>
+      <div class="cats" id="categoryTabs"></div>
+    </div>
+
+    <section class="grid" id="productGrid"></section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="navCatalog" onclick="setTab('catalog')">
+      <span>🛍️</span>
+      <span>Catálogo</span>
+    </button>
+    <button class="nav-item" id="navFavorites" onclick="setTab('favorites')">
+      <span>❤️</span>
+      <span>Favoritos</span>
+    </button>
+    <button class="nav-item" id="navCart" onclick="setTab('cart')">
+      <span>🧺</span>
+      <span>Bolsa (<span id="navCartCount">0</span>)</span>
+    </button>
+    <button class="nav-item" id="navAccount" onclick="setTab('account')">
+      <span>👤</span>
+      <span id="navAccountLabel">Cuenta</span>
+    </button>
+  </nav>
+
+  <!-- Modal Detalle y Reseña -->
+  <div class="modal-backdrop" id="detailModal" onclick="backdropClose(event, 'detailModal')">
+    <div class="modal" id="detailContent"></div>
+  </div>
+
+  <!-- Modal Carrito -->
+  <div class="modal-backdrop" id="cartModal" onclick="backdropClose(event, 'cartModal')">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Tu Pedido <span id="cartOwnerBadge" style="font-size:12px; color:var(--muted); font-weight:600;"></span></h3>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button class="btn-soft" onclick="clearCart()">Limpiar bolsa</button>
+          <button class="close-btn" onclick="closeModal('cartModal')">✕</button>
+        </div>
+      </div>
+      <div id="cartItemsContainer"></div>
+      <div class="summary-box" id="cartSummaryBox"></div>
+      <div class="field">
+        <label>Nombre de la clienta / negocio</label>
+        <input type="text" id="custName" placeholder="Ej. Mariana López" />
+      </div>
+      <div class="field">
+        <label>Teléfono de contacto</label>
+        <input type="tel" id="custPhone" placeholder="Ej. 998 123 4567" />
+      </div>
+      <div class="field">
+        <label>Tipo de entrega / Zona</label>
+        <input type="text" id="custDelivery" placeholder="Envío local / Paquetería / Recolección" />
+      </div>
+      <div id="checkoutActions"></div>
+    </div>
+  </div>
+
+  <!-- Modal Cuenta -->
+  <div class="modal-backdrop" id="authModal" onclick="backdropClose(event, 'authModal')">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Cuenta de Clienta</h3>
+        <button class="close-btn" onclick="closeModal('authModal')">✕</button>
+      </div>
+      <div id="authContent"></div>
+    </div>
+  </div>
+
+  <!-- Modal Admin -->
+  <div class="modal-backdrop" id="adminModal" onclick="backdropClose(event, 'adminModal')">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Panel Admin · KS Cosmetics</h3>
+        <button class="close-btn" onclick="closeModal('adminModal')">✕</button>
+      </div>
+
+      <!-- 1. WhatsApp -->
+      <div class="admin-section">
+        <h4>WhatsApp de recepción de pedidos</h4>
+        <div class="field">
+          <label>Número con lada (ej. 5219986490581)</label>
+          <input type="text" id="adminWaNumber" />
+        </div>
+        <button class="btn-soft" onclick="saveWaNumber()">Guardar WhatsApp</button>
+      </div>
+
+      <!-- 2. Sincronización Tiendanube por Store ID -->
+      <div class="admin-section">
+        <h4>Sincronización Tiendanube por Store ID</h4>
+        <div class="field">
+          <label>ID de Tienda (Store ID)</label>
+          <input type="text" id="adminStoreId" placeholder="Ej. 4829104" />
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn-outline" onclick="saveStoreId()">Guardar ID</button>
+          <button class="btn-primary" onclick="syncTiendanubeById()">Sincronizar con este ID</button>
+        </div>
+        <p id="syncLogText" style="font-size:12px; color:var(--muted); margin-top:8px;"></p>
+      </div>
+
+      <!-- 3. Alta y ascenso de clientas mayoristas -->
+      <div class="admin-section">
+        <h4>Alta y ascenso de Clientas Mayoristas</h4>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div class="field">
+            <label>Nombre o boutique</label>
+            <input type="text" id="whNameInput" placeholder="Ej. Estética Camila" />
+          </div>
+          <div class="field">
+            <label>Teléfono</label>
+            <input type="tel" id="whPhoneInput" placeholder="998 555 0199" />
+          </div>
+        </div>
+        <button class="btn-gold" onclick="registerWholesaleClient()">Dar de alta como Mayorista</button>
+        <div id="wholesaleListContainer" style="margin-top:10px;"></div>
+      </div>
+
+      <!-- 4. Banner de marca y productos -->
+      <div class="admin-section">
+        <h4>Banner de marca y productos (imágenes)</h4>
+        <div class="field">
+          <label>Título del banner</label>
+          <input type="text" id="bannerTitleInput" placeholder="Ej. Nueva línea de Labiales Matte" />
+        </div>
+        <div class="field">
+          <label>Texto / promoción</label>
+          <input type="text" id="bannerSubInput" placeholder="Ej. Surtido por marca con tarifa preferencial" />
+        </div>
+        <div class="field">
+          <label>Subir imagen desde tu celular/tablet</label>
+          <input type="file" id="bannerFileInput" accept="image/*" />
+        </div>
+        <div class="field">
+          <label>O pega enlace directo de imagen (opcional)</label>
+          <input type="url" id="bannerUrlInput" placeholder="https://..." />
+        </div>
+        <button class="btn-primary" onclick="addBannerSlide()">Publicar en el banner</button>
+        <div id="bannerListContainer" style="margin-top:10px;"></div>
+      </div>
+
+      <!-- 5. Agregar producto rápido -->
+      <div class="admin-section">
+        <h4>Agregar producto rápido</h4>
+        <div class="field">
+          <label>Nombre del cosmético</label>
+          <input type="text" id="newProdName" placeholder="Ej. Gloss Brillo Espejo" />
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="field">
+            <label>Marca</label>
+            <input type="text" id="newProdBrand" list="brandSuggestions" placeholder="Ej. Bissú, Italia Deluxe..." />
+            <datalist id="brandSuggestions"></datalist>
+          </div>
+          <div class="field">
+            <label>Categoría</label>
+            <select id="newProdCat">
+              <option value="Labios">Labios</option>
+              <option value="Rostro">Rostro</option>
+              <option value="Ojos">Ojos</option>
+              <option value="Cejas y Cuidado">Cejas y Cuidado</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="field">
+            <label>Precio menudeo ($ MXN)</label>
+            <input type="number" id="newProdRetail" value="85" />
+          </div>
+          <div class="field">
+            <label>Precio mayoreo ($ MXN)</label>
+            <input type="number" id="newProdWholesale" value="60" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Enlace de reseña (YouTube / TikTok opcional)</label>
+          <input type="url" id="newProdVideo" placeholder="https://www.tiktok.com/@.../video/..." />
+        </div>
+        <button class="btn-primary" style="width:100%;" onclick="addNewProduct()">
+          Publicar producto en el catálogo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const WHOLESALE_THRESHOLD = 1000;
+
+    const userStores = {
+      guest: { favorites: [], cart: [], orders: [] }
+    };
+
+    const state = {
+      waNumber: "5219986490581",
+      tiendanubeStoreId: "4829104",
+      lastSyncText: "Sin sincronizar en esta sesión (Store ID: 4829104)",
+      activeCategory: "Todos",
+      activeBrand: "Todas",
+      activeTab: "catalog",
+      activeUserKey: "guest",
+      user: null,
+      selectedShades: {},
+      activeBannerIndex: 0,
+      banners: [
+        {
+          id: 1,
+          title: "Catálogo de Cosméticos · Menudeo y Mayoreo",
+          subtitle: "Compra libre al menudeo o activa mayoreo desde $1,000 MXN de subtotal (manteniendo $1,000+ en el total final).",
+          imageUrl: "",
+          active: true
+        },
+        {
+          id: 2,
+          title: "Surtido Multimarca para Emprendedoras",
+          subtitle: "Filtra por marca o categoría y arma tu pedido directo a WhatsApp.",
+          imageUrl: "",
+          active: true
+        }
+      ],
+      wholesaleClients: [
+        { name: "Boutique Valeria", phone: "998 876 5432" }
+      ],
+      products: [
+        {
+          id: 1,
+          brand: "KS Studio",
+          name: "Labial Matte Terciopelo",
+          category: "Labios",
+          emoji: "💄",
+          retail: 75,
+          wholesale: 52,
+          desc: "Acabado aterciopelado de larga duración sin resecar. Ideal para reventa o surtido.",
+          tip: "Aplica con el centro del labio y difumina suavemente hacia las comisuras.",
+          videoUrl: "https://www.tiktok.com/@kscosmeticsmayoreo/video/7310000000000000001",
+          shades: [
+            { name: "Rojo Cereza", hex: "#b71c1c" },
+            { name: "Nude Canela", hex: "#b06e56" },
+            { name: "Rosa Berry", hex: "#ad1457" }
+          ]
+        },
+        {
+          id: 2,
+          brand: "Bella Glow",
+          name: "Rubor Líquido Pétalo",
+          category: "Rostro",
+          emoji: "🌸",
+          retail: 95,
+          wholesale: 68,
+          desc: "Pigmento líquido modulable que deja efecto jugoso natural en mejillas y labios.",
+          tip: "Usa 1 o 2 puntos pequeños y difumina con yema de dedo o esponja húmeda.",
+          videoUrl: "https://www.youtube.com/shorts/dQw4w9WgXcQ",
+          shades: [
+            { name: "Durazno Glow", hex: "#f48fb1" },
+            { name: "Coral Sunset", hex: "#ff7043" },
+            { name: "Ciruela Rosé", hex: "#8e24aa" }
+          ]
+        },
+        {
+          id: 3,
+          brand: "Velvet Skin",
+          name: "Base Líquida Mate HD",
+          category: "Rostro",
+          emoji: "✨",
+          retail: 140,
+          wholesale: 105,
+          desc: "Cobertura media a alta con control de brillo para climas cálidos y jornadas largas.",
+          tip: "Agita antes de usar y sella con polvo translúcido en zona T.",
+          videoUrl: "",
+          shades: [
+            { name: "Luz 01", hex: "#f3d5be" },
+            { name: "Arena 02", hex: "#e0b08b" },
+            { name: "Miel 03", hex: "#c68b59" }
+          ]
+        },
+        {
+          id: 4,
+          brand: "Mirada Pro",
+          name: "Delineador Líquido Precisión",
+          category: "Ojos",
+          emoji: "🖤",
+          retail: 65,
+          wholesale: 44,
+          desc: "Punta fina flexible negro intenso para trazo firme desde el primer pase.",
+          tip: "Apoya el codo en una superficie firme y traza primero el rabillo exterior.",
+          videoUrl: "",
+          shades: [
+            { name: "Negro Carbón", hex: "#1c1917" },
+            { name: "Espresso", hex: "#4e342e" }
+          ]
+        },
+        {
+          id: 5,
+          brand: "Brow Lab",
+          name: "Gel Fijador de Cejas",
+          category: "Cejas y Cuidado",
+          emoji: "🌿",
+          retail: 70,
+          wholesale: 48,
+          desc: "Fijación flexible sin residuos blancos para peinado laminado o natural.",
+          tip: "Cepilla hacia arriba y presiona suavemente con el mango del cepillo.",
+          videoUrl: "",
+          shades: [
+            { name: "Transparente", hex: "#e0f2f1" },
+            { name: "Cacao Suave", hex: "#5d4037" }
+          ]
+        },
+        {
+          id: 6,
+          brand: "KS Studio",
+          name: "Aceite Labial Hidratante",
+          category: "Labios",
+          emoji: "🍯",
+          retail: 80,
+          wholesale: 55,
+          desc: "Brillo espejo no pegajoso con sensación confortable para uso diario.",
+          tip: "Úsalo solo para un brillo natural o encima de tu labial matte favorito.",
+          videoUrl: "",
+          shades: [
+            { name: "Fresa Cristal", hex: "#ec407a" },
+            { name: "Caramelo", hex: "#c68642" }
+          ]
+        }
+      ]
+    };
+
+    function getCurrentStore() {
+      const key = state.activeUserKey || "guest";
+      if (!userStores[key]) {
+        userStores[key] = { favorites: [], cart: [], orders: [] };
+      }
+      return userStores[key];
+    }
+
+    function buildUserKey(name, role) {
+      return role + ":" + name.trim().toLowerCase().replace(/\s+/g, "_");
+    }
+
+    function findWholesaleClient(name, phone) {
+      const cleanName = (name || "").trim().toLowerCase();
+      const cleanPhone = (phone || "").replace(/\D/g, "");
+      return state.wholesaleClients.find((c) => {
+        const matchName = cleanName && c.name.trim().toLowerCase() === cleanName;
+        const matchPhone = cleanPhone && cleanPhone.length >= 7 && c.phone.replace(/\D/g, "") === cleanPhone;
+        return matchName || matchPhone;
+      });
+    }
+
+    function isWholesaleAccount() {
+      return Boolean(state.user && state.user.role === "wholesale");
+    }
+
+    function init() {
+      state.products.forEach((p) => {
+        state.selectedShades[p.id] = p.shades[0].name;
+      });
+      document.getElementById("adminWaNumber").value = state.waNumber;
+      document.getElementById("adminStoreId").value = state.tiendanubeStoreId;
+      document.getElementById("syncLogText").textContent = state.lastSyncText;
+      renderBanner();
+      renderBrands();
+      renderCategories();
+      renderProducts();
+      renderCart();
+      renderAuth();
+      renderAdminLists();
+      updateBadges();
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+    }
+
+    function openModal(id) {
+      if (id === "cartModal") renderCart();
+      if (id === "authModal") renderAuth();
+      if (id === "adminModal") renderAdminLists();
+      document.getElementById(id).classList.add("open");
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("open");
+    }
+
+    function backdropClose(e, id) {
+      if (e.target.id === id) closeModal(id);
+    }
+
+    function setTab(tab) {
+      state.activeTab = tab;
+      document.querySelectorAll(".nav-item").forEach((b) => b.classList.remove("active"));
+      if (tab === "catalog") {
+        document.getElementById("navCatalog").classList.add("active");
+        renderProducts();
+      } else if (tab === "favorites") {
+        document.getElementById("navFavorites").classList.add("active");
+        renderProducts(true);
+      } else if (tab === "cart") {
+        document.getElementById("navCart").classList.add("active");
+        openModal("cartModal");
+      } else if (tab === "account") {
+        document.getElementById("navAccount").classList.add("active");
+        openModal("authModal");
+      }
+    }
+
+    function getActiveBanners() {
+      const active = state.banners.filter((b) => b.active);
+      return active.length ? active : state.banners.slice(0, 1);
+    }
+
+    function renderBanner() {
+      const bannerEl = document.getElementById("promoBanner");
+      const slides = getActiveBanners();
+      if (state.activeBannerIndex >= slides.length) state.activeBannerIndex = 0;
+      const slide = slides[state.activeBannerIndex] || slides[0];
+      const wholesaleUser = isWholesaleAccount();
+      const hasImg = Boolean(slide && slide.imageUrl);
+
+      const titleText = wholesaleUser
+        ? `${slide.title} · Tarifa Mayorista`
+        : slide.title;
+
+      const subText = wholesaleUser
+        ? `Bienvenida, <strong>${state.user.name}</strong>. Tienes precios mayoristas directos en todo el catálogo.`
+        : slide.subtitle;
+
+      const bgStyle = hasImg ? `style="background-image:url('${slide.imageUrl.replace(/'/g, "%27")}');"` : "";
+
+      bannerEl.innerHTML = `
+        <div class="banner-slide-bg ${hasImg ? "has-image" : ""}" ${bgStyle}>
+          <div class="banner-content">
+            <h1>${titleText}</h1>
+            <p>${subText}</p>
+            ${wholesaleUser ? `<span class="wholesale-pill-banner">★ Clienta Mayorista Activa</span>` : ""}
+          </div>
+          ${
+            slides.length > 1
+              ? `
+            <div class="banner-controls">
+              <button class="banner-arrow" onclick="prevBanner()">‹</button>
+              ${slides
+                .map(
+                  (_, idx) =>
+                    `<button class="banner-dot-btn ${idx === state.activeBannerIndex ? "active" : ""}" onclick="goBanner(${idx})"></button>`
+                )
+                .join("")}
+              <button class="banner-arrow" onclick="nextBanner()">›</button>
+            </div>
+          `
+              : ""
+          }
+        </div>
+      `;
+    }
+
+    function goBanner(idx) {
+      state.activeBannerIndex = idx;
+      renderBanner();
+    }
+
+    function prevBanner() {
+      const slides = getActiveBanners();
+      state.activeBannerIndex = (state.activeBannerIndex - 1 + slides.length) % slides.length;
+      renderBanner();
+    }
+
+    function nextBanner() {
+      const slides = getActiveBanners();
+      state.activeBannerIndex = (state.activeBannerIndex + 1) % slides.length;
+      renderBanner();
+    }
+
+    function renderBrands() {
+      const brands = [...new Set(state.products.map((p) => p.brand).filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b, "es")
+      );
+      const select = document.getElementById("brandFilter");
+      if (!brands.includes(state.activeBrand) && state.activeBrand !== "Todas") {
+        state.activeBrand = "Todas";
+      }
+      select.innerHTML =
+        `<option value="Todas">Todas las marcas (${brands.length})</option>` +
+        brands
+          .map(
+            (b) =>
+              `<option value="${b.replace(/"/g, "&quot;")}" ${state.activeBrand === b ? "selected" : ""}>${b}</option>`
+          )
+          .join("");
+
+      const dl = document.getElementById("brandSuggestions");
+      if (dl) {
+        dl.innerHTML = brands.map((b) => `<option value="${b.replace(/"/g, "&quot;")}"></option>`).join("");
+      }
+    }
+
+    function selectBrand(brand) {
+      state.activeBrand = brand;
+      renderProducts(state.activeTab === "favorites");
+    }
+
+    function renderCategories() {
+      const cats = ["Todos", ...new Set(state.products.map((p) => p.category))];
+      const wrap = document.getElementById("categoryTabs");
+      wrap.innerHTML = cats
+        .map(
+          (c) =>
+            `<button class="cat-btn ${state.activeCategory === c ? "active" : ""}" onclick="selectCategory('${c.replace(/'/g, "\\'")}')">${c}</button>`
+        )
+        .join("");
+    }
+
+    function selectCategory(cat) {
+      state.activeCategory = cat;
+      state.activeTab = "catalog";
+      document.getElementById("navCatalog").classList.add("active");
+      document.getElementById("navFavorites").classList.remove("active");
+      renderCategories();
+      renderProducts();
+    }
+
+    function selectShade(prodId, shadeName) {
+      state.selectedShades[prodId] = shadeName;
+      renderProducts(state.activeTab === "favorites");
+    }
+
+    function toggleFavorite(prodId, ev) {
+      ev.stopPropagation();
+      const store = getCurrentStore();
+      const idx = store.favorites.indexOf(prodId);
+      if (idx >= 0) {
+        store.favorites.splice(idx, 1);
+        showToast("Quitado de favoritos");
+      } else {
+        store.favorites.push(prodId);
+        showToast("Guardado en favoritos");
+      }
+      renderProducts(state.activeTab === "favorites");
+    }
+
+    function renderProducts(onlyFavs = false) {
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      const grid = document.getElementById("productGrid");
+      const wholesaleUser = isWholesaleAccount();
+      const store = getCurrentStore();
+
+      const list = state.products.filter((p) => {
+        const matchCat = state.activeCategory === "Todos" || p.category === state.activeCategory;
+        const matchBrand = state.activeBrand === "Todas" || p.brand === state.activeBrand;
+        const matchText =
+          !q ||
+          p.name.toLowerCase().includes(q) ||
+          (p.brand && p.brand.toLowerCase().includes(q)) ||
+          p.category.toLowerCase().includes(q) ||
+          p.shades.some((s) => s.name.toLowerCase().includes(q));
+        const matchFav = !onlyFavs || store.favorites.includes(p.id);
+        return matchCat && matchBrand && matchText && matchFav;
+      });
+
+      if (!list.length) {
+        grid.innerHTML = `<p style="color:var(--muted);">No hay productos que coincidan con el filtro.</p>`;
+        return;
+      }
+
+      grid.innerHTML = list
+        .map((p) => {
+          const activeShade = state.selectedShades[p.id] || p.shades[0].name;
+          const isFav = store.favorites.includes(p.id);
+          const mainPrice = wholesaleUser ? p.wholesale : p.retail;
+          const secondaryText = wholesaleUser
+            ? `Público: $${p.retail}`
+            : `Mayoreo: $${p.wholesale}`;
+
+          return `
+            <article class="card">
+              <div>
+                <div class="thumb" onclick="openDetail(${p.id})">
+                  <span>${p.emoji}</span>
+                  <button class="fav-btn" onclick="toggleFavorite(${p.id}, event)" title="Favorito">
+                    ${isFav ? "❤️" : "🤍"}
+                  </button>
+                  ${p.videoUrl ? `<span class="video-tag">▶ Reseña</span>` : ""}
+                </div>
+                <div class="prod-meta-row">
+                  <span class="prod-cat">${p.category}</span>
+                  <span class="prod-brand">${p.brand || "Sin marca"}</span>
+                </div>
+                <div class="prod-title" onclick="openDetail(${p.id})">${p.name}</div>
+                <div class="shades" style="margin-top:8px;">
+                  ${p.shades
+                    .map(
+                      (s) => `
+                    <button
+                      class="shade-dot ${s.name === activeShade ? "selected" : ""}"
+                      style="background:${s.hex};"
+                      title="${s.name}"
+                      onclick="selectShade(${p.id}, '${s.name.replace(/'/g, "\\'")}')"
+                    ></button>
+                  `
+                    )
+                    .join("")}
+                  <span class="shade-label">${activeShade}</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="prices" style="margin-bottom:8px;">
+                  <span class="price-main">$${mainPrice} MXN</span>
+                  <span class="price-sub">${secondaryText}</span>
+                </div>
+                <div class="card-actions">
+                  <button class="btn-soft" onclick="openDetail(${p.id})">Detalle</button>
+                  <button class="btn-primary" onclick="addToCart(${p.id})">+ Agregar</button>
+                </div>
+              </div>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    function openDetail(prodId) {
+      const p = state.products.find((item) => item.id === prodId);
+      if (!p) return;
+      const activeShadeName = state.selectedShades[p.id] || p.shades[0].name;
+      const shadeObj = p.shades.find((s) => s.name === activeShadeName) || p.shades[0];
+      const wholesaleUser = isWholesaleAccount();
+
+      document.getElementById("detailContent").innerHTML = `
+        <div class="modal-head">
+          <h3>${p.emoji} ${p.name}</h3>
+          <button class="close-btn" onclick="closeModal('detailModal')">✕</button>
+        </div>
+        <p style="font-size:12px; color:var(--primary); font-weight:700; margin-bottom:6px;">
+          Marca: ${p.brand || "General"} · Categoría: ${p.category}
+        </p>
+        <p style="font-size:14px; margin-bottom:8px;">${p.desc}</p>
+        <p style="font-size:12px; color:var(--muted); margin-bottom:10px;"><strong>Tip:</strong> ${p.tip}</p>
+
+        <div class="swatch-preview" id="swatchBox" style="background:${shadeObj.hex};">
+          Tono activo: ${shadeObj.name}
+        </div>
+        <button class="btn-soft" style="margin-bottom:12px;" onclick="animateSwatch()">
+          Probar vista de tono
+        </button>
+
+        <div class="video-box">
+          <strong>Reseña / Video de marketing</strong>
+          ${
+            p.videoUrl
+              ? `<p style="margin-top:6px;">Enlace vinculado: <a href="${p.videoUrl}" target="_blank" rel="noopener" style="color:#f48fb1;">Abrir video reseña</a></p>`
+              : `<p style="margin-top:6px; opacity:0.85;">Sin video asignado aún. Puedes agregar un enlace de TikTok o YouTube desde Admin.</p>`
+          }
+        </div>
+
+        <div class="prices" style="margin:12px 0;">
+          ${
+            wholesaleUser
+              ? `<span class="price-main">Tu precio Mayoreo: $${p.wholesale} MXN</span><span class="price-sub">Precio público: $${p.retail} MXN</span>`
+              : `<span class="price-main">Menudeo: $${p.retail} MXN</span><span class="price-main">Mayoreo: $${p.wholesale} MXN</span>`
+          }
+        </div>
+
+        <button class="btn-primary" style="width:100%; padding:11px;" onclick="addToCart(${p.id}); closeModal('detailModal');">
+          Agregar (${shadeObj.name}) a la bolsa
+        </button>
+      `;
+      openModal("detailModal");
+    }
+
+    function animateSwatch() {
+      const box = document.getElementById("swatchBox");
+      if (!box) return;
+      box.classList.add("animating");
+      setTimeout(() => box.classList.remove("animating"), 380);
+    }
+
+    function addToCart(prodId) {
+      const p = state.products.find((item) => item.id === prodId);
+      if (!p) return;
+      const store = getCurrentStore();
+      const shade = state.selectedShades[p.id] || p.shades[0].name;
+      const existing = store.cart.find((item) => item.prodId === prodId && item.shade === shade);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        store.cart.push({ prodId, shade, qty: 1 });
+      }
+      updateBadges();
+      showToast(`Agregado: ${p.name} (${shade})`);
+    }
+
+    function changeQty(index, delta) {
+      const store = getCurrentStore();
+      const item = store.cart[index];
+      if (!item) return;
+      item.qty += delta;
+      if (item.qty <= 0) store.cart.splice(index, 1);
+      updateBadges();
+      renderCart();
+    }
+
+    function clearCart() {
+      const store = getCurrentStore();
+      store.cart = [];
+      updateBadges();
+      renderCart();
+      showToast("Bolsa limpiada");
+    }
+
+    function getCartTotals(forceRetail = false) {
+      const store = getCurrentStore();
+      const totalPieces = store.cart.reduce((acc, item) => acc + item.qty, 0);
+      let retailSubtotal = 0;
+      let wholesaleTotal = 0;
+
+      store.cart.forEach((item) => {
+        const p = state.products.find((prod) => prod.id === item.prodId);
+        if (!p) return;
+        retailSubtotal += p.retail * item.qty;
+        wholesaleTotal += p.wholesale * item.qty;
+      });
+
+      const wholesaleUser = isWholesaleAccount() && !forceRetail;
+
+      if (wholesaleUser) {
+        return {
+          wholesaleUser: true,
+          forcedRetail: false,
+          totalPieces,
+          retailSubtotal,
+          wholesaleTotal,
+          unlockedBySubtotal: true,
+          meetsFinalWholesaleTotal: true,
+          useWholesalePricing: true,
+          finalTotal: wholesaleTotal,
+          savings: Math.max(0, retailSubtotal - wholesaleTotal),
+          missingSubtotalForUnlock: 0,
+          missingFinalWholesaleTotal: 0
+        };
+      }
+
+      const unlockedBySubtotal = !forceRetail && retailSubtotal >= WHOLESALE_THRESHOLD;
+      const meetsFinalWholesaleTotal = unlockedBySubtotal && wholesaleTotal >= WHOLESALE_THRESHOLD;
+      const useWholesalePricing = unlockedBySubtotal;
+      const finalTotal = useWholesalePricing ? wholesaleTotal : retailSubtotal;
+
+      return {
+        wholesaleUser: false,
+        forcedRetail: Boolean(forceRetail),
+        totalPieces,
+        retailSubtotal,
+        wholesaleTotal,
+        unlockedBySubtotal,
+        meetsFinalWholesaleTotal,
+        useWholesalePricing,
+        finalTotal,
+        savings: Math.max(0, retailSubtotal - finalTotal),
+        missingSubtotalForUnlock: Math.max(0, WHOLESALE_THRESHOLD - retailSubtotal),
+        missingFinalWholesaleTotal: unlockedBySubtotal
+          ? Math.max(0, WHOLESALE_THRESHOLD - wholesaleTotal)
+          : 0
+      };
+    }
+
+    function renderCart() {
+      const container = document.getElementById("cartItemsContainer");
+      const summary = document.getElementById("cartSummaryBox");
+      const actions = document.getElementById("checkoutActions");
+      const ownerBadge = document.getElementById("cartOwnerBadge");
+      const wholesaleUser = isWholesaleAccount();
+      const store = getCurrentStore();
+
+      ownerBadge.textContent = state.user ? `(${state.user.name})` : "(Invitada)";
+
+      if (!store.cart.length) {
+        container.innerHTML = `<p style="color:var(--muted); font-size:13px;">Tu bolsa está vacía.</p>`;
+        summary.innerHTML = `
+          <div class="status-banner ${wholesaleUser ? "status-wholesale-ok" : "status-retail"}">
+            ${
+              wholesaleUser
+                ? "Cuenta Mayorista activa: todos los productos se cotizan a precio mayoreo."
+                : "Compra libre al menudeo. Desde $1,000 MXN de subtotal se aplica mayoreo (con total final de $1,000+ MXN)."
+            }
+          </div>
+          <div class="summary-total">
+            <span>Total</span>
+            <span>$0 MXN</span>
+          </div>
+        `;
+        actions.innerHTML = `
+          <button class="btn-primary" style="width:100%; padding:12px;" onclick="sendWhatsAppOrder(false)">
+            Enviar Pedido por WhatsApp
+          </button>
+        `;
+        return;
+      }
+
+      const totals = getCartTotals(false);
+
+      container.innerHTML = store.cart
+        .map((item, idx) => {
+          const p = state.products.find((prod) => prod.id === item.prodId);
+          const unitPrice = totals.useWholesalePricing ? p.wholesale : p.retail;
+          return `
+            <div class="cart-item">
+              <div>
+                <strong>${p.name}</strong> <span style="font-size:11px; color:var(--muted);">[${p.brand || "General"}]</span>
+                <div style="font-size:12px; color:var(--muted);">Tono: ${item.shade} · $${unitPrice} c/u</div>
+              </div>
+              <div class="qty-box">
+                <button class="qty-btn" onclick="changeQty(${idx}, -1)">-</button>
+                <span>${item.qty}</span>
+                <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      let bannerHtml = "";
+      if (totals.wholesaleUser) {
+        bannerHtml = `
+          <div class="status-banner status-wholesale-ok">
+            ★ Cuenta Mayorista: precios de mayoreo aplicados directamente en toda tu bolsa.
+          </div>
+        `;
+      } else if (!totals.unlockedBySubtotal) {
+        bannerHtml = `
+          <div class="status-banner status-retail">
+            Pedido al <strong>Menudeo</strong> disponible sin mínimo. Te faltan <strong>$${totals.missingSubtotalForUnlock} MXN</strong> de subtotal para desbloquear mayoreo.
+          </div>
+        `;
+      } else if (!totals.meetsFinalWholesaleTotal) {
+        bannerHtml = `
+          <div class="status-banner status-pending-total">
+            Subtotal de $1,000+ alcanzado: con descuento mayorista va en <strong>$${totals.finalTotal} MXN</strong>. Agrega <strong>$${totals.missingFinalWholesaleTotal} MXN</strong> más en mayoreo para llegar a <strong>$1,000 MXN</strong> de total final, o envía tu pedido como <strong>Menudeo</strong>.
+          </div>
+        `;
+      } else {
+        bannerHtml = `
+          <div class="status-banner status-wholesale-ok">
+            ¡Mayoreo activo! Subtotal y total final de $1,000+ MXN cumplidos.
+          </div>
+        `;
+      }
+
+      summary.innerHTML = `
+        ${bannerHtml}
+        <div class="summary-row">
+          <span>Piezas totales</span>
+          <strong>${totals.totalPieces}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Valor precio público</span>
+          <strong>$${totals.retailSubtotal} MXN</strong>
+        </div>
+        ${
+          totals.useWholesalePricing
+            ? `
+          <div class="summary-row" style="color:var(--ok);">
+            <span>Ahorro mayoreo</span>
+            <strong>-$${totals.savings} MXN</strong>
+          </div>
+        `
+            : ""
+        }
+        <div class="summary-total">
+          <span>Total final</span>
+          <span>$${totals.finalTotal} MXN</span>
+        </div>
+      `;
+
+      if (!totals.wholesaleUser && totals.unlockedBySubtotal && !totals.meetsFinalWholesaleTotal) {
+        actions.innerHTML = `
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button class="btn-primary" style="width:100%; padding:12px;" onclick="sendWhatsAppOrder(false)">
+              Enviar como Mayoreo (completa +$${totals.missingFinalWholesaleTotal} MXN)
+            </button>
+            <button class="btn-soft" style="width:100%; padding:11px;" onclick="sendWhatsAppOrder(true)">
+              Pedir como Menudeo ($${totals.retailSubtotal} MXN)
+            </button>
+          </div>
+        `;
+      } else {
+        actions.innerHTML = `
+          <button class="btn-primary" style="width:100%; padding:12px;" onclick="sendWhatsAppOrder(false)">
+            Enviar Pedido por WhatsApp
+          </button>
+        `;
+      }
+    }
+
+    function sendWhatsAppOrder(forceRetail = false) {
+      const store = getCurrentStore();
+      if (!store.cart.length) {
+        showToast("Agrega al menos un producto primero");
+        return;
+      }
+
+      const totals = getCartTotals(forceRetail);
+
+      if (!totals.wholesaleUser && totals.unlockedBySubtotal && !totals.meetsFinalWholesaleTotal) {
+        showToast(`Agrega $${totals.missingFinalWholesaleTotal} MXN más en mayoreo o elige Pedir como Menudeo`);
+        return;
+      }
+
+      const name = document.getElementById("custName").value.trim() || "Clienta Demo";
+      const phone = document.getElementById("custPhone").value.trim() || "Sin especificar";
+      const delivery = document.getElementById("custDelivery").value.trim() || "Por coordinar";
+      const folio = "KS-" + Math.floor(1000 + Math.random() * 9000);
+
+      const statusLabel = totals.wholesaleUser
+        ? "Clienta Mayorista (Tarifa directa)"
+        : totals.meetsFinalWholesaleTotal
+          ? "Mayoreo (Total $1,000+)"
+          : "Menudeo";
+
+      const lines = [
+        `*NUEVO PEDIDO · KS COSMETICS MAYOREO*`,
+        `Folio: *${folio}*`,
+        `Clienta: ${name}`,
+        `Teléfono: ${phone}`,
+        `Entrega: ${delivery}`,
+        `Esquema: ${statusLabel}`,
+        `--------------------------`
+      ];
+
+      store.cart.forEach((item) => {
+        const p = state.products.find((prod) => prod.id === item.prodId);
+        const unit = totals.useWholesalePricing ? p.wholesale : p.retail;
+        lines.push(`• ${item.qty}x ${p.name} [${p.brand || "General"}] (${item.shade}) - $${unit * item.qty} MXN`);
+      });
+
+      lines.push(`--------------------------`);
+      if (totals.savings > 0) lines.push(`Ahorro mayoreo: -$${totals.savings} MXN`);
+      lines.push(`*TOTAL FINAL: $${totals.finalTotal} MXN*`);
+
+      store.orders.unshift({
+        folio,
+        date: new Date().toLocaleDateString("es-MX"),
+        total: totals.finalTotal,
+        items: store.cart.map((item) => ({ ...item }))
+      });
+
+      const cleanWa = state.waNumber.replace(/\D/g, "");
+      const url = `https://wa.me/${cleanWa}?text=${encodeURIComponent(lines.join("\n"))}`;
+
+      store.cart = [];
+      updateBadges();
+      renderCart();
+      closeModal("cartModal");
+      window.open(url, "_blank", "noopener");
+      showToast(`Pedido ${folio} listo en WhatsApp`);
+    }
+
+    function renderAuth() {
+      const box = document.getElementById("authContent");
+      const store = getCurrentStore();
+
+      if (state.user) {
+        const isW = state.user.role === "wholesale";
+        box.innerHTML = `
+          <p style="margin-bottom:6px;">
+            Sesión activa: <strong>${state.user.name}</strong> (${state.user.phone})
+          </p>
+          <p style="margin-bottom:12px;">
+            Tipo de cuenta:
+            <span class="${isW ? "badge-wholesale-user" : "badge-sync"}">
+              ${isW ? "★ Clienta Mayorista" : "Clienta Normal (Menudeo)"}
+            </span>
+          </p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+            <button class="btn-outline" onclick="logoutDemo()">Cerrar sesión / Cambiar clienta</button>
+          </div>
+          <h4>Historial privado de ${state.user.name} (${store.orders.length})</h4>
+          ${
+            store.orders.length
+              ? store.orders
+                  .map(
+                    (o, i) => `
+                  <div class="cart-item">
+                    <div>
+                      <strong>${o.folio}</strong> · ${o.date}<br/>
+                      <span style="font-size:12px; color:var(--muted);">Total: $${o.total} MXN</span>
+                    </div>
+                    <button class="btn-soft" onclick="reorder(${i})">Repetir</button>
+                  </div>
+                `
+                  )
+                  .join("")
+              : `<p style="font-size:13px; color:var(--muted); margin-top:6px;">Esta cuenta aún no tiene pedidos registrados.</p>`
+          }
+        `;
+        return;
+      }
+
+      box.innerHTML = `
+        <div class="field">
+          <label>Nombre o boutique</label>
+          <input type="text" id="loginName" placeholder="Ej. Mariana López o Boutique Valeria" />
+        </div>
+        <div class="field">
+          <label>Teléfono</label>
+          <input type="tel" id="loginPhone" placeholder="998 000 0000" />
+        </div>
+        <div class="field">
+          <label>Tipo de cuenta</label>
+          <select id="loginRole">
+            <option value="retail">Clienta Normal (Menudeo · Mayoreo desde $1,000)</option>
+            <option value="wholesale">Clienta Mayorista (Precios mayoreo directos)</option>
+          </select>
+        </div>
+        <button class="btn-primary" style="width:100%; padding:11px;" onclick="loginManual()">
+          Iniciar sesión
+        </button>
+
+        <div class="demo-accounts-box">
+          <strong style="font-size:12px; display:block; margin-bottom:8px;">Accesos rápidos para demostración (datos aislados):</strong>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-soft" onclick="loginDemoRetail()">Clienta Normal (Mariana)</button>
+            <button class="btn-gold" onclick="loginDemoWholesale()">★ Acceso Mayorista (Boutique Valeria)</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function applyUserSession(userObj) {
+      const matchedWholesale = findWholesaleClient(userObj.name, userObj.phone);
+      const finalRole = matchedWholesale ? "wholesale" : userObj.role;
+      const finalName = matchedWholesale ? matchedWholesale.name : userObj.name;
+      const finalPhone =
+        userObj.phone && userObj.phone !== "Sin teléfono"
+          ? userObj.phone
+          : matchedWholesale
+            ? matchedWholesale.phone
+            : "Sin teléfono";
+
+      const key = buildUserKey(finalName, finalRole);
+      if (!userStores[key]) {
+        userStores[key] = { favorites: [], cart: [], orders: [] };
+      }
+      state.activeUserKey = key;
+      state.user = { key, name: finalName, phone: finalPhone, role: finalRole };
+
+      document.getElementById("custName").value = state.user.name;
+      document.getElementById("custPhone").value = state.user.phone;
+      document.getElementById("custDelivery").value = "";
+
+      renderBanner();
+      renderProducts(state.activeTab === "favorites");
+      renderCart();
+      updateBadges();
+      renderAuth();
+    }
+
+    function loginManual() {
+      const name = document.getElementById("loginName").value.trim();
+      const phone = document.getElementById("loginPhone").value.trim();
+      const role = document.getElementById("loginRole").value;
+      if (!name) {
+        showToast("Escribe un nombre para entrar");
+        return;
+      }
+      const isWh = Boolean(findWholesaleClient(name, phone)) || role === "wholesale";
+      applyUserSession({ name, phone: phone || "Sin teléfono", role: isWh ? "wholesale" : "retail" });
+      showToast(isWh ? `★ Bienvenida Mayorista, ${name}` : `Bienvenida, ${name}`);
+    }
+
+    function loginDemoRetail() {
+      applyUserSession({ name: "Mariana López", phone: "998 234 5678", role: "retail" });
+      showToast("Sesión Clienta Normal: Mariana López");
+    }
+
+    function loginDemoWholesale() {
+      applyUserSession({ name: "Boutique Valeria", phone: "998 876 5432", role: "wholesale" });
+      showToast("★ Sesión Mayorista: Boutique Valeria");
+    }
+
+    function logoutDemo() {
+      userStores.guest = { favorites: [], cart: [], orders: [] };
+      state.activeUserKey = "guest";
+      state.user = null;
+
+      document.getElementById("custName").value = "";
+      document.getElementById("custPhone").value = "";
+      document.getElementById("custDelivery").value = "";
+
+      renderBanner();
+      renderProducts(state.activeTab === "favorites");
+      renderCart();
+      updateBadges();
+      renderAuth();
+      showToast("Sesión cerrada — pantalla lista para nueva clienta");
+    }
+
+    function reorder(orderIndex) {
+      const store = getCurrentStore();
+      const ord = store.orders[orderIndex];
+      if (!ord) return;
+      ord.items.forEach((it) => {
+        const existing = store.cart.find((c) => c.prodId === it.prodId && c.shade === it.shade);
+        if (existing) existing.qty += it.qty;
+        else store.cart.push({ ...it });
+      });
+      updateBadges();
+      closeModal("authModal");
+      openModal("cartModal");
+      showToast("Pedido cargado a la bolsa");
+    }
+
+    function saveWaNumber() {
+      const val = document.getElementById("adminWaNumber").value.replace(/\D/g, "");
+      if (val.length < 10) {
+        showToast("Ingresa un número válido con lada");
+        return;
+      }
+      state.waNumber = val;
+      showToast(`WhatsApp actualizado a ${val}`);
+    }
+
+    function saveStoreId() {
+      const idVal = document.getElementById("adminStoreId").value.trim();
+      if (!idVal) {
+        showToast("Ingresa el ID de Tiendanube");
+        return;
+      }
+      state.tiendanubeStoreId = idVal;
+      state.lastSyncText = `ID ${idVal} guardado · Listo para sincronizar`;
+      document.getElementById("syncLogText").textContent = state.lastSyncText;
+      showToast(`Store ID ${idVal} guardado`);
+    }
+
+    function syncTiendanubeById() {
+      const idVal = document.getElementById("adminStoreId").value.trim() || state.tiendanubeStoreId;
+      if (!idVal) {
+        showToast("Primero escribe el ID de tienda");
+        return;
+      }
+      state.tiendanubeStoreId = idVal;
+
+      const sampleImported = [
+        {
+          id: 101,
+          brand: "Bissú",
+          name: "Tinta Labial Mate Fijo",
+          category: "Labios",
+          emoji: "💋",
+          retail: 65,
+          wholesale: 45,
+          desc: "Producto sincronizado desde catálogo Tiendanube.",
+          tip: "Aplica capa delgada y deja secar unos segundos.",
+          videoUrl: "",
+          shades: [
+            { name: "Manzana", hex: "#c62828" },
+            { name: "Canela", hex: "#8d4e38" }
+          ]
+        },
+        {
+          id: 102,
+          brand: "Italia Deluxe",
+          name: "Polvo Compacto Translúcido",
+          category: "Rostro",
+          emoji: "🪞",
+          retail: 110,
+          wholesale: 78,
+          desc: "Sincronizado por ID de tienda para sellar maquillaje sin aportar peso.",
+          tip: "Aplica a toques con borla en frente, nariz y barbilla.",
+          videoUrl: "",
+          shades: [
+            { name: "Porcelana", hex: "#f5dec8" },
+            { name: "Durazno Medio", hex: "#dfa878" }
+          ]
+        }
+      ];
+
+      sampleImported.forEach((imp) => {
+        if (!state.products.some((p) => p.id === imp.id)) {
+          state.products.unshift(imp);
+          state.selectedShades[imp.id] = imp.shades[0].name;
+        }
+      });
+
+      const hora = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+      state.lastSyncText = `Sincronizado con Store ID ${idVal} (${hora}) · ${state.products.length} productos activos`;
+      document.getElementById("syncLogText").textContent = state.lastSyncText;
+      document.getElementById("syncStatusBadge").textContent = `● ID ${idVal} sincronizado`;
+
+      renderBrands();
+      renderCategories();
+      renderProducts(state.activeTab === "favorites");
+      showToast(`Catálogo sincronizado con ID ${idVal}`);
+    }
+
+    function registerWholesaleClient() {
+      const name = document.getElementById("whNameInput").value.trim();
+      const phone = document.getElementById("whPhoneInput").value.trim() || "Sin teléfono";
+      if (!name) {
+        showToast("Escribe el nombre o boutique de la clienta");
+        return;
+      }
+      const existing = findWholesaleClient(name, phone);
+      if (!existing) {
+        state.wholesaleClients.unshift({ name, phone });
+      }
+      document.getElementById("whNameInput").value = "";
+      document.getElementById("whPhoneInput").value = "";
+      renderAdminLists();
+      showToast(`★ ${name} dada de alta como Mayorista`);
+    }
+
+    function promoteCurrentUserToWholesale() {
+      if (!state.user) return;
+      const existing = findWholesaleClient(state.user.name, state.user.phone);
+      if (!existing) {
+        state.wholesaleClients.unshift({ name: state.user.name, phone: state.user.phone });
+      }
+      applyUserSession({ ...state.user, role: "wholesale" });
+      renderAdminLists();
+      showToast(`★ ${state.user.name} ascendida a Clienta Mayorista`);
+    }
+
+    function removeWholesaleClient(idx) {
+      const removed = state.wholesaleClients[idx];
+      state.wholesaleClients.splice(idx, 1);
+      if (removed && state.user && state.user.name.toLowerCase() === removed.name.toLowerCase()) {
+        applyUserSession({ ...state.user, role: "retail" });
+      }
+      renderAdminLists();
+      showToast("Estatus mayorista retirado");
+    }
+
+    function addBannerSlide() {
+      const title = document.getElementById("bannerTitleInput").value.trim() || "Novedad KS Cosmetics";
+      const subtitle =
+        document.getElementById("bannerSubInput").value.trim() ||
+        "Descubre los lanzamientos y surtido disponible.";
+      const urlInput = document.getElementById("bannerUrlInput").value.trim();
+      const fileInput = document.getElementById("bannerFileInput");
+
+      const finishAdd = (imgSrc) => {
+        state.banners.unshift({
+          id: Date.now(),
+          title,
+          subtitle,
+          imageUrl: imgSrc || "",
+          active: true
+        });
+        state.activeBannerIndex = 0;
+        document.getElementById("bannerTitleInput").value = "";
+        document.getElementById("bannerSubInput").value = "";
+        document.getElementById("bannerUrlInput").value = "";
+        fileInput.value = "";
+        renderBanner();
+        renderAdminLists();
+        showToast("Banner agregado");
+      };
+
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (ev) => finishAdd(ev.target.result);
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        finishAdd(urlInput);
+      }
+    }
+
+    function toggleBannerActive(id) {
+      const item = state.banners.find((b) => b.id === id);
+      if (!item) return;
+      item.active = !item.active;
+      renderBanner();
+      renderAdminLists();
+    }
+
+    function deleteBanner(id) {
+      if (state.banners.length <= 1) {
+        showToast("Deja al menos un banner activo");
+        return;
+      }
+      state.banners = state.banners.filter((b) => b.id !== id);
+      state.activeBannerIndex = 0;
+      renderBanner();
+      renderAdminLists();
+      showToast("Banner eliminado");
+    }
+
+    function renderAdminLists() {
+      const whBox = document.getElementById("wholesaleListContainer");
+      const activeNormalBtn =
+        state.user && state.user.role === "retail"
+          ? `<div style="margin-bottom:8px;"><button class="btn-soft" onclick="promoteCurrentUserToWholesale()">Ascender sesión actual (${state.user.name}) a Mayorista</button></div>`
+          : "";
+
+      whBox.innerHTML =
+        activeNormalBtn +
+        (state.wholesaleClients.length
+          ? state.wholesaleClients
+              .map(
+                (c, i) => `
+              <div class="list-row">
+                <div><strong>★ ${c.name}</strong> · ${c.phone}</div>
+                <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="removeWholesaleClient(${i})">Quitar</button>
+              </div>
+            `
+              )
+              .join("")
+          : `<p style="font-size:12px; color:var(--muted);">Aún no hay mayoristas registradas.</p>`);
+
+      const banBox = document.getElementById("bannerListContainer");
+      banBox.innerHTML = state.banners
+        .map(
+          (b) => `
+          <div class="list-row">
+            <div>
+              <strong>${b.title}</strong> ${b.imageUrl ? "🖼️" : "📝"}
+              <div style="color:var(--muted);">${b.active ? "Visible" : "Oculto"}</div>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-soft" style="padding:4px 8px; font-size:11px;" onclick="toggleBannerActive(${b.id})">${b.active ? "Ocultar" : "Mostrar"}</button>
+              <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="deleteBanner(${b.id})">Borrar</button>
+            </div>
+          </div>
+        `
+        )
+        .join("");
+    }
+
+    function addNewProduct() {
+      const name = document.getElementById("newProdName").value.trim();
+      const brand = document.getElementById("newProdBrand").value.trim() || "KS Studio";
+      const category = document.getElementById("newProdCat").value;
+      const retail = Number(document.getElementById("newProdRetail").value) || 80;
+      const wholesale = Number(document.getElementById("newProdWholesale").value) || 55;
+      const videoUrl = document.getElementById("newProdVideo").value.trim();
+
+      if (!name) {
+        showToast("Escribe el nombre del cosmético");
+        return;
+      }
+
+      state.products.unshift({
+        id: Date.now(),
+        brand,
+        name,
+        category,
+        emoji: "✨",
+        retail,
+        wholesale,
+        desc: "Producto agregado desde el panel de administración de KS Cosmetics Mayoreo.",
+        tip: "Aplica sobre piel limpia y seca según el acabado deseado.",
+        videoUrl,
+        shades: [
+          { name: "Tono Clásico", hex: "#d81b60" },
+          { name: "Tono Natural", hex: "#e5989b" }
+        ]
+      });
+
+      state.selectedShades[state.products[0].id] = "Tono Clásico";
+      document.getElementById("newProdName").value = "";
+      document.getElementById("newProdBrand").value = "";
+      document.getElementById("newProdVideo").value = "";
+      renderBrands();
+      renderCategories();
+      renderProducts();
+      closeModal("adminModal");
+      showToast(`"${name}" (${brand}) publicado`);
+    }
+
+    function updateBadges() {
+      const store = getCurrentStore();
+      const totalPieces = store.cart.reduce((acc, item) => acc + item.qty, 0);
+      document.getElementById("headerCartCount").textContent = totalPieces;
+      document.getElementById("navCartCount").textContent = totalPieces;
+
+      const roleBadge = document.getElementById("headerRoleBadge");
+      if (state.user) {
+        document.getElementById("authBtn").textContent = state.user.name.split(" ")[0];
+        document.getElementById("navAccountLabel").textContent = state.user.name.split(" ")[0];
+        roleBadge.innerHTML =
+          state.user.role === "wholesale"
+            ? `<span class="badge-wholesale-user">★ Mayorista</span>`
+            : "";
+      } else {
+        document.getElementById("authBtn").textContent = "Entrar";
+        document.getElementById("navAccountLabel").textContent = "Cuenta";
+        roleBadge.innerHTML = "";
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -692,6 +692,13 @@
       color: var(--primary-dark);
     }
 
+    .order-sheet-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     .summary-box {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -767,14 +774,6 @@
       font-size: 13px;
     }
 
-    .demo-accounts-box {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      margin-top: 14px;
-    }
-
     .toast {
       position: fixed;
       bottom: 76px;
@@ -810,7 +809,7 @@
       </div>
       <div class="header-actions">
         <button class="btn-soft" id="authBtn" onclick="openModal('authModal')">Entrar</button>
-        <button class="btn-outline" onclick="openModal('adminModal')">Admin</button>
+        <button class="btn-outline" id="adminBtn" style="display:none;" onclick="openModal('adminModal')">Admin</button>
         <button class="btn-primary" onclick="openModal('cartModal')">
           Bolsa <span class="cart-count" id="headerCartCount">0</span>
         </button>
@@ -896,11 +895,11 @@
     </div>
   </div>
 
-  <!-- Modal Cuenta -->
+  <!-- Modal Cuenta / Login Único -->
   <div class="modal-backdrop" id="authModal" onclick="backdropClose(event, 'authModal')">
     <div class="modal">
       <div class="modal-head">
-        <h3>Cuenta de Clienta</h3>
+        <h3>Iniciar Sesión</h3>
         <button class="close-btn" onclick="closeModal('authModal')">✕</button>
       </div>
       <div id="authContent"></div>
@@ -1027,6 +1026,11 @@
 
   <script>
     const WHOLESALE_THRESHOLD = 1000;
+    const ADMIN_AUTH = {
+      user: "kscosmetics",
+      pass: "ks2026",
+      displayName: "KS Cosmetics (Admin)"
+    };
 
     const userStores = {
       guest: { favorites: [], cart: [], orders: [] }
@@ -1166,6 +1170,14 @@
       ]
     };
 
+    function isAdminAccount() {
+      return Boolean(state.user && state.user.role === "admin");
+    }
+
+    function isWholesaleAccount() {
+      return Boolean(state.user && (state.user.role === "wholesale" || state.user.role === "admin"));
+    }
+
     function getCurrentStore() {
       const key = state.activeUserKey || "guest";
       if (!userStores[key]) {
@@ -1186,10 +1198,6 @@
         const matchPhone = cleanPhone && cleanPhone.length >= 7 && c.phone.replace(/\D/g, "") === cleanPhone;
         return matchName || matchPhone;
       });
-    }
-
-    function isWholesaleAccount() {
-      return Boolean(state.user && state.user.role === "wholesale");
     }
 
     function init() {
@@ -1218,6 +1226,10 @@
     }
 
     function openModal(id) {
+      if (id === "adminModal" && !isAdminAccount()) {
+        openModal("authModal");
+        return;
+      }
       if (id === "cartModal") renderCart();
       if (id === "authModal") renderAuth();
       if (id === "adminModal") renderAdminLists();
@@ -1263,13 +1275,17 @@
       const wholesaleUser = isWholesaleAccount();
       const hasImg = Boolean(slide && slide.imageUrl);
 
-      const titleText = wholesaleUser
-        ? `${slide.title} · Tarifa Mayorista`
-        : slide.title;
+      const titleText = isAdminAccount()
+        ? `${slide.title} · Vista Administradora`
+        : wholesaleUser
+          ? `${slide.title} · Tarifa Mayorista`
+          : slide.title;
 
-      const subText = wholesaleUser
-        ? `Bienvenida, <strong>${state.user.name}</strong>. Tienes precios mayoristas directos en todo el catálogo.`
-        : slide.subtitle;
+      const subText = isAdminAccount()
+        ? `Sesión administradora activa (<strong>${state.user.name}</strong>). Usa el botón Admin arriba para gestionar tienda, banner y mayoristas.`
+        : wholesaleUser
+          ? `Bienvenida, <strong>${state.user.name}</strong>. Tienes precios mayoristas directos en todo el catálogo.`
+          : slide.subtitle;
 
       const bgStyle = hasImg ? `style="background-image:url('${slide.imageUrl.replace(/'/g, "%27")}');"` : "";
 
@@ -1278,7 +1294,7 @@
           <div class="banner-content">
             <h1>${titleText}</h1>
             <p>${subText}</p>
-            ${wholesaleUser ? `<span class="wholesale-pill-banner">★ Clienta Mayorista Activa</span>` : ""}
+            ${wholesaleUser ? `<span class="wholesale-pill-banner">★ Acceso Mayorista Activo</span>` : ""}
           </div>
           ${
             slides.length > 1
@@ -1495,7 +1511,7 @@
           ${
             p.videoUrl
               ? `<p style="margin-top:6px;">Enlace vinculado: <a href="${p.videoUrl}" target="_blank" rel="noopener" style="color:#f48fb1;">Abrir video reseña</a></p>`
-              : `<p style="margin-top:6px; opacity:0.85;">Sin video asignado aún. Puedes agregar un enlace de TikTok o YouTube desde Admin.</p>`
+              : `<p style="margin-top:6px; opacity:0.85;">Sin video asignado aún.</p>`
           }
         </div>
 
@@ -1609,40 +1625,255 @@
       };
     }
 
-    function buildOrderSheetHtml({ folio, statusLabel, items, totalAmount, useWholesale }) {
-      const unitsCount = items.reduce((sum, it) => sum + (Number(it.qty) || 0), 0);
-      const rowsHtml = items
-        .map((it) => {
-          const p = state.products.find((prod) => prod.id === it.prodId);
-          const name = it.name || (p ? p.name : "Producto");
-          const brand = it.brand || (p && p.brand) || "General";
-          const shade = it.shade || "";
-          const emoji = it.emoji || (p && p.emoji) || "✨";
-          const unitPrice =
-            typeof it.unitPrice === "number"
-              ? it.unitPrice
-              : p
-                ? useWholesale
-                  ? p.wholesale
-                  : p.retail
-                : 0;
-          const lineTotal = typeof it.lineTotal === "number" ? it.lineTotal : unitPrice * it.qty;
+    function normalizeOrderRows(items, useWholesale) {
+      return (items || []).map((it) => {
+        const p = state.products.find((prod) => prod.id === it.prodId);
+        const name = it.name || (p ? p.name : "Producto");
+        const brand = it.brand || (p && p.brand) || "General";
+        const shade = it.shade || "";
+        const emoji = it.emoji || (p && p.emoji) || "✨";
+        const qty = Number(it.qty) || 1;
+        const unitPrice =
+          typeof it.unitPrice === "number"
+            ? it.unitPrice
+            : p
+              ? useWholesale
+                ? p.wholesale
+                : p.retail
+              : 0;
+        const lineTotal = typeof it.lineTotal === "number" ? it.lineTotal : unitPrice * qty;
+        return { name, brand, shade, emoji, qty, unitPrice, lineTotal };
+      });
+    }
 
-          return `
+    function renderOrderImageBlob({ folio, statusLabel, items, totalAmount, useWholesale }) {
+      const rows = normalizeOrderRows(items, useWholesale);
+      const unitsCount = rows.reduce((sum, r) => sum + r.qty, 0);
+
+      const width = 760;
+      const headerHeight = 148;
+      const rowHeight = 104;
+      const footerHeight = 96;
+      const padding = 28;
+      const height = padding * 2 + headerHeight + rows.length * rowHeight + footerHeight;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+
+      // Fondo exterior
+      ctx.fillStyle = "#fdf6f9";
+      ctx.fillRect(0, 0, width, height);
+
+      // Tarjeta principal
+      const cardX = padding;
+      const cardY = padding;
+      const cardW = width - padding * 2;
+      const cardH = height - padding * 2;
+      ctx.fillStyle = "#ffffff";
+      ctx.strokeStyle = "#f0d6e0";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, 20);
+      ctx.fill();
+      ctx.stroke();
+
+      // Encabezado
+      ctx.fillStyle = "#23121c";
+      ctx.font = "bold 26px system-ui, -apple-system, sans-serif";
+      ctx.fillText(`Orden #${folio}`, cardX + 24, cardY + 46);
+
+      ctx.fillStyle = "#880e4f";
+      ctx.font = "bold 16px system-ui, -apple-system, sans-serif";
+      ctx.fillText(`${unitsCount} ${unitsCount === 1 ? "unidad" : "unidades"} · ${statusLabel}`, cardX + 24, cardY + 78);
+
+      ctx.fillStyle = "#6f5564";
+      ctx.font = "14px system-ui, -apple-system, sans-serif";
+      ctx.fillText("Hoja de surtido · KS Cosmetics Mayoreo", cardX + 24, cardY + 106);
+
+      // Línea divisoria
+      ctx.strokeStyle = "#f0d6e0";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cardX + 20, cardY + 128);
+      ctx.lineTo(cardX + cardW - 20, cardY + 128);
+      ctx.stroke();
+
+      // Filas de productos
+      let currentY = cardY + headerHeight;
+      rows.forEach((r, idx) => {
+        const boxX = cardX + 24;
+        const boxY = currentY + 14;
+        const boxSize = 64;
+
+        ctx.fillStyle = "#fce4ec";
+        ctx.beginPath();
+        ctx.roundRect(boxX, boxY, boxSize, boxSize, 14);
+        ctx.fill();
+
+        ctx.font = "32px system-ui, -apple-system, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#23121c";
+        ctx.fillText(r.emoji, boxX + boxSize / 2, boxY + boxSize / 2 + 1);
+
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
+
+        const textX = boxX + boxSize + 18;
+        ctx.fillStyle = "#23121c";
+        ctx.font = "bold 19px system-ui, -apple-system, sans-serif";
+        ctx.fillText(r.name, textX, currentY + 34);
+
+        ctx.fillStyle = "#6f5564";
+        ctx.font = "14px system-ui, -apple-system, sans-serif";
+        ctx.fillText(`${r.brand}${r.shade ? ` · ${r.shade}` : ""}`, textX, currentY + 58);
+
+        ctx.fillStyle = "#880e4f";
+        ctx.font = "bold 16px system-ui, -apple-system, sans-serif";
+        ctx.fillText(`Cant: ${r.qty}  ×  $${r.unitPrice} MXN`, textX, currentY + 82);
+
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#23121c";
+        ctx.font = "bold 20px system-ui, -apple-system, sans-serif";
+        ctx.fillText(`$${r.lineTotal} MXN`, cardX + cardW - 24, currentY + 54);
+        ctx.textAlign = "left";
+
+        if (idx < rows.length - 1) {
+          ctx.strokeStyle = "#f5e3eb";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(cardX + 24, currentY + rowHeight);
+          ctx.lineTo(cardX + cardW - 24, currentY + rowHeight);
+          ctx.stroke();
+        }
+        currentY += rowHeight;
+      });
+
+      // Pie / Total
+      ctx.setLineDash([6, 6]);
+      ctx.strokeStyle = "#d9a7bc";
+      ctx.beginPath();
+      ctx.moveTo(cardX + 24, currentY + 12);
+      ctx.lineTo(cardX + cardW - 24, currentY + 12);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = "#880e4f";
+      ctx.font = "bold 24px system-ui, -apple-system, sans-serif";
+      ctx.fillText("Total", cardX + 24, currentY + 54);
+
+      ctx.textAlign = "right";
+      ctx.fillText(`$${totalAmount} MXN`, cardX + cardW - 24, currentY + 54);
+      ctx.textAlign = "left";
+
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), "image/png");
+      });
+    }
+
+    async function shareOrDownloadOrderImage(payload) {
+      try {
+        const blob = await renderOrderImageBlob(payload);
+        if (!blob) {
+          showToast("No se pudo generar la imagen");
+          return;
+        }
+        const fileName = `orden-${payload.folio}.png`;
+        const file = new File([blob], fileName, { type: "image/png" });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: `Orden #${payload.folio}`,
+              text: `Orden #${payload.folio} · Total $${payload.totalAmount} MXN`
+            });
+            showToast(`Imagen de Orden #${payload.folio} lista para compartir`);
+            return;
+          } catch (err) {
+            if (err && err.name === "AbortError") return;
+          }
+        }
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        showToast(`Imagen ${fileName} descargada para enviar por WhatsApp`);
+      } catch (e) {
+        showToast("Error al crear la imagen de la orden");
+      }
+    }
+
+    function exportDraftOrderImage() {
+      const store = getCurrentStore();
+      if (!store.cart.length) {
+        showToast("Agrega productos a la bolsa primero");
+        return;
+      }
+      const totals = getCartTotals(false);
+      const statusText = isAdminAccount()
+        ? "Vista Admin"
+        : totals.wholesaleUser
+          ? "Tarifa Mayorista"
+          : totals.meetsFinalWholesaleTotal
+            ? "Mayoreo ($1,000+)"
+            : "Borrador · Menudeo";
+
+      shareOrDownloadOrderImage({
+        folio: state.draftFolio,
+        statusLabel: statusText,
+        items: store.cart,
+        totalAmount: totals.finalTotal,
+        useWholesale: totals.useWholesalePricing
+      });
+    }
+
+    function exportSavedOrderImage(orderIndex) {
+      const store = getCurrentStore();
+      const ord = store.orders[orderIndex];
+      if (!ord) return;
+      shareOrDownloadOrderImage({
+        folio: ord.folio,
+        statusLabel: ord.statusLabel || `Registrada · ${ord.date}`,
+        items: ord.items || [],
+        totalAmount: ord.total,
+        useWholesale: Boolean(ord.useWholesalePricing)
+      });
+    }
+
+    function buildOrderSheetHtml({ folio, statusLabel, items, totalAmount, useWholesale, savedIndex = null }) {
+      const rows = normalizeOrderRows(items, useWholesale);
+      const unitsCount = rows.reduce((sum, r) => sum + r.qty, 0);
+
+      const rowsHtml = rows
+        .map(
+          (r) => `
             <div class="order-line-row">
               <div class="order-line-left">
-                <div class="order-line-thumb">${emoji}</div>
+                <div class="order-line-thumb">${r.emoji}</div>
                 <div style="min-width:0;">
-                  <div class="order-line-title">${name}</div>
-                  <div class="order-line-sub">${brand}${shade ? ` · ${shade}` : ""}</div>
-                  <div class="order-line-math">${it.qty} × $${unitPrice} MXN</div>
+                  <div class="order-line-title">${r.name}</div>
+                  <div class="order-line-sub">${r.brand}${r.shade ? ` · ${r.shade}` : ""}</div>
+                  <div class="order-line-math">${r.qty} × $${r.unitPrice} MXN</div>
                 </div>
               </div>
-              <div class="order-line-amount">$${lineTotal} MXN</div>
+              <div class="order-line-amount">$${r.lineTotal} MXN</div>
             </div>
-          `;
-        })
+          `
+        )
         .join("");
+
+      const imgAction =
+        savedIndex !== null
+          ? `<button class="btn-soft" style="width:100%;" onclick="exportSavedOrderImage(${savedIndex})">🖼️ Compartir / Descargar Imagen de Orden</button>`
+          : `<button class="btn-soft" style="width:100%;" onclick="exportDraftOrderImage()">🖼️ Compartir / Descargar Imagen de Orden</button>`;
 
       return `
         <div class="order-sheet">
@@ -1658,6 +1889,7 @@
             <span>Total</span>
             <span>$${totalAmount} MXN</span>
           </div>
+          <div class="order-sheet-actions">${imgAction}</div>
         </div>
       `;
     }
@@ -1672,7 +1904,8 @@
         statusLabel: ord.statusLabel || `Registrada · ${ord.date}`,
         items: ord.items || [],
         totalAmount: ord.total,
-        useWholesale: Boolean(ord.useWholesalePricing)
+        useWholesale: Boolean(ord.useWholesalePricing),
+        savedIndex: orderIndex
       });
 
       document.getElementById("orderSummaryContent").innerHTML = `
@@ -1707,7 +1940,7 @@
           <div class="status-banner ${wholesaleUser ? "status-wholesale-ok" : "status-retail"}">
             ${
               wholesaleUser
-                ? "Cuenta Mayorista activa: todos los productos se cotizan a precio mayoreo."
+                ? "Tarifa mayorista activa en tu sesión."
                 : "Compra libre al menudeo. Desde $1,000 MXN de subtotal se aplica mayoreo (con total final de $1,000+ MXN)."
             }
           </div>
@@ -1746,25 +1979,28 @@
         })
         .join("");
 
-      const statusText = totals.wholesaleUser
-        ? "Tarifa Mayorista"
-        : totals.meetsFinalWholesaleTotal
-          ? "Mayoreo ($1,000+)"
-          : "Borrador · Menudeo";
+      const statusText = isAdminAccount()
+        ? "Vista Admin"
+        : totals.wholesaleUser
+          ? "Tarifa Mayorista"
+          : totals.meetsFinalWholesaleTotal
+            ? "Mayoreo ($1,000+)"
+            : "Borrador · Menudeo";
 
       preview.innerHTML = buildOrderSheetHtml({
         folio: state.draftFolio,
         statusLabel: statusText,
         items: store.cart,
         totalAmount: totals.finalTotal,
-        useWholesale: totals.useWholesalePricing
+        useWholesale: totals.useWholesalePricing,
+        savedIndex: null
       });
 
       let bannerHtml = "";
       if (totals.wholesaleUser) {
         bannerHtml = `
           <div class="status-banner status-wholesale-ok">
-            ★ Cuenta Mayorista: precios de mayoreo aplicados directamente en toda tu bolsa.
+            ★ Precios de mayoreo aplicados directamente en toda tu bolsa.
           </div>
         `;
       } else if (!totals.unlockedBySubtotal) {
@@ -1853,41 +2089,51 @@
       const folio = state.draftFolio || ("KS-" + Math.floor(1000 + Math.random() * 9000));
       state.draftFolio = "KS-" + Math.floor(1000 + Math.random() * 9000);
 
-      const statusLabel = totals.wholesaleUser
-        ? "Clienta Mayorista (Tarifa directa)"
-        : totals.meetsFinalWholesaleTotal
-          ? "Mayoreo (Total $1,000+)"
-          : "Menudeo";
+      const statusLabel = isAdminAccount()
+        ? "Pedido Admin"
+        : totals.wholesaleUser
+          ? "Clienta Mayorista"
+          : totals.meetsFinalWholesaleTotal
+            ? "Mayoreo ($1,000+)"
+            : "Menudeo";
+
+      const unitsWord = totals.totalPieces === 1 ? "unidad" : "unidades";
 
       const lines = [
-        `*NUEVO PEDIDO · KS COSMETICS MAYOREO*`,
-        `Folio: *#${folio}*`,
-        `Unidades: *${totals.totalPieces}*`,
+        `*Orden #${folio}* · ${statusLabel}`,
+        `*${totals.totalPieces} ${unitsWord}*`,
         `Clienta: ${name}`,
-        `Teléfono: ${phone}`,
+        `Tel: ${phone}`,
         `Entrega: ${delivery}`,
-        `Esquema: ${statusLabel}`,
-        `--------------------------`
+        `------------------------------`
       ];
 
       const detailedItems = store.cart.map((item) => {
         const p = state.products.find((prod) => prod.id === item.prodId);
+        const brand = p.brand || "General";
         const unit = totals.useWholesalePricing ? p.wholesale : p.retail;
         const lineTotal = unit * item.qty;
-        lines.push(`• ${item.qty} × $${unit} = $${lineTotal} MXN · ${p.name} [${p.brand || "General"}] (${item.shade})`);
+        lines.push(`${p.emoji} *${p.name}*`);
+        lines.push(`${brand} · ${item.shade}`);
+        lines.push(`${item.qty} × $${unit} MXN — *$${lineTotal} MXN*`);
+        lines.push(``);
         return {
           ...item,
           name: p.name,
-          brand: p.brand || "General",
+          brand,
           emoji: p.emoji,
           unitPrice: unit,
           lineTotal
         };
       });
 
-      lines.push(`--------------------------`);
+      while (lines.length && lines[lines.length - 1] === "") {
+        lines.pop();
+      }
+
+      lines.push(`------------------------------`);
       if (totals.savings > 0) lines.push(`Ahorro mayoreo: -$${totals.savings} MXN`);
-      lines.push(`*TOTAL FINAL: $${totals.finalTotal} MXN*`);
+      lines.push(`*Total: $${totals.finalTotal} MXN*`);
 
       store.orders.unshift({
         folio,
@@ -1915,21 +2161,23 @@
       const store = getCurrentStore();
 
       if (state.user) {
+        const isAdm = state.user.role === "admin";
         const isW = state.user.role === "wholesale";
         box.innerHTML = `
           <p style="margin-bottom:6px;">
-            Sesión activa: <strong>${state.user.name}</strong> (${state.user.phone})
+            Sesión activa: <strong>${state.user.name}</strong>
           </p>
           <p style="margin-bottom:12px;">
-            Tipo de cuenta:
-            <span class="${isW ? "badge-wholesale-user" : "badge-sync"}">
-              ${isW ? "★ Clienta Mayorista" : "Clienta Normal (Menudeo)"}
+            Perfil:
+            <span class="${isAdm || isW ? "badge-wholesale-user" : "badge-sync"}">
+              ${isAdm ? "★ Administradora" : isW ? "★ Clienta Mayorista" : "Clienta Menudeo"}
             </span>
           </p>
           <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
-            <button class="btn-outline" onclick="logoutDemo()">Cerrar sesión / Cambiar clienta</button>
+            ${isAdm ? `<button class="btn-primary" onclick="closeModal('authModal'); openModal('adminModal');">Abrir Panel Admin</button>` : ""}
+            <button class="btn-outline" onclick="logoutDemo()">Cerrar sesión</button>
           </div>
-          <h4>Historial privado de ${state.user.name} (${store.orders.length})</h4>
+          <h4>Historial de pedidos (${store.orders.length})</h4>
           ${
             store.orders.length
               ? store.orders
@@ -1956,54 +2204,38 @@
 
       box.innerHTML = `
         <div class="field">
-          <label>Nombre o boutique</label>
-          <input type="text" id="loginName" placeholder="Ej. Mariana López o Boutique Valeria" />
+          <label>Usuario o nombre</label>
+          <input type="text" id="loginName" placeholder="Escribe tu usuario o nombre" autocomplete="username" />
         </div>
         <div class="field">
-          <label>Teléfono</label>
+          <label>Contraseña</label>
+          <input type="password" id="loginPass" placeholder="Escribe tu contraseña" autocomplete="current-password" />
+        </div>
+        <div class="field">
+          <label>Teléfono (opcional para clientas)</label>
           <input type="tel" id="loginPhone" placeholder="998 000 0000" />
         </div>
-        <div class="field">
-          <label>Tipo de cuenta</label>
-          <select id="loginRole">
-            <option value="retail">Clienta Normal (Menudeo · Mayoreo desde $1,000)</option>
-            <option value="wholesale">Clienta Mayorista (Precios mayoreo directos)</option>
-          </select>
-        </div>
-        <button class="btn-primary" style="width:100%; padding:11px;" onclick="loginManual()">
+        <button class="btn-primary" style="width:100%; padding:11px;" onclick="loginUnified()">
           Iniciar sesión
         </button>
-
-        <div class="demo-accounts-box">
-          <strong style="font-size:12px; display:block; margin-bottom:8px;">Accesos rápidos para demostración (datos aislados):</strong>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn-soft" onclick="loginDemoRetail()">Clienta Normal (Mariana)</button>
-            <button class="btn-gold" onclick="loginDemoWholesale()">★ Acceso Mayorista (Boutique Valeria)</button>
-          </div>
-        </div>
       `;
     }
 
     function applyUserSession(userObj) {
-      const matchedWholesale = findWholesaleClient(userObj.name, userObj.phone);
-      const finalRole = matchedWholesale ? "wholesale" : userObj.role;
-      const finalName = matchedWholesale ? matchedWholesale.name : userObj.name;
-      const finalPhone =
-        userObj.phone && userObj.phone !== "Sin teléfono"
-          ? userObj.phone
-          : matchedWholesale
-            ? matchedWholesale.phone
-            : "Sin teléfono";
-
-      const key = buildUserKey(finalName, finalRole);
+      const key = buildUserKey(userObj.name, userObj.role);
       if (!userStores[key]) {
         userStores[key] = { favorites: [], cart: [], orders: [] };
       }
       state.activeUserKey = key;
-      state.user = { key, name: finalName, phone: finalPhone, role: finalRole };
+      state.user = {
+        key,
+        name: userObj.name,
+        phone: userObj.phone || "Sin teléfono",
+        role: userObj.role
+      };
 
-      document.getElementById("custName").value = state.user.name;
-      document.getElementById("custPhone").value = state.user.phone;
+      document.getElementById("custName").value = state.user.role === "admin" ? "" : state.user.name;
+      document.getElementById("custPhone").value = state.user.role === "admin" ? "" : state.user.phone;
       document.getElementById("custDelivery").value = "";
 
       renderBanner();
@@ -2013,27 +2245,45 @@
       renderAuth();
     }
 
-    function loginManual() {
-      const name = document.getElementById("loginName").value.trim();
+    function loginUnified() {
+      const rawName = document.getElementById("loginName").value.trim();
+      const rawPass = document.getElementById("loginPass").value;
       const phone = document.getElementById("loginPhone").value.trim();
-      const role = document.getElementById("loginRole").value;
-      if (!name) {
-        showToast("Escribe un nombre para entrar");
+
+      if (!rawName) {
+        showToast("Escribe tu usuario o nombre");
         return;
       }
-      const isWh = Boolean(findWholesaleClient(name, phone)) || role === "wholesale";
-      applyUserSession({ name, phone: phone || "Sin teléfono", role: isWh ? "wholesale" : "retail" });
-      showToast(isWh ? `★ Bienvenida Mayorista, ${name}` : `Bienvenida, ${name}`);
-    }
 
-    function loginDemoRetail() {
-      applyUserSession({ name: "Mariana López", phone: "998 234 5678", role: "retail" });
-      showToast("Sesión Clienta Normal: Mariana López");
-    }
+      const cleanUser = rawName.toLowerCase();
 
-    function loginDemoWholesale() {
-      applyUserSession({ name: "Boutique Valeria", phone: "998 876 5432", role: "wholesale" });
-      showToast("★ Sesión Mayorista: Boutique Valeria");
+      if (cleanUser === ADMIN_AUTH.user.toLowerCase()) {
+        if (rawPass === ADMIN_AUTH.pass) {
+          applyUserSession({
+            name: ADMIN_AUTH.displayName,
+            phone: phone || "Sin teléfono",
+            role: "admin"
+          });
+          closeModal("authModal");
+          showToast("Sesión de administradora iniciada");
+        } else {
+          showToast("Contraseña incorrecta");
+        }
+        return;
+      }
+
+      const matchedWholesale = findWholesaleClient(rawName, phone);
+      const role = matchedWholesale ? "wholesale" : "retail";
+      const displayName = matchedWholesale ? matchedWholesale.name : rawName;
+      const finalPhone = phone || (matchedWholesale ? matchedWholesale.phone : "Sin teléfono");
+
+      applyUserSession({
+        name: displayName,
+        phone: finalPhone,
+        role
+      });
+      closeModal("authModal");
+      showToast(role === "wholesale" ? `★ Bienvenida Mayorista, ${displayName}` : `Bienvenida, ${displayName}`);
     }
 
     function logoutDemo() {
@@ -2050,7 +2300,7 @@
       renderCart();
       updateBadges();
       renderAuth();
-      showToast("Sesión cerrada — pantalla lista para nueva clienta");
+      showToast("Sesión cerrada");
     }
 
     function reorder(orderIndex) {
@@ -2169,7 +2419,7 @@
     }
 
     function promoteCurrentUserToWholesale() {
-      if (!state.user) return;
+      if (!state.user || state.user.role === "admin") return;
       const existing = findWholesaleClient(state.user.name, state.user.phone);
       if (!existing) {
         state.wholesaleClients.unshift({ name: state.user.name, phone: state.user.phone });
@@ -2182,7 +2432,7 @@
     function removeWholesaleClient(idx) {
       const removed = state.wholesaleClients[idx];
       state.wholesaleClients.splice(idx, 1);
-      if (removed && state.user && state.user.name.toLowerCase() === removed.name.toLowerCase()) {
+      if (removed && state.user && state.user.role === "wholesale" && state.user.name.toLowerCase() === removed.name.toLowerCase()) {
         applyUserSession({ ...state.user, role: "retail" });
       }
       renderAdminLists();
@@ -2332,14 +2582,23 @@
       document.getElementById("headerCartCount").textContent = totalPieces;
       document.getElementById("navCartCount").textContent = totalPieces;
 
+      const adminBtn = document.getElementById("adminBtn");
+      adminBtn.style.display = isAdminAccount() ? "inline-flex" : "none";
+
       const roleBadge = document.getElementById("headerRoleBadge");
       if (state.user) {
-        document.getElementById("authBtn").textContent = state.user.name.split(" ")[0];
-        document.getElementById("navAccountLabel").textContent = state.user.name.split(" ")[0];
+        document.getElementById("authBtn").textContent = isAdminAccount()
+          ? "Admin"
+          : state.user.name.split(" ")[0];
+        document.getElementById("navAccountLabel").textContent = isAdminAccount()
+          ? "Admin"
+          : state.user.name.split(" ")[0];
         roleBadge.innerHTML =
-          state.user.role === "wholesale"
-            ? `<span class="badge-wholesale-user">★ Mayorista</span>`
-            : "";
+          isAdminAccount()
+            ? `<span class="badge-wholesale-user">★ Admin</span>`
+            : state.user.role === "wholesale"
+              ? `<span class="badge-wholesale-user">★ Mayorista</span>`
+              : "";
       } else {
         document.getElementById("authBtn").textContent = "Entrar";
         document.getElementById("navAccountLabel").textContent = "Cuenta";

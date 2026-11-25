@@ -55,6 +55,8 @@
       --ok-bg: #e8f5e9;
       --warn: #8d4e00;
       --warn-bg: #fff8e1;
+      --err: #b71c1c;
+      --err-bg: #ffebee;
       --gold: #6d4c00;
       --gold-bg: #fff3cd;
       --border: #f0d6e0;
@@ -492,8 +494,8 @@
       background: #fff;
       border-radius: 18px;
       width: 100%;
-      max-width: 600px;
-      max-height: 88vh;
+      max-width: 620px;
+      max-height: 90vh;
       overflow-y: auto;
       padding: 20px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.22);
@@ -692,6 +694,108 @@
       color: var(--primary-dark);
     }
 
+    .order-sheet-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Estilos Modo Surtido y Escáner */
+    .scanner-camera-box {
+      position: relative;
+      background: #14080f;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2px solid var(--border);
+      margin-bottom: 10px;
+      min-height: 170px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scanner-camera-box video {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .scanner-reticle {
+      position: absolute;
+      width: 72%;
+      height: 54%;
+      border: 2px dashed rgba(244, 143, 177, 0.9);
+      border-radius: 10px;
+      pointer-events: none;
+    }
+
+    .scan-feedback {
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .scan-ok { background: var(--ok-bg); color: var(--ok); }
+    .scan-err { background: var(--err-bg); color: var(--err); }
+    .scan-info { background: var(--soft); color: var(--primary-dark); }
+
+    .pick-row {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      background: #fff;
+    }
+
+    .pick-row.done {
+      background: var(--ok-bg);
+      border-color: #a5d6a7;
+    }
+
+    .pick-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pick-counter-pill {
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--primary-dark);
+      white-space: nowrap;
+    }
+
+    .pick-row.done .pick-counter-pill {
+      background: #1b5e20;
+      color: #fff;
+    }
+
+    .pick-bar-wrap {
+      height: 7px;
+      background: #f2dce5;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .pick-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.2s ease;
+    }
+
+    .pick-row.done .pick-bar-fill {
+      background: #2e7d32;
+    }
+
     .summary-box {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -818,7 +922,7 @@
         type="search"
         class="search-input"
         id="searchInput"
-        placeholder="Buscar producto, marca o tono..."
+        placeholder="Buscar producto, marca, tono o código..."
         oninput="renderProducts()"
       />
       <select class="brand-select" id="brandFilter" onchange="selectBrand(this.value)">
@@ -857,6 +961,51 @@
   <!-- Modal Resumen de Orden Guardada -->
   <div class="modal-backdrop" id="orderSummaryModal" onclick="backdropClose(event, 'orderSummaryModal')">
     <div class="modal" id="orderSummaryContent"></div>
+  </div>
+
+  <!-- Modal Surtido con Escáner de Código de Barras -->
+  <div class="modal-backdrop" id="scannerModal" onclick="backdropClose(event, 'scannerModal')">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="scannerTitle">📷 Surtido con Escáner</h3>
+        <button class="close-btn" onclick="closeScannerModal()">✕</button>
+      </div>
+
+      <div class="scanner-camera-box">
+        <video id="scannerVideo" playsinline muted></video>
+        <div class="scanner-reticle"></div>
+        <div id="scannerCamStatus" style="position:relative; z-index:2; color:#fff; font-size:12px; text-align:center; padding:12px;">
+          Cámara apagada. Toca <strong>Encender cámara</strong> o usa lectura/prueba rápida abajo.
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+        <button class="btn-primary" id="toggleCamBtn" onclick="toggleCameraScanner()">Encender cámara</button>
+        <button class="btn-soft" onclick="resetPickSession()">Reiniciar conteo</button>
+      </div>
+
+      <div class="field">
+        <label>Escanear / escribir código de barras (EAN / UPC / SKU)</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="manualBarcodeInput" placeholder="Ej. 750100100101" onkeydown="if(event.key==='Enter') processBarcodeScan(this.value)" />
+          <button class="btn-soft" onclick="processBarcodeScan(document.getElementById('manualBarcodeInput').value)">Registrar</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Simular escaneo rápido de un producto de esta orden (prueba)</label>
+        <div style="display:flex; gap:8px;">
+          <select id="simBarcodeSelect"></select>
+          <button class="btn-gold" onclick="processBarcodeScan(document.getElementById('simBarcodeSelect').value)">+1 Escanear</button>
+        </div>
+      </div>
+
+      <div id="scanFeedbackBox" class="scan-feedback scan-info">
+        Listo para escanear: cada lectura suma 1 unidad (1 de N, 2 de N...).
+      </div>
+
+      <div id="pickChecklistContainer"></div>
+    </div>
   </div>
 
   <!-- Modal Carrito -->
@@ -917,7 +1066,13 @@
         <button class="btn-soft" onclick="saveWaNumber()">Guardar WhatsApp</button>
       </div>
 
-      <!-- 2. Sincronización Tiendanube por Store ID -->
+      <!-- 2. Códigos de barras de productos -->
+      <div class="admin-section">
+        <h4>Códigos de barras de productos (para surtido)</h4>
+        <div id="barcodeAdminList"></div>
+      </div>
+
+      <!-- 3. Sincronización Tiendanube por Store ID -->
       <div class="admin-section">
         <h4>Sincronización Tiendanube por Store ID</h4>
         <div class="field">
@@ -931,7 +1086,7 @@
         <p id="syncLogText" style="font-size:12px; color:var(--muted); margin-top:8px;"></p>
       </div>
 
-      <!-- 3. Alta y ascenso de clientas mayoristas -->
+      <!-- 4. Alta y ascenso de clientas mayoristas -->
       <div class="admin-section">
         <h4>Alta y ascenso de Clientas Mayoristas</h4>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -948,7 +1103,7 @@
         <div id="wholesaleListContainer" style="margin-top:10px;"></div>
       </div>
 
-      <!-- 4. Banner de marca y productos -->
+      <!-- 5. Banner de marca y productos -->
       <div class="admin-section">
         <h4>Banner de marca y productos (imágenes)</h4>
         <div class="field">
@@ -971,7 +1126,7 @@
         <div id="bannerListContainer" style="margin-top:10px;"></div>
       </div>
 
-      <!-- 5. Agregar producto rápido -->
+      <!-- 6. Agregar producto rápido -->
       <div class="admin-section">
         <h4>Agregar producto rápido</h4>
         <div class="field">
@@ -1005,6 +1160,10 @@
           </div>
         </div>
         <div class="field">
+          <label>Código de barras (opcional)</label>
+          <input type="text" id="newProdBarcode" placeholder="Ej. 750100100999" />
+        </div>
+        <div class="field">
           <label>Enlace de reseña (YouTube / TikTok opcional)</label>
           <input type="url" id="newProdVideo" placeholder="https://www.tiktok.com/@.../video/..." />
         </div>
@@ -1027,6 +1186,15 @@
 
     const userStores = {
       guest: { favorites: [], cart: [], orders: [] }
+    };
+
+    const pickSession = {
+      folio: "",
+      lines: [], // { key, prodId, name, brand, shade, emoji, barcode, targetQty, pickedQty }
+      cameraStream: null,
+      scanTimer: null,
+      lastCodeTime: 0,
+      lastCodeValue: ""
     };
 
     const state = {
@@ -1067,6 +1235,7 @@
           name: "Labial Matte Terciopelo",
           category: "Labios",
           emoji: "💄",
+          barcode: "750100100101",
           retail: 75,
           wholesale: 52,
           desc: "Acabado aterciopelado de larga duración sin resecar. Ideal para reventa o surtido.",
@@ -1084,6 +1253,7 @@
           name: "Rubor Líquido Pétalo",
           category: "Rostro",
           emoji: "🌸",
+          barcode: "750100100102",
           retail: 95,
           wholesale: 68,
           desc: "Pigmento líquido modulable que deja efecto jugoso natural en mejillas y labios.",
@@ -1101,6 +1271,7 @@
           name: "Base Líquida Mate HD",
           category: "Rostro",
           emoji: "✨",
+          barcode: "750100100103",
           retail: 140,
           wholesale: 105,
           desc: "Cobertura media a alta con control de brillo para climas cálidos y jornadas largas.",
@@ -1118,6 +1289,7 @@
           name: "Delineador Líquido Precisión",
           category: "Ojos",
           emoji: "🖤",
+          barcode: "750100100104",
           retail: 65,
           wholesale: 44,
           desc: "Punta fina flexible negro intenso para trazo firme desde el primer pase.",
@@ -1134,6 +1306,7 @@
           name: "Gel Fijador de Cejas",
           category: "Cejas y Cuidado",
           emoji: "🌿",
+          barcode: "750100100105",
           retail: 70,
           wholesale: 48,
           desc: "Fijación flexible sin residuos blancos para peinado laminado o natural.",
@@ -1150,6 +1323,7 @@
           name: "Aceite Labial Hidratante",
           category: "Labios",
           emoji: "🍯",
+          barcode: "750100100106",
           retail: 80,
           wholesale: 55,
           desc: "Brillo espejo no pegajoso con sensación confortable para uso diario.",
@@ -1230,11 +1404,273 @@
     }
 
     function closeModal(id) {
+      if (id === "scannerModal") {
+        stopCameraScanner();
+      }
       document.getElementById(id).classList.remove("open");
     }
 
     function backdropClose(e, id) {
       if (e.target.id === id) closeModal(id);
+    }
+
+    // --- MODO SURTIDO Y ESCÁNER (1 DE N, 2 DE N) ---
+    function openPickScannerForDraft() {
+      const store = getCurrentStore();
+      if (!store.cart.length) {
+        showToast("Agrega productos a la bolsa primero");
+        return;
+      }
+      startPickSession(state.draftFolio, store.cart);
+    }
+
+    function openPickScannerForSavedOrder(orderIndex) {
+      const store = getCurrentStore();
+      const ord = store.orders[orderIndex];
+      if (!ord || !ord.items || !ord.items.length) {
+        showToast("Esta orden no tiene productos");
+        return;
+      }
+      startPickSession(ord.folio, ord.items);
+    }
+
+    function startPickSession(folio, rawItems) {
+      const grouped = new Map();
+      rawItems.forEach((it) => {
+        const p = state.products.find((prod) => prod.id === it.prodId);
+        const shade = it.shade || "";
+        const key = `${it.prodId}__${shade}`;
+        const qty = Number(it.qty) || 1;
+        if (grouped.has(key)) {
+          grouped.get(key).targetQty += qty;
+        } else {
+          grouped.set(key, {
+            key,
+            prodId: it.prodId,
+            name: it.name || (p ? p.name : "Producto"),
+            brand: it.brand || (p && p.brand) || "General",
+            shade,
+            emoji: it.emoji || (p && p.emoji) || "✨",
+            barcode: (p && p.barcode) || `KS-${it.prodId}`,
+            targetQty: qty,
+            pickedQty: 0
+          });
+        }
+      });
+
+      pickSession.folio = folio;
+      pickSession.lines = [...grouped.values()];
+      pickSession.lastCodeValue = "";
+      pickSession.lastCodeTime = 0;
+
+      document.getElementById("scannerTitle").textContent = `📷 Surtido Orden #${folio}`;
+      document.getElementById("manualBarcodeInput").value = "";
+      setScanFeedback("Listo para escanear: cada código leído suma 1 unidad (1 de N, 2 de N...).", "scan-info");
+
+      const simSelect = document.getElementById("simBarcodeSelect");
+      simSelect.innerHTML = pickSession.lines
+        .map(
+          (l) =>
+            `<option value="${l.barcode}">${l.name} (${l.shade || "Tono"}) · Cód: ${l.barcode}</option>`
+        )
+        .join("");
+
+      renderPickChecklist();
+      openModal("scannerModal");
+    }
+
+    function resetPickSession() {
+      pickSession.lines.forEach((l) => {
+        l.pickedQty = 0;
+      });
+      setScanFeedback("Conteo reiniciado en 0.", "scan-info");
+      renderPickChecklist();
+    }
+
+    function setScanFeedback(msg, type = "scan-info") {
+      const box = document.getElementById("scanFeedbackBox");
+      if (!box) return;
+      box.className = `scan-feedback ${type}`;
+      box.textContent = msg;
+    }
+
+    function renderPickChecklist() {
+      const box = document.getElementById("pickChecklistContainer");
+      const totalTarget = pickSession.lines.reduce((s, l) => s + l.targetQty, 0);
+      const totalPicked = pickSession.lines.reduce((s, l) => s + l.pickedQty, 0);
+
+      const headerSummary = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13px;">
+          <strong>Avance de la orden: ${totalPicked} de ${totalTarget} unidades</strong>
+          <span class="badge-sync">${totalPicked === totalTarget && totalTarget > 0 ? "✓ ORDEN COMPLETA" : "En surtido"}</span>
+        </div>
+      `;
+
+      const rows = pickSession.lines
+        .map((l, idx) => {
+          const isDone = l.pickedQty >= l.targetQty;
+          const pct = Math.min(100, Math.round((l.pickedQty / Math.max(1, l.targetQty)) * 100));
+          return `
+            <div class="pick-row ${isDone ? "done" : ""}">
+              <div class="pick-row-top">
+                <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                  <div class="order-line-thumb">${l.emoji}</div>
+                  <div style="min-width:0;">
+                    <div class="order-line-title">${l.name}</div>
+                    <div class="order-line-sub">${l.brand}${l.shade ? ` · ${l.shade}` : ""} · Cód: <strong>${l.barcode}</strong></div>
+                  </div>
+                </div>
+                <span class="pick-counter-pill">${l.pickedQty} de ${l.targetQty}${isDone ? " ✓" : ""}</span>
+              </div>
+              <div class="pick-bar-wrap">
+                <div class="pick-bar-fill" style="width:${pct}%;"></div>
+              </div>
+              <div style="display:flex; gap:6px; margin-top:8px; justify-content:flex-end;">
+                <button class="qty-btn" onclick="manualStepPick(${idx}, -1)">-</button>
+                <button class="btn-soft" style="padding:4px 10px; font-size:11px;" onclick="manualStepPick(${idx}, 1)">+1 manual</button>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      box.innerHTML = headerSummary + rows;
+    }
+
+    function manualStepPick(idx, delta) {
+      const line = pickSession.lines[idx];
+      if (!line) return;
+      const nextVal = line.pickedQty + delta;
+      if (nextVal < 0) return;
+      if (nextVal > line.targetQty) {
+        setScanFeedback(`Ya completaste ${line.targetQty} de ${line.targetQty} en "${line.name}".`, "scan-err");
+        return;
+      }
+      line.pickedQty = nextVal;
+      setScanFeedback(`${line.name} (${line.shade}): ${line.pickedQty} de ${line.targetQty}.`, line.pickedQty === line.targetQty ? "scan-ok" : "scan-info");
+      renderPickChecklist();
+    }
+
+    function processBarcodeScan(rawCode) {
+      const code = (rawCode || "").trim();
+      if (!code) {
+        setScanFeedback("Escribe o escanea un código de barras.", "scan-err");
+        return;
+      }
+
+      const candidates = pickSession.lines.filter(
+        (l) => l.barcode.trim().toLowerCase() === code.toLowerCase()
+      );
+
+      if (!candidates.length) {
+        const prodMatch = state.products.find(
+          (p) => (p.barcode || "").trim().toLowerCase() === code.toLowerCase()
+        );
+        if (prodMatch) {
+          setScanFeedback(`"${prodMatch.name}" (${code}) NO está en esta orden.`, "scan-err");
+        } else {
+          setScanFeedback(`Código "${code}" no encontrado en esta orden.`, "scan-err");
+        }
+        return;
+      }
+
+      // Prioriza el renglón que aún le faltan piezas
+      const pendingLine = candidates.find((l) => l.pickedQty < l.targetQty);
+      if (!pendingLine) {
+        const ref = candidates[0];
+        setScanFeedback(`Ya escaneaste todo: ${ref.targetQty} de ${ref.targetQty} de "${ref.name}".`, "scan-err");
+        return;
+      }
+
+      pendingLine.pickedQty += 1;
+      const completedNow = pendingLine.pickedQty === pendingLine.targetQty;
+      setScanFeedback(
+        `${pendingLine.emoji} ${pendingLine.name} (${pendingLine.shade}): ${pendingLine.pickedQty} de ${pendingLine.targetQty}${completedNow ? " — ¡LISTO!" : ""}`,
+        "scan-ok"
+      );
+      if (navigator.vibrate) {
+        try { navigator.vibrate(completedNow ? [80, 50, 80] : 50); } catch (e) {}
+      }
+      document.getElementById("manualBarcodeInput").value = "";
+      renderPickChecklist();
+    }
+
+    async function toggleCameraScanner() {
+      if (pickSession.cameraStream) {
+        stopCameraScanner();
+        return;
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        document.getElementById("scannerCamStatus").textContent =
+          "Este navegador no permite abrir cámara aquí. Usa la entrada de código o simulación rápida.";
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } },
+          audio: false
+        });
+        pickSession.cameraStream = stream;
+        const video = document.getElementById("scannerVideo");
+        video.srcObject = stream;
+        await video.play();
+        document.getElementById("scannerCamStatus").style.display = "none";
+        document.getElementById("toggleCamBtn").textContent = "Apagar cámara";
+
+        if ("BarcodeDetector" in window) {
+          const detector = new BarcodeDetector({
+            formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39", "qr_code"]
+          });
+          pickSession.scanTimer = setInterval(async () => {
+            if (!pickSession.cameraStream || video.readyState < 2) return;
+            try {
+              const codes = await detector.detect(video);
+              if (codes && codes.length) {
+                const val = (codes[0].rawValue || "").trim();
+                const now = Date.now();
+                if (val && (val !== pickSession.lastCodeValue || now - pickSession.lastCodeTime > 1200)) {
+                  pickSession.lastCodeValue = val;
+                  pickSession.lastCodeTime = now;
+                  processBarcodeScan(val);
+                }
+              }
+            } catch (err) {}
+          }, 350);
+        } else {
+          setScanFeedback("Cámara activa. Si no lee automático en este navegador, escribe o selecciona el código abajo.", "scan-info");
+        }
+      } catch (err) {
+        document.getElementById("scannerCamStatus").style.display = "block";
+        document.getElementById("scannerCamStatus").textContent =
+          "No se pudo abrir la cámara (permiso denegado o sin cámara). Usa el campo de código o prueba rápida.";
+      }
+    }
+
+    function stopCameraScanner() {
+      if (pickSession.scanTimer) {
+        clearInterval(pickSession.scanTimer);
+        pickSession.scanTimer = null;
+      }
+      if (pickSession.cameraStream) {
+        pickSession.cameraStream.getTracks().forEach((t) => t.stop());
+        pickSession.cameraStream = null;
+      }
+      const video = document.getElementById("scannerVideo");
+      if (video) {
+        video.pause();
+        video.srcObject = null;
+      }
+      const statusEl = document.getElementById("scannerCamStatus");
+      if (statusEl) statusEl.style.display = "block";
+      const btn = document.getElementById("toggleCamBtn");
+      if (btn) btn.textContent = "Encender cámara";
+    }
+
+    function closeScannerModal() {
+      stopCameraScanner();
+      closeModal("scannerModal");
     }
 
     function setTab(tab) {
@@ -1407,6 +1843,7 @@
           p.name.toLowerCase().includes(q) ||
           (p.brand && p.brand.toLowerCase().includes(q)) ||
           p.category.toLowerCase().includes(q) ||
+          (p.barcode && p.barcode.toLowerCase().includes(q)) ||
           p.shades.some((s) => s.name.toLowerCase().includes(q));
         const matchFav = !onlyFavs || store.favorites.includes(p.id);
         return matchCat && matchBrand && matchText && matchFav;
@@ -1487,7 +1924,7 @@
           <button class="close-btn" onclick="closeModal('detailModal')">✕</button>
         </div>
         <p style="font-size:12px; color:var(--primary); font-weight:700; margin-bottom:6px;">
-          Marca: ${p.brand || "General"} · Categoría: ${p.category}
+          Marca: ${p.brand || "General"} · Categoría: ${p.category} · Código: ${p.barcode || "N/A"}
         </p>
         <p style="font-size:14px; margin-bottom:8px;">${p.desc}</p>
         <p style="font-size:12px; color:var(--muted); margin-bottom:10px;"><strong>Tip:</strong> ${p.tip}</p>
@@ -1789,7 +2226,7 @@
       } catch (e) {}
     }
 
-    function buildOrderSheetHtml({ folio, statusLabel, items, totalAmount, useWholesale }) {
+    function buildOrderSheetHtml({ folio, statusLabel, items, totalAmount, useWholesale, isDraft = false, savedIndex = null }) {
       const rows = normalizeOrderRows(items, useWholesale);
       const unitsCount = rows.reduce((sum, r) => sum + r.qty, 0);
 
@@ -1811,6 +2248,12 @@
         )
         .join("");
 
+      const scanBtnHtml = isDraft
+        ? `<button class="btn-soft" style="width:100%;" onclick="openPickScannerForDraft()">📷 Surtir con Escáner (1 de N)</button>`
+        : savedIndex !== null
+          ? `<button class="btn-soft" style="width:100%;" onclick="openPickScannerForSavedOrder(${savedIndex})">📷 Surtir con Escáner (1 de N)</button>`
+          : "";
+
       return `
         <div class="order-sheet">
           <div class="order-sheet-head">
@@ -1825,6 +2268,7 @@
             <span>Total</span>
             <span>$${totalAmount} MXN</span>
           </div>
+          ${scanBtnHtml ? `<div class="order-sheet-actions">${scanBtnHtml}</div>` : ""}
         </div>
       `;
     }
@@ -1839,7 +2283,9 @@
         statusLabel: ord.statusLabel || `Registrada · ${ord.date}`,
         items: ord.items || [],
         totalAmount: ord.total,
-        useWholesale: Boolean(ord.useWholesalePricing)
+        useWholesale: Boolean(ord.useWholesalePricing),
+        isDraft: false,
+        savedIndex: orderIndex
       });
 
       document.getElementById("orderSummaryContent").innerHTML = `
@@ -1926,7 +2372,8 @@
         statusLabel: statusText,
         items: store.cart,
         totalAmount: totals.finalTotal,
-        useWholesale: totals.useWholesalePricing
+        useWholesale: totals.useWholesalePricing,
+        isDraft: true
       });
 
       let bannerHtml = "";
@@ -2129,7 +2576,8 @@
                       <strong>#${o.folio}</strong> · ${o.date} · <span>${o.totalUnits || (o.items || []).reduce((s, x) => s + (x.qty || 0), 0)} uds</span><br/>
                       <span style="font-size:12px; color:var(--muted);">Total: $${o.total} MXN</span>
                     </div>
-                    <div style="display:flex; gap:6px;">
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                      <button class="btn-soft" onclick="closeModal('authModal'); openPickScannerForSavedOrder(${i});">Surtir</button>
                       <button class="btn-outline" onclick="openSavedOrderSummary(${i})">Ver lista</button>
                       <button class="btn-soft" onclick="reorder(${i})">Repetir</button>
                     </div>
@@ -2269,6 +2717,13 @@
       showToast(`WhatsApp actualizado a ${val}`);
     }
 
+    function updateProductBarcode(prodId, newCode) {
+      const p = state.products.find((item) => item.id === prodId);
+      if (!p) return;
+      p.barcode = (newCode || "").trim() || `KS-${prodId}`;
+      showToast(`Código actualizado para ${p.name}`);
+    }
+
     function saveStoreId() {
       const idVal = document.getElementById("adminStoreId").value.trim();
       if (!idVal) {
@@ -2296,6 +2751,7 @@
           name: "Tinta Labial Mate Fijo",
           category: "Labios",
           emoji: "💋",
+          barcode: "750100100107",
           retail: 65,
           wholesale: 45,
           desc: "Producto sincronizado desde catálogo Tiendanube.",
@@ -2312,6 +2768,7 @@
           name: "Polvo Compacto Translúcido",
           category: "Rostro",
           emoji: "🪞",
+          barcode: "750100100108",
           retail: 110,
           wholesale: 78,
           desc: "Sincronizado por ID de tienda para sellar maquillaje sin aportar peso.",
@@ -2339,6 +2796,7 @@
       renderBrands();
       renderCategories();
       renderProducts(state.activeTab === "favorites");
+      renderAdminLists();
       showToast(`Catálogo sincronizado con ID ${idVal}`);
     }
 
@@ -2436,6 +2894,29 @@
     }
 
     function renderAdminLists() {
+      const codeBox = document.getElementById("barcodeAdminList");
+      if (codeBox) {
+        codeBox.innerHTML = state.products
+          .map(
+            (p) => `
+            <div class="list-row">
+              <div style="flex:1; min-width:0;">
+                <strong>${p.emoji} ${p.name}</strong>
+                <div style="color:var(--muted);">${p.brand || "General"}</div>
+              </div>
+              <input
+                type="text"
+                style="width:155px; padding:6px 8px; border-radius:8px; border:1px solid var(--border); font-size:12px;"
+                value="${(p.barcode || "").replace(/"/g, "&quot;")}"
+                onchange="updateProductBarcode(${p.id}, this.value)"
+                placeholder="Código barras"
+              />
+            </div>
+          `
+          )
+          .join("");
+      }
+
       const whBox = document.getElementById("wholesaleListContainer");
       const activeNormalBtn =
         state.user && state.user.role === "retail"
@@ -2482,6 +2963,7 @@
       const category = document.getElementById("newProdCat").value;
       const retail = Number(document.getElementById("newProdRetail").value) || 80;
       const wholesale = Number(document.getElementById("newProdWholesale").value) || 55;
+      const barcode = document.getElementById("newProdBarcode").value.trim();
       const videoUrl = document.getElementById("newProdVideo").value.trim();
 
       if (!name) {
@@ -2489,12 +2971,14 @@
         return;
       }
 
+      const newId = Date.now();
       state.products.unshift({
-        id: Date.now(),
+        id: newId,
         brand,
         name,
         category,
         emoji: "✨",
+        barcode: barcode || `KS-${String(newId).slice(-6)}`,
         retail,
         wholesale,
         desc: "Producto agregado desde el panel de administración de KS Cosmetics Mayoreo.",
@@ -2506,13 +2990,15 @@
         ]
       });
 
-      state.selectedShades[state.products[0].id] = "Tono Clásico";
+      state.selectedShades[newId] = "Tono Clásico";
       document.getElementById("newProdName").value = "";
       document.getElementById("newProdBrand").value = "";
+      document.getElementById("newProdBarcode").value = "";
       document.getElementById("newProdVideo").value = "";
       renderBrands();
       renderCategories();
       renderProducts();
+      renderAdminLists();
       closeModal("adminModal");
       showToast(`"${name}" (${brand}) publicado`);
     }

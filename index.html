@@ -1156,7 +1156,7 @@
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
         <button class="btn-primary" id="toggleCamBtn" onclick="toggleCameraScanner()">Encender cámara</button>
         <button class="btn-soft" onclick="resetPickSession()">Reiniciar conteo</button>
-        <button class="btn-gold" onclick="markCurrentPickOrderDone()">✓ Marcar surtida</button>
+        <button class="btn-gold" onclick="markCurrentPickOrderDone()">✓ Listo</button>
       </div>
 
       <div class="field">
@@ -2121,6 +2121,19 @@
 
     function init() {
       loadPersistentState();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const sharedFolioParam = (urlParams.get("orden") || "").trim();
+      if (sharedFolioParam) {
+        const matchOrd = state.sharedOrders.find(
+          (o) => String(o.folio || "").toLowerCase() === sharedFolioParam.toLowerCase()
+        );
+        if (matchOrd) {
+          state.selectedTrayClientKey = buildClientGroupKey(matchOrd.clientName, matchOrd.phone);
+        }
+        showToast(`Folio de orden detectado: #${sharedFolioParam}`);
+      }
+
       document.getElementById("adminWaNumber").value = state.waNumber;
       document.getElementById("adminStoreId").value = state.tiendanubeStoreId;
       document.getElementById("syncLogText").textContent = state.lastSyncText;
@@ -2136,6 +2149,14 @@
             await loadProductsFromCloud();
             await loadBannersFromCloud();
             await loadSharedOrdersFromCloud();
+            if (sharedFolioParam) {
+              const matchOrdAfterSync = state.sharedOrders.find(
+                (o) => String(o.folio || "").toLowerCase() === sharedFolioParam.toLowerCase()
+              );
+              if (matchOrdAfterSync) {
+                state.selectedTrayClientKey = buildClientGroupKey(matchOrdAfterSync.clientName, matchOrdAfterSync.phone);
+              }
+            }
             document.getElementById("syncStatusBadge").textContent = "● Conectado a Supabase";
             renderAllViews();
           }
@@ -2338,10 +2359,14 @@
       if (!ord) return;
       const rows = normalizeOrderRows(ord.items || [], Boolean(ord.useWholesalePricing));
       const unitsCount = ord.totalUnits || rows.reduce((s, r) => s + r.qty, 0);
+      const clientName = ord.clientName || "Clienta";
+      const appOrderUrl = `${window.location.origin}${window.location.pathname}?orden=${encodeURIComponent(ord.folio)}`;
+
       const lines = [
-        `*Orden #${ord.folio}* · ${ord.statusLabel || "Pedido"}`,
-        `*${unitsCount} unidades*`,
-        `Clienta: ${ord.clientName || "Clienta"}`,
+        `*BODEGA · Orden de ${clientName}*`,
+        `*Número de orden: #${ord.folio}* · ${ord.statusLabel || "Pedido"}`,
+        `Abrir en app: ${appOrderUrl}`,
+        `*${unitsCount} ${unitsCount === 1 ? "unidad" : "unidades"}*`,
         ord.phone ? `Tel: ${ord.phone}` : "",
         ord.clientAddress ? `Dirección: ${ord.clientAddress}` : "",
         `------------------------------`
@@ -2473,7 +2498,7 @@
       const clientSuffix = meta.clientName ? ` · ${meta.clientName}` : "";
       document.getElementById("scannerTitle").textContent = `📷 Surtido Bodega · #${folio}${clientSuffix}`;
       document.getElementById("manualBarcodeInput").value = "";
-      setScanFeedback("Listo para surtir en Bodega: cada código leído suma 1 unidad (1 de N, 2 de N...).", "scan-info");
+      setScanFeedback("Listo para surtir en Bodega: cada lectura suma 1 unidad (1 de N, 2 de N...).", "scan-info");
 
       const simSelect = document.getElementById("simBarcodeSelect");
       simSelect.innerHTML = pickSession.lines
@@ -2489,9 +2514,11 @@
 
     async function markCurrentPickOrderDone() {
       if (!pickSession.folio) return;
-      await updateOrderStatusInCloud(pickSession.folio, "Surtida en Bodega ✓");
+      const folioActual = pickSession.folio;
+      await updateOrderStatusInCloud(folioActual, "Surtida en Bodega ✓");
       renderOrdersTrayOrders();
-      showToast(`Orden #${pickSession.folio} marcada como surtida`);
+      closeScannerModal();
+      showToast(`✓ Orden #${folioActual} marcada como surtida`);
     }
 
     function resetPickSession() {
@@ -2516,7 +2543,16 @@
       const allDone = totalPicked === totalTarget && totalTarget > 0;
 
       if (allDone && pickSession.folio) {
-        updateOrderStatusInCloud(pickSession.folio, "Surtida en Bodega ✓");
+        const folioCompletado = pickSession.folio;
+        updateOrderStatusInCloud(folioCompletado, "Surtida en Bodega ✓");
+        renderOrdersTrayOrders();
+        setTimeout(() => {
+          const modalEl = document.getElementById("scannerModal");
+          if (modalEl && modalEl.classList.contains("open") && pickSession.folio === folioCompletado) {
+            closeScannerModal();
+            showToast(`✓ Todo surtido en #${folioCompletado}`);
+          }
+        }, 450);
       }
 
       const headerSummary = `
@@ -3556,11 +3592,13 @@
         state.selectedTrayClientKey = buildClientGroupKey(name, phone);
 
         if (openWhatsApp) {
+          const appOrderUrl = `${window.location.origin}${window.location.pathname}?orden=${encodeURIComponent(folio)}`;
           const unitsWord = totals.totalPieces === 1 ? "unidad" : "unidades";
           const lines = [
-            `*Orden #${folio}* · ${statusLabel}`,
+            `*BODEGA · Orden de ${name}*`,
+            `*Número de orden: #${folio}* · ${statusLabel}`,
+            `Abrir en app: ${appOrderUrl}`,
             `*${totals.totalPieces} ${unitsWord}*`,
-            `Clienta: ${name}`,
             `Tel: ${phone}`,
             `Dirección: ${address}`,
             `Entrega: ${delivery}`,

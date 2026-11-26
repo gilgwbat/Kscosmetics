@@ -2314,7 +2314,16 @@
     }
 
     function isOrderFulfilled(ord) {
-      return String((ord && ord.statusLabel) || "").toLowerCase().includes("surtid");
+      const lbl = String((ord && ord.statusLabel) || "").toLowerCase().trim();
+      if (!lbl || lbl.includes("pendiente")) return false;
+      return (
+        lbl.includes("surtida en bodega") ||
+        lbl.includes("surtido en bodega") ||
+        lbl.includes("✓") ||
+        lbl.includes("listo") ||
+        lbl.includes("lista") ||
+        lbl.includes("completad")
+      );
     }
 
     function syncUserOrdersStatus() {
@@ -2397,7 +2406,7 @@
           deliveryType: row.delivery_type || "",
           total: Number(row.total) || 0,
           totalUnits: Number(row.total_units) || 0,
-          statusLabel: row.status_label || "Pendiente surtido",
+          statusLabel: row.status_label || "Pendiente",
           warehouseNote: row.warehouse_note || "",
           useWholesalePricing: Number(row.total) >= WHOLESALE_THRESHOLD,
           items: Array.isArray(row.items) ? row.items : []
@@ -3150,7 +3159,7 @@
                   <div class="order-folio">Pedido #${ord.folio} · ${ord.clientName || "Clienta"}</div>
                   <span class="order-units-pill">${unitsCount} ${unitsCount === 1 ? "unidad" : "unidades"} · ${ord.date || ""}</span>
                 </div>
-                <span class="order-status-pill ${isReady ? "ready" : ""}">${ord.statusLabel || "Pendiente surtido"}</span>
+                <span class="order-status-pill ${isReady ? "ready" : ""}">${ord.statusLabel || "Pendiente"}</span>
               </div>
               ${ord.phone && ord.phone !== "Sin teléfono" ? `<p style="font-size:12px; color:var(--muted); margin-bottom:4px;">📱 ${ord.phone}</p>` : ""}
               ${ord.clientAddress ? `<p style="font-size:12px; color:var(--muted); margin-bottom:6px;">📍 ${ord.clientAddress}</p>` : ""}
@@ -4329,7 +4338,7 @@
       const rows = normalizeOrderRows(items, useWholesale);
       const unitsCount = rows.reduce((sum, r) => sum + r.qty, 0);
       const canScan = isStaffTrayAccount();
-      const isReady = String(statusLabel || "").toLowerCase().includes("surtid");
+      const isReady = isOrderFulfilled({ statusLabel });
 
       const rowsHtml = rows
         .map(
@@ -4649,14 +4658,14 @@
         state.draftFolio = "KS-" + Math.floor(1000 + Math.random() * 9000);
 
         const statusLabel = isAdminAccount()
-          ? "Pedido Admin · Pendiente surtido"
+          ? "Pedido Admin · Pendiente"
           : isWarehouseAccount()
-            ? "Orden Bodega · Pendiente surtido"
+            ? "Orden Bodega · Pendiente"
             : totals.wholesaleUser
-              ? "Mayorista · Pendiente surtido"
+              ? "Mayorista · Pendiente"
               : totals.meetsFinalWholesaleTotal
-                ? "Mayoreo ($1,000+) · Pendiente surtido"
-                : "Menudeo · Pendiente surtido";
+                ? "Mayoreo ($1,000+) · Pendiente"
+                : "Menudeo · Pendiente";
 
         const detailedItems = store.cart.map((item) => {
           const p = state.products.find((prod) => Number(prod.id) === Number(item.prodId));

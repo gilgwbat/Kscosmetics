@@ -78,6 +78,12 @@
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border);
       padding: 12px 16px;
+      transition: padding 0.22s ease;
+    }
+
+    header.scrolled {
+      padding: 8px 16px;
+      box-shadow: 0 4px 16px rgba(136, 14, 79, 0.08);
     }
 
     .header-top {
@@ -89,6 +95,11 @@
       justify-content: center;
       gap: 10px;
       text-align: center;
+      transition: gap 0.22s ease;
+    }
+
+    header.scrolled .header-top {
+      gap: 6px;
     }
 
     .brand-box {
@@ -97,6 +108,17 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      max-height: 160px;
+      opacity: 1;
+      overflow: hidden;
+      transition: max-height 0.25s ease, opacity 0.18s ease, margin 0.25s ease;
+    }
+
+    header.scrolled .brand-box {
+      max-height: 0;
+      opacity: 0;
+      margin: 0;
+      pointer-events: none;
     }
 
     .logo {
@@ -206,10 +228,19 @@
       padding: 9px 12px;
     }
 
+    .btn-link {
+      background: transparent;
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 2px;
+      text-decoration: underline;
+    }
+
     .container {
       max-width: 1080px;
       margin: 0 auto;
-      padding: 16px;
+      padding: 14px;
     }
 
     .banner-carousel {
@@ -218,15 +249,15 @@
       color: #fff;
       border-radius: 16px;
       overflow: hidden;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       box-shadow: var(--shadow);
-      min-height: 150px;
+      min-height: 145px;
     }
 
     .banner-slide-bg {
       position: relative;
-      padding: 20px;
-      min-height: 150px;
+      padding: 18px 20px 38px;
+      min-height: 145px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -247,13 +278,13 @@
       max-width: 720px;
     }
 
-    .banner-content h1 { font-size: 20px; margin-bottom: 4px; }
+    .banner-content h1 { font-size: 19px; margin-bottom: 4px; }
     .banner-content p { font-size: 13px; opacity: 0.96; }
 
     .banner-controls {
       position: absolute;
       right: 12px;
-      bottom: 12px;
+      bottom: 10px;
       z-index: 3;
       display: flex;
       align-items: center;
@@ -261,8 +292,8 @@
     }
 
     .banner-dot-btn {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.45);
       padding: 0;
@@ -276,7 +307,7 @@
     .banner-arrow {
       background: rgba(255, 255, 255, 0.22);
       color: #fff;
-      padding: 4px 9px;
+      padding: 3px 8px;
       font-size: 12px;
       font-weight: 700;
       border-radius: 8px;
@@ -342,58 +373,60 @@
       border-color: var(--primary);
     }
 
+    /* Siempre 2 productos por fila en pantalla */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
     }
 
     .card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px;
+      border-radius: 14px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       box-shadow: var(--shadow);
+      min-width: 0;
     }
 
     .thumb {
       position: relative;
-      height: 140px;
-      border-radius: 12px;
+      height: 112px;
+      border-radius: 10px;
       display: grid;
       place-items: center;
-      font-size: 46px;
+      font-size: 38px;
       cursor: pointer;
       background: linear-gradient(135deg, #fce4ec, #fff0f5);
     }
 
     .fav-btn {
       position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 32px;
-      height: 32px;
+      top: 6px;
+      right: 6px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.92);
       display: grid;
       place-items: center;
-      font-size: 15px;
+      font-size: 13px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
     .video-tag {
       position: absolute;
-      bottom: 8px;
-      left: 8px;
+      bottom: 6px;
+      left: 6px;
       background: rgba(35, 18, 28, 0.85);
       color: #fff;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
-      padding: 3px 8px;
+      padding: 2px 7px;
       border-radius: 999px;
     }
 
@@ -401,32 +434,43 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
-      margin-top: 8px;
+      gap: 4px;
+      margin-top: 6px;
+      flex-wrap: wrap;
     }
 
-    .prod-cat { font-size: 11px; text-transform: uppercase; color: var(--primary); font-weight: 700; }
+    .prod-cat { font-size: 10px; text-transform: uppercase; color: var(--primary); font-weight: 700; }
     .prod-brand {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       color: var(--muted);
       background: var(--bg);
       border: 1px solid var(--border);
-      padding: 2px 8px;
+      padding: 1px 6px;
       border-radius: 999px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
-    .prod-title { font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 4px; }
+    .prod-title {
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 3px;
+      line-height: 1.25;
+    }
 
     .shades {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       flex-wrap: wrap;
     }
 
     .shade-dot {
-      width: 22px;
-      height: 22px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       border: 2px solid #fff;
       box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
@@ -437,25 +481,95 @@
       transform: scale(1.1);
     }
 
-    .shade-label { font-size: 12px; color: var(--muted); }
+    .shade-label { font-size: 11px; color: var(--muted); }
 
     .prices {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      gap: 8px;
+      gap: 4px;
+      flex-wrap: wrap;
     }
 
-    .price-main { font-size: 17px; font-weight: 800; color: var(--primary-dark); }
-    .price-sub { font-size: 12px; color: var(--muted); }
+    .price-main { font-size: 14px; font-weight: 800; color: var(--primary-dark); }
+    .price-sub { font-size: 10px; color: var(--muted); }
 
     .card-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px;
+      align-items: center;
     }
 
-    .card-actions .btn-primary { flex: 1; padding: 9px 10px; font-size: 13px; }
-    .card-actions .btn-soft { padding: 9px 10px; font-size: 12px; }
+    .card-actions .btn-primary { flex: 1; padding: 8px 6px; font-size: 12px; }
+    .card-actions .btn-soft { padding: 8px 7px; font-size: 11px; }
+
+    .card-qty-unlocked {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      background: var(--soft);
+      border: 1px solid #f4b8ce;
+      border-radius: 10px;
+      padding: 3px 4px;
+    }
+
+    .card-qty-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .card-qty-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .card-qty-num {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      min-width: 18px;
+      text-align: center;
+    }
+
+    @media (min-width: 640px) {
+      .grid {
+        gap: 14px;
+      }
+      .card {
+        padding: 14px;
+        border-radius: 16px;
+      }
+      .thumb {
+        height: 132px;
+        font-size: 44px;
+      }
+      .prod-title {
+        font-size: 15px;
+      }
+      .price-main {
+        font-size: 16px;
+      }
+      .price-sub {
+        font-size: 12px;
+      }
+      .card-actions .btn-primary {
+        padding: 9px 10px;
+        font-size: 13px;
+      }
+      .card-actions .btn-soft {
+        padding: 9px 10px;
+        font-size: 12px;
+      }
+    }
 
     .bottom-nav {
       position: fixed;
@@ -561,6 +675,23 @@
       color: #fff;
     }
 
+    .profile-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .profile-card p {
+      margin-bottom: 4px;
+    }
+
+    .profile-card p:last-child {
+      margin-bottom: 0;
+    }
+
     .admin-section {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -584,6 +715,16 @@
       border: 1px solid var(--border);
       font: inherit;
       background: #fff;
+    }
+
+    .recovery-dispatch-box {
+      background: var(--soft);
+      border: 1px solid #f4b8ce;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: var(--primary-dark);
     }
 
     .list-row {
@@ -933,9 +1074,9 @@
   </style>
 </head>
 <body>
-  <header>
+  <header id="mainHeader">
     <div class="header-top">
-      <div class="brand-box">
+      <div class="brand-box" id="brandBox">
         <div class="logo">
           <img src="./logo-46177138-1729636309-182eabd421e5a76173a08457d1193aee1729636309-480-0.webp" alt="Logo KS Cosmetics" />
         </div>
@@ -1074,6 +1215,10 @@
         <input type="tel" id="custPhone" placeholder="998 123 4567" />
       </div>
       <div class="field">
+        <label>Dirección de entrega / negocio</label>
+        <input type="text" id="custAddress" placeholder="Calle, número, colonia, ciudad o referencias" />
+      </div>
+      <div class="field">
         <label>Tipo de entrega / Zona</label>
         <input type="text" id="custDelivery" placeholder="Envío local / Paquetería / Recolección" />
       </div>
@@ -1081,7 +1226,7 @@
     </div>
   </div>
 
-  <!-- Modal Cuenta / Registro + Login -->
+  <!-- Modal Cuenta / Registro + Login + Recuperación -->
   <div class="modal-backdrop" id="authModal" onclick="backdropClose(event, 'authModal')">
     <div class="modal">
       <div class="modal-head">
@@ -1147,9 +1292,9 @@
         <div id="wholesaleListContainer" style="margin-top:10px;"></div>
       </div>
 
-      <!-- 5. Banner de marca y productos -->
+      <!-- 5. Banner de marca y productos (máximo 5) -->
       <div class="admin-section">
-        <h4>Banner de marca y productos (imágenes)</h4>
+        <h4>Banner de marca y productos · <span id="bannerQuotaLabel">0 / 5</span></h4>
         <div class="field">
           <label>Título del banner</label>
           <input type="text" id="bannerTitleInput" placeholder="Ej. Nueva línea de Labiales Matte" />
@@ -1159,14 +1304,14 @@
           <input type="text" id="bannerSubInput" placeholder="Ej. Surtido por marca con tarifa preferencial" />
         </div>
         <div class="field">
-          <label>Subir imagen desde tu celular/tablet</label>
+          <label>Subir imagen (se sube a Storage si hay Supabase; guarda URL en tabla banners)</label>
           <input type="file" id="bannerFileInput" accept="image/*" />
         </div>
         <div class="field">
           <label>O pega enlace directo de imagen (opcional)</label>
           <input type="url" id="bannerUrlInput" placeholder="https://..." />
         </div>
-        <button class="btn-primary" onclick="addBannerSlide()">Publicar en el banner</button>
+        <button class="btn-primary" id="addBannerBtn" onclick="addBannerSlide()">Publicar en el banner</button>
         <div id="bannerListContainer" style="margin-top:10px;"></div>
       </div>
 
@@ -1239,17 +1384,26 @@
         ? window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey)
         : null;
 
-    const STORAGE_KEY = "ks_cosmetics_app_v2";
+    const STORAGE_KEY = "ks_cosmetics_app_v4";
+    const MAX_BANNERS = 5;
+    const BANNER_BUCKET = "banners";
     const WHOLESALE_THRESHOLD = 1000;
-    const ADMIN_AUTH = {
-      user: "kscosmetics",
-      pass: "ks2026",
-      displayName: "KS Cosmetics (Admin)"
-    };
-    const WAREHOUSE_AUTH = {
-      user: "bodega",
-      pass: "bodega2026",
-      displayName: "Bodega"
+
+    const DEFAULT_STAFF_CREDENTIALS = {
+      admin: {
+        accountKey: "admin",
+        role: "admin",
+        username: "kscosmetics",
+        initialPass: "ks2026",
+        displayName: "KS Cosmetics (Admin)"
+      },
+      warehouse: {
+        accountKey: "warehouse",
+        role: "warehouse",
+        username: "bodega",
+        initialPass: "bodega2026",
+        displayName: "Bodega"
+      }
     };
 
     const userStores = {
@@ -1257,7 +1411,9 @@
     };
 
     const authUiState = {
-      mode: "login"
+      mode: "login",
+      recoveryStep: "request",
+      pendingRecovery: null
     };
 
     const pickSession = {
@@ -1387,6 +1543,26 @@
       activeUserKey: "guest",
       draftFolio: "KS-7835",
       user: null,
+      staffAccounts: {
+        admin: {
+          accountKey: "admin",
+          role: "admin",
+          username: "kscosmetics",
+          displayName: "KS Cosmetics (Admin)",
+          email: "",
+          phone: "",
+          passHash: null
+        },
+        warehouse: {
+          accountKey: "warehouse",
+          role: "warehouse",
+          username: "bodega",
+          displayName: "Bodega",
+          email: "",
+          phone: "",
+          passHash: null
+        }
+      },
       registeredClients: [],
       selectedShades: {},
       activeBannerIndex: 0,
@@ -1411,6 +1587,12 @@
       ],
       products: DEFAULT_PRODUCTS.map((p) => ({ ...p }))
     };
+
+    function syncHeaderScrollState() {
+      const header = document.getElementById("mainHeader");
+      if (!header) return;
+      header.classList.toggle("scrolled", window.scrollY > 36);
+    }
 
     function toDbProduct(p) {
       return {
@@ -1484,6 +1666,147 @@
       } catch (e) {}
     }
 
+    async function loadBannersFromCloud() {
+      if (!supabaseClient) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from("banners")
+          .select("*")
+          .order("sort_order", { ascending: true })
+          .limit(MAX_BANNERS);
+        if (error) return;
+        if (data && data.length > 0) {
+          state.banners = data.slice(0, MAX_BANNERS).map((b) => ({
+            id: Number(b.id),
+            title: b.title || "Novedad KS Cosmetics",
+            subtitle: b.subtitle || "",
+            imageUrl: b.image_url || "",
+            active: Boolean(b.active)
+          }));
+          savePersistentState();
+        }
+      } catch (e) {}
+    }
+
+    async function saveBannersToCloud() {
+      if (!supabaseClient) return;
+      try {
+        const rows = state.banners.slice(0, MAX_BANNERS).map((b, idx) => ({
+          id: Number(b.id),
+          title: b.title,
+          subtitle: b.subtitle || "",
+          image_url: b.imageUrl || "",
+          sort_order: idx,
+          active: Boolean(b.active)
+        }));
+        await supabaseClient.from("banners").upsert(rows, { onConflict: "id" });
+      } catch (e) {}
+    }
+
+    async function deleteBannerFromCloud(id) {
+      if (!supabaseClient) return;
+      try {
+        await supabaseClient.from("banners").delete().eq("id", Number(id));
+      } catch (e) {}
+    }
+
+    async function uploadBannerFileToStorage(file) {
+      if (!file) return "";
+      if (supabaseClient) {
+        try {
+          const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+          const filePath = `banner-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext || "jpg"}`;
+          const { error } = await supabaseClient.storage
+            .from(BANNER_BUCKET)
+            .upload(filePath, file, { cacheControl: "3600", upsert: false });
+          if (!error) {
+            const { data } = supabaseClient.storage.from(BANNER_BUCKET).getPublicUrl(filePath);
+            if (data && data.publicUrl) return data.publicUrl;
+          }
+        } catch (e) {}
+      }
+
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => resolve(ev.target.result || "");
+        reader.onerror = () => resolve("");
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function ensureStaffHashesInitialized() {
+      for (const key of ["admin", "warehouse"]) {
+        const def = DEFAULT_STAFF_CREDENTIALS[key];
+        if (!state.staffAccounts[key]) {
+          state.staffAccounts[key] = {
+            accountKey: key,
+            role: def.role,
+            username: def.username,
+            displayName: def.displayName,
+            email: "",
+            phone: "",
+            passHash: await sha256Text(def.initialPass)
+          };
+        } else if (!state.staffAccounts[key].passHash) {
+          state.staffAccounts[key].passHash = await sha256Text(def.initialPass);
+        }
+      }
+
+      if (supabaseClient) {
+        try {
+          const { data } = await supabaseClient.from("staff_accounts").select("*");
+          if (data && data.length) {
+            data.forEach((row) => {
+              if (row.account_key && state.staffAccounts[row.account_key]) {
+                state.staffAccounts[row.account_key] = {
+                  ...state.staffAccounts[row.account_key],
+                  username: row.username || state.staffAccounts[row.account_key].username,
+                  displayName: row.display_name || state.staffAccounts[row.account_key].displayName,
+                  email: row.email || state.staffAccounts[row.account_key].email || "",
+                  phone: row.phone || state.staffAccounts[row.account_key].phone || "",
+                  passHash: row.pass_hash || state.staffAccounts[row.account_key].passHash
+                };
+              }
+            });
+          } else {
+            for (const key of ["admin", "warehouse"]) {
+              const acc = state.staffAccounts[key];
+              await supabaseClient.from("staff_accounts").upsert(
+                {
+                  account_key: acc.accountKey,
+                  username: acc.username,
+                  display_name: acc.displayName,
+                  email: acc.email || "",
+                  phone: acc.phone || "",
+                  pass_hash: acc.passHash
+                },
+                { onConflict: "account_key" }
+              );
+            }
+          }
+        } catch (e) {}
+      }
+      savePersistentState();
+    }
+
+    async function syncStaffAccountToCloud(acc) {
+      if (!supabaseClient || !acc) return;
+      try {
+        await supabaseClient.from("staff_accounts").upsert(
+          {
+            account_key: acc.accountKey,
+            username: acc.username,
+            display_name: acc.displayName,
+            email: acc.email || "",
+            phone: acc.phone || "",
+            pass_hash: acc.passHash,
+            updated_at: new Date().toISOString()
+          },
+          { onConflict: "account_key" }
+        );
+      } catch (e) {}
+    }
+
     async function sha256Text(text) {
       try {
         const msgBuffer = new TextEncoder().encode(text);
@@ -1499,6 +1822,14 @@
       return (phone || "").replace(/\D/g, "");
     }
 
+    function normalizeUsername(u) {
+      return (u || "")
+        .trim()
+        .toLowerCase()
+        .replace(/^@+/, "")
+        .replace(/[^a-z0-9._-]/g, "");
+    }
+
     function savePersistentState() {
       try {
         const payload = {
@@ -1511,10 +1842,11 @@
             activeUserKey: state.activeUserKey,
             draftFolio: state.draftFolio,
             user: state.user,
+            staffAccounts: state.staffAccounts,
             registeredClients: state.registeredClients,
             selectedShades: state.selectedShades,
             activeBannerIndex: state.activeBannerIndex,
-            banners: state.banners,
+            banners: state.banners.slice(0, MAX_BANNERS),
             wholesaleClients: state.wholesaleClients,
             products: state.products
           },
@@ -1534,6 +1866,14 @@
           if (!Array.isArray(state.registeredClients)) {
             state.registeredClients = [];
           }
+          if (!Array.isArray(state.banners)) {
+            state.banners = [];
+          } else {
+            state.banners = state.banners.slice(0, MAX_BANNERS);
+          }
+          if (!state.staffAccounts) {
+            state.staffAccounts = {};
+          }
           if (!Array.isArray(state.products) || !state.products.length) {
             state.products = DEFAULT_PRODUCTS.map((p) => ({ ...p }));
           }
@@ -1541,10 +1881,10 @@
             const lowerName = state.user.name.toLowerCase();
             if (lowerName.includes("admin")) {
               state.user.role = "admin";
-              state.activeUserKey = buildUserKey(state.user.name, "admin");
+              state.activeUserKey = buildUserKey(state.user.identifier || "admin", "admin");
             } else if (lowerName === "bodega") {
               state.user.role = "warehouse";
-              state.activeUserKey = buildUserKey(state.user.name, "warehouse");
+              state.activeUserKey = buildUserKey(state.user.identifier || "warehouse", "warehouse");
             }
           }
         }
@@ -1575,7 +1915,7 @@
     }
 
     function buildUserKey(identifier, role) {
-      return role + ":" + identifier.trim().toLowerCase().replace(/\s+/g, "_");
+      return role + ":" + String(identifier || "").trim().toLowerCase().replace(/\s+/g, "_");
     }
 
     function findWholesaleClient(name, phone) {
@@ -1590,8 +1930,10 @@
 
     async function init() {
       loadPersistentState();
+      await ensureStaffHashesInitialized();
       if (supabaseClient) {
         await loadProductsFromCloud();
+        await loadBannersFromCloud();
         document.getElementById("syncStatusBadge").textContent = "● Conectado a Supabase";
       }
       state.products.forEach((p) => {
@@ -1602,6 +1944,8 @@
       document.getElementById("adminWaNumber").value = state.waNumber;
       document.getElementById("adminStoreId").value = state.tiendanubeStoreId;
       document.getElementById("syncLogText").textContent = state.lastSyncText;
+      window.addEventListener("scroll", syncHeaderScrollState, { passive: true });
+      syncHeaderScrollState();
       renderBanner();
       renderBrands();
       renderCategories();
@@ -1617,7 +1961,7 @@
       el.textContent = msg;
       el.classList.add("show");
       clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => el.classList.remove("show"), 2800);
+      window._toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
     }
 
     function openAdminPanel() {
@@ -1966,8 +2310,9 @@
     }
 
     function getActiveBanners() {
-      const active = state.banners.filter((b) => b.active);
-      return active.length ? active : state.banners.slice(0, 1);
+      const capped = state.banners.slice(0, MAX_BANNERS);
+      const active = capped.filter((b) => b.active);
+      return active.length ? active : capped.slice(0, 1);
     }
 
     function renderBanner() {
@@ -2116,6 +2461,34 @@
       renderProducts(state.activeTab === "favorites");
     }
 
+    function getCartQtyForSelection(prodId, shade) {
+      const store = getCurrentStore();
+      const found = store.cart.find((item) => item.prodId === prodId && item.shade === shade);
+      return found ? Number(found.qty) || 0 : 0;
+    }
+
+    function adjustSelectionQty(prodId, shade, delta) {
+      const p = state.products.find((item) => item.id === prodId);
+      if (!p) return;
+      const store = getCurrentStore();
+      const idx = store.cart.findIndex((item) => item.prodId === prodId && item.shade === shade);
+
+      if (idx >= 0) {
+        const nextQty = (Number(store.cart[idx].qty) || 0) + delta;
+        if (nextQty <= 0) {
+          store.cart.splice(idx, 1);
+        } else {
+          store.cart[idx].qty = nextQty;
+        }
+      } else if (delta > 0) {
+        store.cart.push({ prodId, shade, qty: delta });
+      }
+
+      savePersistentState();
+      updateBadges();
+      renderProducts(state.activeTab === "favorites");
+    }
+
     function renderProducts(onlyFavs = false) {
       const q = document.getElementById("searchInput").value.trim().toLowerCase();
       const grid = document.getElementById("productGrid");
@@ -2137,7 +2510,7 @@
       });
 
       if (!list.length) {
-        grid.innerHTML = `<p style="color:var(--muted);">No hay productos que coincidan con el filtro.</p>`;
+        grid.innerHTML = `<p style="color:var(--muted); grid-column:1/-1;">No hay productos que coincidan con el filtro.</p>`;
         return;
       }
 
@@ -2149,6 +2522,19 @@
           const secondaryText = wholesaleUser
             ? `Público: $${p.retail}`
             : `Mayoreo: $${p.wholesale}`;
+          const selectedQty = getCartQtyForSelection(p.id, activeShade);
+          const escapedShade = activeShade.replace(/'/g, "\\'");
+
+          const actionControlHtml =
+            selectedQty > 0
+              ? `
+              <div class="card-qty-unlocked" aria-label="Cantidad de ${p.name} (${activeShade})">
+                <button class="card-qty-btn" onclick="adjustSelectionQty(${p.id}, '${escapedShade}', -1)" title="Restar 1">-</button>
+                <span class="card-qty-num">${selectedQty}</span>
+                <button class="card-qty-btn" onclick="adjustSelectionQty(${p.id}, '${escapedShade}', 1)" title="Sumar 1">+</button>
+              </div>
+            `
+              : `<button class="btn-primary" onclick="addToCart(${p.id})">+ Agregar</button>`;
 
           return `
             <article class="card">
@@ -2165,7 +2551,7 @@
                   <span class="prod-brand">${p.brand || "Sin marca"}</span>
                 </div>
                 <div class="prod-title" onclick="openDetail(${p.id})">${p.name}</div>
-                <div class="shades" style="margin-top:8px;">
+                <div class="shades" style="margin-top:6px;">
                   ${p.shades
                     .map(
                       (s) => `
@@ -2183,13 +2569,13 @@
               </div>
 
               <div>
-                <div class="prices" style="margin-bottom:8px;">
+                <div class="prices" style="margin-bottom:6px;">
                   <span class="price-main">$${mainPrice} MXN</span>
                   <span class="price-sub">${secondaryText}</span>
                 </div>
                 <div class="card-actions">
                   <button class="btn-soft" onclick="openDetail(${p.id})">Detalle</button>
-                  <button class="btn-primary" onclick="addToCart(${p.id})">+ Agregar</button>
+                  ${actionControlHtml}
                 </div>
               </div>
             </article>
@@ -2267,6 +2653,7 @@
       }
       savePersistentState();
       updateBadges();
+      renderProducts(state.activeTab === "favorites");
       showToast(`Agregado: ${p.name} (${shade})`);
     }
 
@@ -2279,6 +2666,7 @@
       savePersistentState();
       updateBadges();
       renderCart();
+      renderProducts(state.activeTab === "favorites");
     }
 
     function clearCart() {
@@ -2287,6 +2675,7 @@
       savePersistentState();
       updateBadges();
       renderCart();
+      renderProducts(state.activeTab === "favorites");
       showToast("Bolsa limpiada");
     }
 
@@ -2746,12 +3135,13 @@
     }
 
     async function persistOrderToCloud(orderRecord) {
-      if (!supabaseClient || !state.user) return;
+      if (!supabaseClient) return;
       try {
         await supabaseClient.from("orders").insert({
           folio: orderRecord.folio,
-          client_phone: normalizePhoneDigits(state.user.phone),
-          client_name: state.user.name,
+          client_phone: normalizePhoneDigits(orderRecord.phone || (state.user && state.user.phone)),
+          client_name: orderRecord.clientName || (state.user && state.user.name) || "Clienta",
+          client_address: orderRecord.clientAddress || "",
           total: orderRecord.total,
           total_units: orderRecord.totalUnits,
           status_label: orderRecord.statusLabel,
@@ -2776,6 +3166,7 @@
 
       const name = document.getElementById("custName").value.trim() || "Clienta";
       const phone = document.getElementById("custPhone").value.trim() || "Sin especificar";
+      const address = document.getElementById("custAddress").value.trim() || "Sin dirección especificada";
       const delivery = document.getElementById("custDelivery").value.trim() || "Por coordinar";
       const folio = state.draftFolio || ("KS-" + Math.floor(1000 + Math.random() * 9000));
       state.draftFolio = "KS-" + Math.floor(1000 + Math.random() * 9000);
@@ -2797,6 +3188,7 @@
         `*${totals.totalPieces} ${unitsWord}*`,
         `Clienta: ${name}`,
         `Tel: ${phone}`,
+        `Dirección: ${address}`,
         `Entrega: ${delivery}`,
         `------------------------------`
       ];
@@ -2833,6 +3225,9 @@
       const newOrder = {
         folio,
         date: new Date().toLocaleDateString("es-MX"),
+        clientName: name,
+        phone,
+        clientAddress: address,
         total: totals.finalTotal,
         totalUnits: totals.totalPieces,
         statusLabel,
@@ -2858,6 +3253,7 @@
       savePersistentState();
       updateBadges();
       renderCart();
+      renderProducts(state.activeTab === "favorites");
       closeModal("cartModal");
       window.open(url, "_blank", "noopener");
       showToast(`Imagen y pedido #${folio} enviados al flujo de WhatsApp`);
@@ -2865,7 +3261,330 @@
 
     function setAuthMode(mode) {
       authUiState.mode = mode;
+      if (mode === "recover") {
+        authUiState.recoveryStep = "request";
+        authUiState.pendingRecovery = null;
+      }
       renderAuth();
+    }
+
+    function findAccountByIdentifier(rawIdentifier) {
+      const cleanStr = (rawIdentifier || "").trim().toLowerCase();
+      const cleanUser = normalizeUsername(rawIdentifier);
+      const digits = normalizePhoneDigits(rawIdentifier);
+
+      for (const key of ["admin", "warehouse"]) {
+        const staff = state.staffAccounts[key];
+        if (!staff) continue;
+        const staffUser = normalizeUsername(staff.username);
+        const staffPhone = normalizePhoneDigits(staff.phone);
+        const staffEmail = (staff.email || "").trim().toLowerCase();
+        if (
+          (cleanUser && staffUser === cleanUser) ||
+          (cleanStr && staffEmail && staffEmail === cleanStr) ||
+          (digits.length >= 7 && staffPhone && staffPhone === digits)
+        ) {
+          return { kind: "staff", accountKey: key, record: staff };
+        }
+      }
+
+      const clientIdx = state.registeredClients.findIndex((c) => {
+        const cUser = normalizeUsername(c.username);
+        const cPhone = normalizePhoneDigits(c.phone);
+        const cEmail = (c.email || "").trim().toLowerCase();
+        const cName = (c.name || "").trim().toLowerCase();
+        return (
+          (digits.length >= 7 && cPhone === digits) ||
+          (cleanUser && cUser && cUser === cleanUser) ||
+          (cleanStr && cEmail && cEmail === cleanStr) ||
+          (cleanStr && cName === cleanStr)
+        );
+      });
+
+      if (clientIdx >= 0) {
+        return { kind: "client", index: clientIdx, record: state.registeredClients[clientIdx] };
+      }
+
+      return null;
+    }
+
+    async function saveProfileDetails() {
+      if (!state.user) return;
+      const newName = (document.getElementById("profNameInput").value || "").trim();
+      const newUsername = normalizeUsername(document.getElementById("profUsernameInput").value || "");
+      const newEmail = (document.getElementById("profEmailInput").value || "").trim();
+      const newAddress = (document.getElementById("profAddressInput").value || "").trim();
+
+      if (!newName) {
+        showToast("El nombre no puede quedar vacío");
+        return;
+      }
+
+      if (state.user.role === "admin" || state.user.role === "warehouse") {
+        const key = state.user.role === "admin" ? "admin" : "warehouse";
+        const staff = state.staffAccounts[key];
+        if (!newUsername) {
+          showToast("Ingresa un nombre de usuario válido");
+          return;
+        }
+        staff.displayName = newName;
+        staff.username = newUsername;
+        staff.email = newEmail;
+        state.user.name = newName;
+        state.user.username = newUsername;
+        state.user.email = newEmail;
+        await syncStaffAccountToCloud(staff);
+        savePersistentState();
+        renderBanner();
+        renderAuth();
+        updateBadges();
+        showToast("Datos de cuenta actualizados");
+        return;
+      }
+
+      const idx = state.registeredClients.findIndex(
+        (c) => normalizePhoneDigits(c.phone) === normalizePhoneDigits(state.user.phone)
+      );
+      if (idx >= 0) {
+        if (newUsername) {
+          const dupUser = state.registeredClients.some(
+            (c, i) => i !== idx && normalizeUsername(c.username) === newUsername
+          );
+          if (dupUser) {
+            showToast("Ese nombre de usuario ya está ocupado por otra cuenta");
+            return;
+          }
+        }
+        state.registeredClients[idx].name = newName;
+        state.registeredClients[idx].username = newUsername;
+        state.registeredClients[idx].email = newEmail;
+        state.registeredClients[idx].address = newAddress;
+        state.registeredClients[idx].updatedAt = new Date().toISOString();
+
+        if (supabaseClient) {
+          try {
+            await supabaseClient
+              .from("clients")
+              .update({
+                name: newName,
+                username: newUsername || null,
+                email: newEmail || null,
+                address: newAddress,
+                updated_at: new Date().toISOString()
+              })
+              .eq("phone", normalizePhoneDigits(state.user.phone));
+          } catch (e) {}
+        }
+      }
+
+      state.user.name = newName;
+      state.user.username = newUsername;
+      state.user.email = newEmail;
+      state.user.address = newAddress;
+
+      document.getElementById("custName").value = newName;
+      document.getElementById("custAddress").value = newAddress;
+
+      savePersistentState();
+      renderBanner();
+      renderAuth();
+      updateBadges();
+      showToast("✓ Perfil y dirección guardados");
+    }
+
+    async function changeOwnPassword() {
+      if (!state.user) return;
+      const currentPass = document.getElementById("currPassInput").value;
+      const nextPass = document.getElementById("nextPassInput").value;
+      const confirmPass = document.getElementById("confirmPassInput").value;
+
+      if (!currentPass || !nextPass || !confirmPass) {
+        showToast("Completa la contraseña actual y la nueva contraseña");
+        return;
+      }
+      if (nextPass.length < 4) {
+        showToast("La nueva contraseña debe tener al menos 4 caracteres");
+        return;
+      }
+      if (nextPass !== confirmPass) {
+        showToast("La nueva contraseña y su confirmación no coinciden");
+        return;
+      }
+
+      const currHash = await sha256Text(currentPass);
+      const nextHash = await sha256Text(nextPass);
+
+      if (state.user.role === "admin" || state.user.role === "warehouse") {
+        const key = state.user.role === "admin" ? "admin" : "warehouse";
+        const staff = state.staffAccounts[key];
+        if (!staff || staff.passHash !== currHash) {
+          showToast("Tu contraseña actual es incorrecta");
+          return;
+        }
+        staff.passHash = nextHash;
+        await syncStaffAccountToCloud(staff);
+        savePersistentState();
+        document.getElementById("currPassInput").value = "";
+        document.getElementById("nextPassInput").value = "";
+        document.getElementById("confirmPassInput").value = "";
+        showToast("✓ Contraseña actualizada. Nadie más tiene tu nueva clave");
+        return;
+      }
+
+      const idx = state.registeredClients.findIndex(
+        (c) => normalizePhoneDigits(c.phone) === normalizePhoneDigits(state.user.phone)
+      );
+      if (idx < 0 || state.registeredClients[idx].passHash !== currHash) {
+        showToast("Tu contraseña actual es incorrecta");
+        return;
+      }
+
+      state.registeredClients[idx].passHash = nextHash;
+      state.registeredClients[idx].updatedAt = new Date().toISOString();
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient
+            .from("clients")
+            .update({ pass_hash: nextHash, updated_at: new Date().toISOString() })
+            .eq("phone", normalizePhoneDigits(state.user.phone));
+        } catch (e) {}
+      }
+
+      savePersistentState();
+      document.getElementById("currPassInput").value = "";
+      document.getElementById("nextPassInput").value = "";
+      document.getElementById("confirmPassInput").value = "";
+      showToast("✓ Contraseña cambiada con éxito");
+    }
+
+    async function sendRecoveryChallenge(channel) {
+      const rawId = document.getElementById("recIdentifierInput").value.trim();
+      const customDest = (document.getElementById("recDestinationInput").value || "").trim();
+
+      if (!rawId) {
+        showToast("Escribe tu número de celular, usuario o correo");
+        return;
+      }
+
+      const found = findAccountByIdentifier(rawId);
+      if (!found) {
+        showToast("No encontramos ninguna cuenta con ese dato");
+        return;
+      }
+
+      const rec = found.record;
+      const targetPhone = normalizePhoneDigits(customDest || rec.phone || "");
+      const targetEmail = (customDest || rec.email || "").trim();
+
+      if (channel === "whatsapp" && targetPhone.length < 10) {
+        showToast("Indica o ten registrado un número de WhatsApp de 10 dígitos");
+        return;
+      }
+      if (channel === "email" && (!targetEmail || !targetEmail.includes("@"))) {
+        showToast("Indica o ten registrado un correo electrónico válido");
+        return;
+      }
+
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      const destinationLabel = channel === "whatsapp" ? targetPhone : targetEmail;
+
+      authUiState.pendingRecovery = {
+        foundKind: found.kind,
+        accountKey: found.accountKey || null,
+        clientPhone: found.kind === "client" ? normalizePhoneDigits(rec.phone) : null,
+        channel,
+        destination: destinationLabel,
+        code,
+        expiresAt: Date.now() + 15 * 60 * 1000
+      };
+      authUiState.recoveryStep = "reset";
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from("password_resets").insert({
+            target_type: found.kind,
+            target_identifier: found.kind === "staff" ? rec.username : normalizePhoneDigits(rec.phone),
+            channel,
+            destination: destinationLabel,
+            reset_code: code,
+            expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+            used: false
+          });
+        } catch (e) {}
+      }
+
+      if (channel === "whatsapp") {
+        const msg = `Hola ${rec.displayName || rec.name || ""}, tu código de recuperación para KS Cosmetics Mayoreo es: *${code}* (válido 15 min).`;
+        const waUrl = `https://wa.me/${targetPhone.length === 10 ? "521" + targetPhone : targetPhone}?text=${encodeURIComponent(msg)}`;
+        window.open(waUrl, "_blank", "noopener");
+      } else {
+        const subj = encodeURIComponent("Código de recuperación · KS Cosmetics Mayoreo");
+        const body = encodeURIComponent(`Tu código de recuperación es: ${code} (válido por 15 minutos).`);
+        window.open(`mailto:${encodeURIComponent(targetEmail)}?subject=${subj}&body=${body}`, "_blank", "noopener");
+      }
+
+      renderAuth();
+      showToast(`Código generado para ${channel === "whatsapp" ? "WhatsApp" : "Correo"}`);
+    }
+
+    async function completePasswordReset() {
+      const pend = authUiState.pendingRecovery;
+      if (!pend || Date.now() > pend.expiresAt) {
+        showToast("El código venció. Solicita uno nuevo");
+        authUiState.recoveryStep = "request";
+        renderAuth();
+        return;
+      }
+
+      const codeEntered = (document.getElementById("recCodeInput").value || "").trim();
+      const newPass = document.getElementById("recNewPassInput").value;
+      const confirmPass = document.getElementById("recConfirmPassInput").value;
+
+      if (codeEntered !== pend.code) {
+        showToast("El código de verificación no coincide");
+        return;
+      }
+      if (!newPass || newPass.length < 4) {
+        showToast("La nueva contraseña debe tener al menos 4 caracteres");
+        return;
+      }
+      if (newPass !== confirmPass) {
+        showToast("Las contraseñas no coinciden");
+        return;
+      }
+
+      const newHash = await sha256Text(newPass);
+
+      if (pend.foundKind === "staff" && pend.accountKey && state.staffAccounts[pend.accountKey]) {
+        state.staffAccounts[pend.accountKey].passHash = newHash;
+        if (pend.channel === "whatsapp") state.staffAccounts[pend.accountKey].phone = pend.destination;
+        if (pend.channel === "email") state.staffAccounts[pend.accountKey].email = pend.destination;
+        await syncStaffAccountToCloud(state.staffAccounts[pend.accountKey]);
+      } else if (pend.foundKind === "client" && pend.clientPhone) {
+        const idx = state.registeredClients.findIndex(
+          (c) => normalizePhoneDigits(c.phone) === pend.clientPhone
+        );
+        if (idx >= 0) {
+          state.registeredClients[idx].passHash = newHash;
+          state.registeredClients[idx].updatedAt = new Date().toISOString();
+          if (supabaseClient) {
+            try {
+              await supabaseClient
+                .from("clients")
+                .update({ pass_hash: newHash, updated_at: new Date().toISOString() })
+                .eq("phone", pend.clientPhone);
+            } catch (e) {}
+          }
+        }
+      }
+
+      savePersistentState();
+      authUiState.mode = "login";
+      authUiState.recoveryStep = "request";
+      authUiState.pendingRecovery = null;
+      renderAuth();
+      showToast("✓ Contraseña restablecida. Ya puedes iniciar sesión");
     }
 
     function renderAuth() {
@@ -2878,30 +3597,90 @@
         const isAdm = state.user.role === "admin";
         const isWh = state.user.role === "warehouse";
         const isW = state.user.role === "wholesale";
+
+        const currentUsernameVal =
+          state.user.username ||
+          (isAdm ? state.staffAccounts.admin?.username : isWh ? state.staffAccounts.warehouse?.username : "") ||
+          "";
+        const currentEmailVal = state.user.email || "";
+        const currentAddressVal = state.user.address || "";
+
         box.innerHTML = `
-          <p style="margin-bottom:4px;">
-            Sesión activa: <strong>${state.user.name}</strong>
-          </p>
-          ${state.user.phone && state.user.phone !== "Sin teléfono" ? `<p style="font-size:12px; color:var(--muted); margin-bottom:8px;">Teléfono registrado: <strong>${state.user.phone}</strong></p>` : ""}
-          <p style="margin-bottom:12px;">
-            Perfil:
-            <span class="${isAdm || isW || isWh ? "badge-wholesale-user" : "badge-sync"}">
-              ${
-                isAdm
-                  ? "★ Administradora (Privilegios completos)"
-                  : isWh
-                    ? "📷 Bodega (Acceso a Escáner de surtido)"
-                    : isW
-                      ? "★ Clienta Mayorista"
-                      : "Clienta Registrada (Menudeo / Mayoreo $1,000+)"
-              }
-            </span>
-          </p>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+          <div class="profile-card">
+            <p><strong>${state.user.name}</strong></p>
+            ${currentUsernameVal ? `<p style="font-size:12px; color:var(--muted);">Usuario: <strong>@${currentUsernameVal}</strong></p>` : ""}
+            ${state.user.phone && state.user.phone !== "Sin teléfono" ? `<p style="font-size:12px; color:var(--muted);">Celular: <strong>${state.user.phone}</strong></p>` : ""}
+            ${currentEmailVal ? `<p style="font-size:12px; color:var(--muted);">Correo: <strong>${currentEmailVal}</strong></p>` : ""}
+            ${!isAdm && !isWh ? `<p style="font-size:12px; color:var(--muted);">Dirección: <strong>${currentAddressVal || "Sin registrar"}</strong></p>` : ""}
+            <p style="margin-top:6px;">
+              <span class="${isAdm || isW || isWh ? "badge-wholesale-user" : "badge-sync"}">
+                ${
+                  isAdm
+                    ? "★ Administradora (Privilegios completos)"
+                    : isWh
+                      ? "📷 Bodega (Acceso a Escáner de surtido)"
+                      : isW
+                        ? "★ Clienta Mayorista"
+                        : "Clienta Registrada (Menudeo / Mayoreo $1,000+)"
+                }
+              </span>
+            </p>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
             ${isAdm ? `<button class="btn-primary" onclick="closeModal('authModal'); openAdminPanel();">Abrir Panel Admin</button>` : ""}
             ${isWh ? `<button class="btn-gold" onclick="closeModal('authModal'); openScannerDirect();">📷 Abrir Escáner Bodega</button>` : ""}
             <button class="btn-outline" onclick="logoutDemo()">Cerrar sesión</button>
           </div>
+
+          <div class="admin-section">
+            <h4>Datos de cuenta y usuario</h4>
+            <div class="field">
+              <label>Nombre completo o negocio</label>
+              <input type="text" id="profNameInput" value="${(state.user.name || "").replace(/"/g, "&quot;")}" />
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <div class="field">
+                <label>Nombre de usuario</label>
+                <input type="text" id="profUsernameInput" value="${currentUsernameVal.replace(/"/g, "&quot;")}" placeholder="Ej. mariana.ks" />
+              </div>
+              <div class="field">
+                <label>Correo electrónico</label>
+                <input type="email" id="profEmailInput" value="${currentEmailVal.replace(/"/g, "&quot;")}" placeholder="correo@ejemplo.com" />
+              </div>
+            </div>
+            ${
+              !isAdm && !isWh
+                ? `
+              <div class="field">
+                <label>Dirección de entrega / negocio</label>
+                <input type="text" id="profAddressInput" value="${currentAddressVal.replace(/"/g, "&quot;")}" placeholder="Calle, número, colonia, ciudad" />
+              </div>
+            `
+                : ""
+            }
+            <button class="btn-soft" onclick="saveProfileDetails()">Guardar datos</button>
+          </div>
+
+          <div class="admin-section">
+            <h4>Cambiar contraseña</h4>
+            <div class="field">
+              <label>Contraseña actual</label>
+              <input type="password" id="currPassInput" placeholder="Tu contraseña actual" />
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <div class="field">
+                <label>Nueva contraseña</label>
+                <input type="password" id="nextPassInput" placeholder="Mínimo 4 caracteres" />
+              </div>
+              <div class="field">
+                <label>Confirmar nueva contraseña</label>
+                <input type="password" id="confirmPassInput" placeholder="Repite la contraseña" onkeydown="if(event.key==='Enter') changeOwnPassword()" />
+              </div>
+            </div>
+            <button class="btn-primary" onclick="changeOwnPassword()">Actualizar contraseña</button>
+          </div>
+
           <h4>Historial de pedidos (${store.orders.length})</h4>
           ${
             store.orders.length
@@ -2928,6 +3707,65 @@
         return;
       }
 
+      if (authUiState.mode === "recover") {
+        modalTitle.textContent = "Recuperar Contraseña";
+        const pend = authUiState.pendingRecovery;
+
+        if (authUiState.recoveryStep === "reset" && pend) {
+          box.innerHTML = `
+            <div class="recovery-dispatch-box">
+              Código enviado por <strong>${pend.channel === "whatsapp" ? "WhatsApp" : "Correo electrónico"}</strong> a <strong>${pend.destination}</strong> (válido 15 min).
+            </div>
+            <div class="field">
+              <label>Código de verificación</label>
+              <input type="text" id="recCodeInput" placeholder="Ej. 123456" maxlength="8" />
+            </div>
+            <div class="field">
+              <label>Nueva contraseña</label>
+              <input type="password" id="recNewPassInput" placeholder="Mínimo 4 caracteres" />
+            </div>
+            <div class="field">
+              <label>Confirmar nueva contraseña</label>
+              <input type="password" id="recConfirmPassInput" placeholder="Repite tu nueva contraseña" onkeydown="if(event.key==='Enter') completePasswordReset()" />
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn-primary" style="flex:1; padding:11px;" onclick="completePasswordReset()">Guardar nueva contraseña</button>
+              <button class="btn-outline" onclick="authUiState.recoveryStep='request'; renderAuth();">Cambiar medio</button>
+            </div>
+            <div style="margin-top:10px;">
+              <button class="btn-link" onclick="setAuthMode('login')">← Volver a iniciar sesión</button>
+            </div>
+          `;
+          return;
+        }
+
+        box.innerHTML = `
+          <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">
+            Escribe tu número de celular, usuario o correo para enviar tu código de recuperación por WhatsApp o correo electrónico.
+          </p>
+          <div class="field">
+            <label>Celular, usuario o correo de la cuenta</label>
+            <input type="text" id="recIdentifierInput" placeholder="Ej. 9981234567 o @usuario" />
+          </div>
+          <div class="field">
+            <label>Destino de envío (opcional si ya está guardado en tu cuenta)</label>
+            <input type="text" id="recDestinationInput" placeholder="Celular a 10 dígitos o correo@ejemplo.com" />
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+            <button class="btn-primary" style="flex:1; padding:11px;" onclick="sendRecoveryChallenge('whatsapp')">
+              💬 Enviar por WhatsApp
+            </button>
+            <button class="btn-soft" style="flex:1; padding:11px;" onclick="sendRecoveryChallenge('email')">
+              ✉️ Enviar por Correo
+            </button>
+          </div>
+          <div style="margin-top:12px;">
+            <button class="btn-link" onclick="setAuthMode('login')">← Volver a iniciar sesión</button>
+          </div>
+        `;
+        return;
+      }
+
       modalTitle.textContent = authUiState.mode === "register" ? "Crear Cuenta de Clienta" : "Iniciar Sesión";
 
       const tabsHtml = `
@@ -2948,12 +3786,26 @@
             <label>Tu nombre o nombre de tu negocio</label>
             <input type="text" id="regName" placeholder="Ej. Mariana López" />
           </div>
-          <div class="field">
-            <label>Número de celular (10 dígitos)</label>
-            <input type="tel" id="regPhone" placeholder="Ej. 9981234567" />
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div class="field">
+              <label>Número de celular (10 dígitos)</label>
+              <input type="tel" id="regPhone" placeholder="Ej. 9981234567" />
+            </div>
+            <div class="field">
+              <label>Usuario (opcional, para entrar o cambiar clave)</label>
+              <input type="text" id="regUsername" placeholder="Ej. mariana.lopez" />
+            </div>
           </div>
           <div class="field">
-            <label>Crea tu contraseña (para entrar desde cualquier teléfono)</label>
+            <label>Correo electrónico (para recuperar contraseña)</label>
+            <input type="email" id="regEmail" placeholder="Ej. mariana@correo.com" />
+          </div>
+          <div class="field">
+            <label>Dirección de entrega / negocio</label>
+            <input type="text" id="regAddress" placeholder="Calle, número, colonia, ciudad o referencias" />
+          </div>
+          <div class="field">
+            <label>Crea tu contraseña</label>
             <input type="password" id="regPass" placeholder="Mínimo 4 caracteres" onkeydown="if(event.key==='Enter') registerClientDirect()" />
           </div>
           <button class="btn-primary" style="width:100%; padding:11px;" onclick="registerClientDirect()">
@@ -2966,12 +3818,15 @@
       box.innerHTML = `
         ${tabsHtml}
         <div class="field">
-          <label>Número de celular registrado o usuario</label>
-          <input type="text" id="loginIdentifier" placeholder="Ej. 9981234567" autocomplete="username" />
+          <label>Celular, usuario o correo</label>
+          <input type="text" id="loginIdentifier" placeholder="Ej. 9981234567 o @usuario" autocomplete="username" />
         </div>
         <div class="field">
           <label>Contraseña</label>
           <input type="password" id="loginPass" placeholder="Escribe tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter') loginUnified()" />
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+          <button class="btn-link" onclick="setAuthMode('recover')">¿Olvidaste tu contraseña? (WhatsApp / Correo)</button>
         </div>
         <button class="btn-primary" style="width:100%; padding:11px;" onclick="loginUnified()">
           Entrar a mi cuenta
@@ -2983,6 +3838,9 @@
       const name = document.getElementById("regName").value.trim();
       const rawPhone = document.getElementById("regPhone").value.trim();
       const digits = normalizePhoneDigits(rawPhone);
+      const username = normalizeUsername(document.getElementById("regUsername").value || "");
+      const email = document.getElementById("regEmail").value.trim();
+      const address = document.getElementById("regAddress").value.trim();
       const rawPass = document.getElementById("regPass").value;
 
       if (!name) {
@@ -3003,6 +3861,16 @@
         showToast("Ese número ya está registrado. Inicia sesión con tu contraseña");
         setAuthMode("login");
         return;
+      }
+
+      if (username) {
+        const userTakenLocal = state.registeredClients.some(
+          (c) => normalizeUsername(c.username) === username
+        );
+        if (userTakenLocal) {
+          showToast("Ese nombre de usuario ya está en uso");
+          return;
+        }
       }
 
       if (supabaseClient) {
@@ -3027,6 +3895,9 @@
       const newClientRecord = {
         name,
         phone: digits,
+        username,
+        email,
+        address,
         passHash,
         role,
         verified: true,
@@ -3039,7 +3910,10 @@
         try {
           await supabaseClient.from("clients").upsert({
             phone: newClientRecord.phone,
+            username: newClientRecord.username || null,
+            email: newClientRecord.email || null,
             name: newClientRecord.name,
+            address: newClientRecord.address || "",
             pass_hash: newClientRecord.passHash,
             role: newClientRecord.role,
             verified: true
@@ -3053,6 +3927,9 @@
         identifier: digits,
         name,
         phone: digits,
+        username,
+        email,
+        address,
         role
       });
 
@@ -3068,15 +3945,19 @@
       state.activeUserKey = key;
       state.user = {
         key,
+        identifier: userObj.identifier || userObj.phone || userObj.name,
         name: userObj.name,
         phone: userObj.phone || "Sin teléfono",
+        username: userObj.username || "",
+        email: userObj.email || "",
+        address: userObj.address || "",
         role: userObj.role
       };
 
-      document.getElementById("custName").value =
-        state.user.role === "admin" || state.user.role === "warehouse" ? "" : state.user.name;
-      document.getElementById("custPhone").value =
-        state.user.role === "admin" || state.user.role === "warehouse" ? "" : state.user.phone;
+      const isStaff = state.user.role === "admin" || state.user.role === "warehouse";
+      document.getElementById("custName").value = isStaff ? "" : state.user.name;
+      document.getElementById("custPhone").value = isStaff ? "" : state.user.phone;
+      document.getElementById("custAddress").value = isStaff ? "" : (state.user.address || "");
       document.getElementById("custDelivery").value = "";
 
       savePersistentState();
@@ -3092,64 +3973,69 @@
       const rawPass = document.getElementById("loginPass").value;
 
       if (!rawInput || !rawPass) {
-        showToast("Escribe tu número o usuario y tu contraseña");
+        showToast("Escribe tu celular/usuario y tu contraseña");
         return;
       }
 
-      const cleanUser = rawInput.toLowerCase();
-
-      if (cleanUser === ADMIN_AUTH.user.toLowerCase()) {
-        if (rawPass === ADMIN_AUTH.pass) {
-          applyUserSession({
-            identifier: ADMIN_AUTH.user,
-            name: ADMIN_AUTH.displayName,
-            phone: "Sin teléfono",
-            role: "admin"
-          });
-          closeModal("authModal");
-          showToast("Sesión Admin activada");
-        } else {
-          showToast("Contraseña incorrecta");
-        }
-        return;
-      }
-
-      if (cleanUser === WAREHOUSE_AUTH.user.toLowerCase()) {
-        if (rawPass === WAREHOUSE_AUTH.pass) {
-          applyUserSession({
-            identifier: WAREHOUSE_AUTH.user,
-            name: WAREHOUSE_AUTH.displayName,
-            phone: "Sin teléfono",
-            role: "warehouse"
-          });
-          closeModal("authModal");
-          showToast("Sesión Bodega activada · Escáner disponible");
-        } else {
-          showToast("Contraseña de Bodega incorrecta");
-        }
-        return;
-      }
-
-      const digits = normalizePhoneDigits(rawInput);
       const passHash = await sha256Text(rawPass);
+      const cleanUser = normalizeUsername(rawInput);
+      const cleanEmail = rawInput.toLowerCase();
+      const digits = normalizePhoneDigits(rawInput);
+
+      for (const key of ["admin", "warehouse"]) {
+        const staff = state.staffAccounts[key];
+        if (!staff) continue;
+        const staffUser = normalizeUsername(staff.username);
+        const staffPhone = normalizePhoneDigits(staff.phone);
+        const staffEmail = (staff.email || "").trim().toLowerCase();
+        const matchesStaff =
+          (cleanUser && staffUser === cleanUser) ||
+          (cleanEmail && staffEmail && staffEmail === cleanEmail) ||
+          (digits.length >= 7 && staffPhone && staffPhone === digits);
+
+        if (matchesStaff) {
+          if (staff.passHash === passHash) {
+            applyUserSession({
+              identifier: key,
+              name: staff.displayName,
+              phone: staff.phone || "Sin teléfono",
+              username: staff.username,
+              email: staff.email || "",
+              role: staff.role
+            });
+            closeModal("authModal");
+            showToast(key === "admin" ? "Sesión Admin activada" : "Sesión Bodega activada · Escáner disponible");
+          } else {
+            showToast("Contraseña incorrecta");
+          }
+          return;
+        }
+      }
 
       let foundClient = state.registeredClients.find((c) => {
         const matchPhone = digits.length >= 7 && normalizePhoneDigits(c.phone) === digits;
-        const matchName = c.name.trim().toLowerCase() === cleanUser;
-        return matchPhone || matchName;
+        const matchUser = cleanUser && normalizeUsername(c.username) === cleanUser;
+        const matchEmail = cleanEmail && (c.email || "").trim().toLowerCase() === cleanEmail;
+        const matchName = (c.name || "").trim().toLowerCase() === cleanEmail;
+        return matchPhone || matchUser || matchEmail || matchName;
       });
 
       if (!foundClient && supabaseClient) {
         try {
-          const { data } = await supabaseClient
-            .from("clients")
-            .select("*")
-            .eq("phone", digits)
-            .maybeSingle();
+          let query = supabaseClient.from("clients").select("*");
+          if (digits.length >= 7) {
+            query = query.eq("phone", digits);
+          } else if (cleanUser) {
+            query = query.eq("username", cleanUser);
+          }
+          const { data } = await query.maybeSingle();
           if (data) {
             foundClient = {
               name: data.name,
               phone: data.phone,
+              username: data.username || "",
+              email: data.email || "",
+              address: data.address || "",
               passHash: data.pass_hash,
               role: data.role || "retail"
             };
@@ -3186,6 +4072,9 @@
             userStores[sessionKey].orders = cloudOrders.map((o) => ({
               folio: o.folio,
               date: new Date(o.created_at).toLocaleDateString("es-MX"),
+              clientName: o.client_name,
+              phone: o.client_phone,
+              clientAddress: o.client_address || "",
               total: o.total,
               totalUnits: o.total_units,
               statusLabel: o.status_label,
@@ -3200,6 +4089,9 @@
         identifier: foundClient.phone,
         name: foundClient.name,
         phone: foundClient.phone,
+        username: foundClient.username || "",
+        email: foundClient.email || "",
+        address: foundClient.address || "",
         role: finalRole
       });
       closeModal("authModal");
@@ -3214,6 +4106,7 @@
 
       document.getElementById("custName").value = "";
       document.getElementById("custPhone").value = "";
+      document.getElementById("custAddress").value = "";
       document.getElementById("custDelivery").value = "";
 
       savePersistentState();
@@ -3380,7 +4273,12 @@
       showToast("Estatus mayorista retirado");
     }
 
-    function addBannerSlide() {
+    async function addBannerSlide() {
+      if (state.banners.length >= MAX_BANNERS) {
+        showToast(`Límite alcanzado: máximo ${MAX_BANNERS} banners`);
+        return;
+      }
+
       const title = document.getElementById("bannerTitleInput").value.trim() || "Novedad KS Cosmetics";
       const subtitle =
         document.getElementById("bannerSubInput").value.trim() ||
@@ -3388,44 +4286,44 @@
       const urlInput = document.getElementById("bannerUrlInput").value.trim();
       const fileInput = document.getElementById("bannerFileInput");
 
-      const finishAdd = (imgSrc) => {
-        state.banners.unshift({
-          id: Date.now(),
-          title,
-          subtitle,
-          imageUrl: imgSrc || "",
-          active: true
-        });
-        state.activeBannerIndex = 0;
-        document.getElementById("bannerTitleInput").value = "";
-        document.getElementById("bannerSubInput").value = "";
-        document.getElementById("bannerUrlInput").value = "";
-        fileInput.value = "";
-        savePersistentState();
-        renderBanner();
-        renderAdminLists();
-        showToast("Banner agregado");
-      };
-
+      let resolvedImg = urlInput;
       if (fileInput.files && fileInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = (ev) => finishAdd(ev.target.result);
-        reader.readAsDataURL(fileInput.files[0]);
-      } else {
-        finishAdd(urlInput);
+        resolvedImg = await uploadBannerFileToStorage(fileInput.files[0]);
       }
+
+      state.banners.unshift({
+        id: Date.now(),
+        title,
+        subtitle,
+        imageUrl: resolvedImg || "",
+        active: true
+      });
+      state.banners = state.banners.slice(0, MAX_BANNERS);
+      state.activeBannerIndex = 0;
+
+      document.getElementById("bannerTitleInput").value = "";
+      document.getElementById("bannerSubInput").value = "";
+      document.getElementById("bannerUrlInput").value = "";
+      fileInput.value = "";
+
+      savePersistentState();
+      await saveBannersToCloud();
+      renderBanner();
+      renderAdminLists();
+      showToast(`Banner agregado (${state.banners.length}/${MAX_BANNERS})`);
     }
 
-    function toggleBannerActive(id) {
+    async function toggleBannerActive(id) {
       const item = state.banners.find((b) => b.id === id);
       if (!item) return;
       item.active = !item.active;
       savePersistentState();
+      await saveBannersToCloud();
       renderBanner();
       renderAdminLists();
     }
 
-    function deleteBanner(id) {
+    async function deleteBanner(id) {
       if (state.banners.length <= 1) {
         showToast("Deja al menos un banner activo");
         return;
@@ -3433,6 +4331,8 @@
       state.banners = state.banners.filter((b) => b.id !== id);
       state.activeBannerIndex = 0;
       savePersistentState();
+      await deleteBannerFromCloud(id);
+      await saveBannersToCloud();
       renderBanner();
       renderAdminLists();
       showToast("Banner eliminado");
@@ -3483,8 +4383,19 @@
               .join("")
           : `<p style="font-size:12px; color:var(--muted);">Aún no hay mayoristas registradas.</p>`);
 
+      const quotaEl = document.getElementById("bannerQuotaLabel");
+      const addBannerBtn = document.getElementById("addBannerBtn");
+      if (quotaEl) {
+        quotaEl.textContent = `${state.banners.length} / ${MAX_BANNERS}`;
+      }
+      if (addBannerBtn) {
+        addBannerBtn.disabled = state.banners.length >= MAX_BANNERS;
+        addBannerBtn.style.opacity = state.banners.length >= MAX_BANNERS ? "0.55" : "1";
+      }
+
       const banBox = document.getElementById("bannerListContainer");
       banBox.innerHTML = state.banners
+        .slice(0, MAX_BANNERS)
         .map(
           (b) => `
           <div class="list-row">

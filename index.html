@@ -412,13 +412,21 @@
 
     .thumb {
       position: relative;
-      height: 112px;
+      height: 122px;
       border-radius: 10px;
       display: grid;
       place-items: center;
       font-size: 38px;
       cursor: pointer;
       background: linear-gradient(135deg, #fce4ec, #fff0f5);
+      overflow: hidden;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .fav-btn {
@@ -433,6 +441,7 @@
       place-items: center;
       font-size: 13px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      z-index: 2;
     }
 
     .video-tag {
@@ -445,6 +454,7 @@
       font-weight: 700;
       padding: 2px 7px;
       border-radius: 999px;
+      z-index: 2;
     }
 
     .prod-meta-row {
@@ -549,7 +559,7 @@
     @media (min-width: 640px) {
       .grid { gap: 14px; }
       .card { padding: 14px; border-radius: 16px; }
-      .thumb { height: 132px; font-size: 44px; }
+      .thumb { height: 144px; font-size: 44px; }
       .prod-title { font-size: 15px; }
       .price-main { font-size: 16px; }
       .price-sub { font-size: 12px; }
@@ -684,6 +694,55 @@
       margin-bottom: 8px;
       font-size: 14px;
       color: var(--primary-dark);
+    }
+
+    .photo-actions-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .photo-editor-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 8px;
+    }
+
+    .photo-editor-box canvas {
+      width: 100%;
+      max-height: 240px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: block;
+      margin-bottom: 8px;
+      background: #fff;
+    }
+
+    .bg-presets-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .bg-chip {
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--ink);
+    }
+
+    .bg-chip.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
     }
 
     .client-order-card {
@@ -850,6 +909,14 @@
       place-items: center;
       font-size: 20px;
       flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .order-line-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .order-line-title {
@@ -931,6 +998,29 @@
     .scan-ok { background: var(--ok-bg); color: var(--ok); }
     .scan-err { background: var(--err-bg); color: var(--err); }
     .scan-info { background: var(--soft); color: var(--primary-dark); }
+
+    .next-pick-banner {
+      background: var(--ok-bg);
+      border: 1px solid #81c784;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .next-pick-banner-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--ok);
+    }
+
+    .next-pick-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
 
     .pick-row {
       border: 1px solid var(--border);
@@ -1179,6 +1269,8 @@
         Listo para surtir en Bodega: cada lectura suma 1 unidad (1 de N, 2 de N...).
       </div>
 
+      <div id="nextPickFlowContainer"></div>
+
       <div id="pickChecklistContainer"></div>
     </div>
   </div>
@@ -1324,7 +1416,7 @@
       </div>
 
       <div class="admin-section">
-        <h4>Agregar producto rápido</h4>
+        <h4>Agregar producto con foto, editor de fondo y código de barras</h4>
         <div class="field">
           <label>Nombre del cosmético</label>
           <input type="text" id="newProdName" placeholder="Ej. Gloss Brillo Espejo" />
@@ -1355,6 +1447,45 @@
             <input type="number" id="newProdWholesale" value="60" />
           </div>
         </div>
+
+        <!-- Foto del producto: Tomar foto, Subir archivo y Editor de fondo -->
+        <div class="field">
+          <label>Foto del producto y fondo</label>
+          <input type="file" id="cameraPhotoInput" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoFileSelected(this.files[0])" />
+          <input type="file" id="uploadPhotoInput" accept="image/*" style="display:none;" onchange="handlePhotoFileSelected(this.files[0])" />
+
+          <div class="photo-actions-row">
+            <button type="button" class="btn-gold" onclick="document.getElementById('cameraPhotoInput').click()">📷 Tomar foto</button>
+            <button type="button" class="btn-soft" onclick="document.getElementById('uploadPhotoInput').click()">📁 Subir foto</button>
+            <button type="button" class="btn-outline" id="clearPhotoBtn" style="display:none;" onclick="clearProductPhotoEditor()">Quitar foto</button>
+          </div>
+
+          <div class="photo-editor-box" id="productPhotoEditor" style="display:none;">
+            <canvas id="prodPhotoCanvas" width="600" height="600"></canvas>
+            <div class="bg-presets-row">
+              <span style="font-size:11px; font-weight:700; color:var(--muted);">Fondo:</span>
+              <button type="button" class="bg-chip active" data-bg="white" onclick="setPhotoBgPreset('white', this)">Blanco</button>
+              <button type="button" class="bg-chip" data-bg="pink" onclick="setPhotoBgPreset('pink', this)">Rosa KS</button>
+              <button type="button" class="bg-chip" data-bg="black" onclick="setPhotoBgPreset('black', this)">Negro</button>
+              <button type="button" class="bg-chip" data-bg="gradient" onclick="setPhotoBgPreset('gradient', this)">Degradado</button>
+              <button type="button" class="bg-chip" data-bg="none" onclick="setPhotoBgPreset('none', this)">Original</button>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+              <div>
+                <label style="font-size:11px; font-weight:700;">Encuadre / Zoom: <span id="photoZoomVal">100%</span></label>
+                <input type="range" id="photoZoomRange" min="60" max="180" value="100" oninput="onPhotoTransformChange()" />
+              </div>
+              <div style="display:flex; align-items:flex-end; justify-content:flex-end; gap:6px;">
+                <button type="button" class="btn-soft" style="padding:6px 10px; font-size:11px;" onclick="rotateProductPhoto(90)">↻ Rotar 90°</button>
+                <button type="button" class="btn-outline" style="padding:6px 10px; font-size:11px;" onclick="resetPhotoTransform()">Centrar</button>
+              </div>
+            </div>
+            <p style="font-size:11px; color:var(--muted);">
+              Tip: aplica un fondo sólido limpio (Blanco o Rosa KS) para uniformar el catálogo; al publicar se sube a <code>product-photos</code> y guarda su <code>image_url</code>.
+            </p>
+          </div>
+        </div>
+
         <div class="field">
           <label>Código de barras (escanéalo para llenarlo solo)</label>
           <div class="inline-code-row">
@@ -1373,7 +1504,7 @@
           <label>Enlace de reseña (YouTube / TikTok opcional)</label>
           <input type="url" id="newProdVideo" placeholder="https://www.tiktok.com/@.../video/..." />
         </div>
-        <button type="button" class="btn-primary" style="width:100%;" onclick="addNewProduct()">
+        <button type="button" class="btn-primary" style="width:100%;" id="publishProdBtn" onclick="addNewProduct()">
           Publicar producto en el catálogo
         </button>
       </div>
@@ -1405,6 +1536,7 @@
     const STORAGE_KEY = "ks_cosmetics_app_v4";
     const MAX_BANNERS = 5;
     const BANNER_BUCKET = "banners";
+    const PRODUCT_PHOTO_BUCKET = "product-photos";
     const WHOLESALE_THRESHOLD = 1000;
 
     const DEFAULT_STAFF_CREDENTIALS = {
@@ -1438,7 +1570,9 @@
       folio: "",
       cloudId: null,
       clientKey: "",
+      clientName: "",
       orderIndex: null,
+      markedDone: false,
       lines: [],
       cameraStream: null,
       scanTimer: null,
@@ -1451,6 +1585,14 @@
       scanTimer: null
     };
 
+    const photoEditorState = {
+      hasImage: false,
+      imgElement: null,
+      bgPreset: "white",
+      zoom: 1,
+      rotationDeg: 0
+    };
+
     const DEFAULT_PRODUCTS = [
       {
         id: 1,
@@ -1458,6 +1600,7 @@
         name: "Labial Matte Terciopelo",
         category: "Labios",
         emoji: "💄",
+        imageUrl: "",
         barcode: "750100100101",
         retail: 75,
         wholesale: 52,
@@ -1476,6 +1619,7 @@
         name: "Rubor Líquido Pétalo",
         category: "Rostro",
         emoji: "🌸",
+        imageUrl: "",
         barcode: "750100100102",
         retail: 95,
         wholesale: 68,
@@ -1494,6 +1638,7 @@
         name: "Base Líquida Mate HD",
         category: "Rostro",
         emoji: "✨",
+        imageUrl: "",
         barcode: "750100100103",
         retail: 140,
         wholesale: 105,
@@ -1512,6 +1657,7 @@
         name: "Delineador Líquido Precisión",
         category: "Ojos",
         emoji: "🖤",
+        imageUrl: "",
         barcode: "750100100104",
         retail: 65,
         wholesale: 44,
@@ -1529,6 +1675,7 @@
         name: "Gel Fijador de Cejas",
         category: "Cejas y Cuidado",
         emoji: "🌿",
+        imageUrl: "",
         barcode: "750100100105",
         retail: 70,
         wholesale: 48,
@@ -1546,6 +1693,7 @@
         name: "Aceite Labial Hidratante",
         category: "Labios",
         emoji: "🍯",
+        imageUrl: "",
         barcode: "750100100106",
         retail: 80,
         wholesale: 55,
@@ -1615,6 +1763,167 @@
       ],
       products: DEFAULT_PRODUCTS.map((p) => ({ ...p }))
     };
+
+    function renderProductVisual(product, extraClass = "") {
+      const hasPhoto = Boolean(product && product.imageUrl && String(product.imageUrl).trim().length > 0);
+      if (hasPhoto) {
+        const safeUrl = String(product.imageUrl).replace(/"/g, "&quot;");
+        const safeAlt = String(product.name || "Producto").replace(/"/g, "&quot;");
+        return `<img src="${safeUrl}" alt="${safeAlt}" class="${extraClass}" onerror="this.replaceWith(Object.assign(document.createElement('span'), {textContent: '${product.emoji || "✨"}'}));" />`;
+      }
+      return `<span>${(product && product.emoji) || "✨"}</span>`;
+    }
+
+    function handlePhotoFileSelected(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          photoEditorState.hasImage = true;
+          photoEditorState.imgElement = img;
+          photoEditorState.bgPreset = "white";
+          photoEditorState.zoom = 1;
+          photoEditorState.rotationDeg = 0;
+
+          const zoomSlider = document.getElementById("photoZoomRange");
+          const zoomLabel = document.getElementById("photoZoomVal");
+          if (zoomSlider) zoomSlider.value = "100";
+          if (zoomLabel) zoomLabel.textContent = "100%";
+
+          document.querySelectorAll(".bg-chip").forEach((chip) => {
+            chip.classList.toggle("active", chip.dataset.bg === "white");
+          });
+
+          const editorBox = document.getElementById("productPhotoEditor");
+          const clearBtn = document.getElementById("clearPhotoBtn");
+          if (editorBox) editorBox.style.display = "block";
+          if (clearBtn) clearBtn.style.display = "inline-flex";
+
+          drawEditedProductCanvas();
+          showToast("Foto cargada en el editor");
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function setPhotoBgPreset(preset, btnEl) {
+      photoEditorState.bgPreset = preset;
+      document.querySelectorAll(".bg-chip").forEach((chip) => chip.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      drawEditedProductCanvas();
+    }
+
+    function onPhotoTransformChange() {
+      const slider = document.getElementById("photoZoomRange");
+      const label = document.getElementById("photoZoomVal");
+      const pct = Number(slider ? slider.value : 100) || 100;
+      photoEditorState.zoom = pct / 100;
+      if (label) label.textContent = `${pct}%`;
+      drawEditedProductCanvas();
+    }
+
+    function rotateProductPhoto(deg) {
+      photoEditorState.rotationDeg = (photoEditorState.rotationDeg + deg) % 360;
+      drawEditedProductCanvas();
+    }
+
+    function resetPhotoTransform() {
+      photoEditorState.zoom = 1;
+      photoEditorState.rotationDeg = 0;
+      const slider = document.getElementById("photoZoomRange");
+      const label = document.getElementById("photoZoomVal");
+      if (slider) slider.value = "100";
+      if (label) label.textContent = "100%";
+      drawEditedProductCanvas();
+    }
+
+    function clearProductPhotoEditor() {
+      photoEditorState.hasImage = false;
+      photoEditorState.imgElement = null;
+      photoEditorState.bgPreset = "white";
+      photoEditorState.zoom = 1;
+      photoEditorState.rotationDeg = 0;
+      ["cameraPhotoInput", "uploadPhotoInput"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+      const editorBox = document.getElementById("productPhotoEditor");
+      const clearBtn = document.getElementById("clearPhotoBtn");
+      if (editorBox) editorBox.style.display = "none";
+      if (clearBtn) clearBtn.style.display = "none";
+    }
+
+    function drawEditedProductCanvas() {
+      const canvas = document.getElementById("prodPhotoCanvas");
+      if (!canvas || !photoEditorState.hasImage || !photoEditorState.imgElement) return;
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      if (photoEditorState.bgPreset === "white") {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, w, h);
+      } else if (photoEditorState.bgPreset === "pink") {
+        ctx.fillStyle = "#fce4ec";
+        ctx.fillRect(0, 0, w, h);
+      } else if (photoEditorState.bgPreset === "black") {
+        ctx.fillStyle = "#14080f";
+        ctx.fillRect(0, 0, w, h);
+      } else if (photoEditorState.bgPreset === "gradient") {
+        const grad = ctx.createLinearGradient(0, 0, w, h);
+        grad.addColorStop(0, "#fff0f6");
+        grad.addColorStop(1, "#f48fb1");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      const img = photoEditorState.imgElement;
+      const rad = (photoEditorState.rotationDeg * Math.PI) / 180;
+      const swapAxes = Math.abs(photoEditorState.rotationDeg % 180) === 90;
+      const srcW = swapAxes ? img.naturalHeight : img.naturalWidth;
+      const srcH = swapAxes ? img.naturalWidth : img.naturalHeight;
+
+      const baseScale = Math.min(w / srcW, h / srcH) * 0.86 * photoEditorState.zoom;
+      const drawW = img.naturalWidth * baseScale;
+      const drawH = img.naturalHeight * baseScale;
+
+      ctx.save();
+      ctx.translate(w / 2, h / 2);
+      ctx.rotate(rad);
+      ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+      ctx.restore();
+    }
+
+    async function uploadEditedProductPhoto(productId) {
+      const canvas = document.getElementById("prodPhotoCanvas");
+      if (!photoEditorState.hasImage || !canvas) return "";
+
+      const mimeType = photoEditorState.bgPreset === "none" ? "image/png" : "image/jpeg";
+      const ext = mimeType === "image/png" ? "png" : "jpg";
+
+      const blob = await new Promise((resolve) => {
+        canvas.toBlob((b) => resolve(b), mimeType, 0.85);
+      });
+      if (!blob) return "";
+
+      if (supabaseClient) {
+        try {
+          const path = `prod-${productId}-${Date.now()}.${ext}`;
+          const { error } = await supabaseClient.storage
+            .from(PRODUCT_PHOTO_BUCKET)
+            .upload(path, blob, { contentType: mimeType, cacheControl: "3600", upsert: false });
+          if (!error) {
+            const { data } = supabaseClient.storage.from(PRODUCT_PHOTO_BUCKET).getPublicUrl(path);
+            if (data && data.publicUrl) return data.publicUrl;
+          }
+        } catch (e) {}
+      }
+
+      return canvas.toDataURL(mimeType, 0.82);
+    }
 
     function closeAllSubModalsBeforeScanner() {
       ["orderSummaryModal", "cartModal", "ordersTrayModal", "detailModal", "authModal", "adminModal"].forEach((id) => {
@@ -1715,6 +2024,7 @@
         name: p.name,
         category: p.category,
         emoji: p.emoji || "✨",
+        image_url: p.imageUrl || null,
         barcode: p.barcode || `KS-${p.id}`,
         retail: Number(p.retail) || 0,
         wholesale: Number(p.wholesale) || 0,
@@ -1739,6 +2049,7 @@
         name: row.name,
         category: row.category || "Labios",
         emoji: row.emoji || "✨",
+        imageUrl: row.image_url || "",
         barcode: row.barcode || `KS-${row.id}`,
         retail: Number(row.retail) || 0,
         wholesale: Number(row.wholesale) || 0,
@@ -1784,6 +2095,42 @@
       const cleanDigits = normalizePhoneDigits(phone);
       const cleanName = (name || "Clienta").trim().toLowerCase() || "clienta";
       return cleanDigits.length >= 7 ? `tel:${cleanDigits}` : `nom:${cleanName}`;
+    }
+
+    function isOrderFulfilled(ord) {
+      return String((ord && ord.statusLabel) || "").toLowerCase().includes("surtid");
+    }
+
+    function getPickFlowNavigation() {
+      const currentFolio = String(pickSession.folio || "").trim();
+      const currentOrd = state.sharedOrders.find((o) => String(o.folio || "") === currentFolio);
+      const currentClientKey =
+        pickSession.clientKey ||
+        (currentOrd ? buildClientGroupKey(currentOrd.clientName, currentOrd.phone) : "");
+
+      const pendingSameClient = state.sharedOrders.filter((o) => {
+        if (!Array.isArray(o.items) || !o.items.length) return false;
+        if (String(o.folio || "") === currentFolio) return false;
+        if (isOrderFulfilled(o)) return false;
+        const k = buildClientGroupKey(o.clientName, o.phone);
+        return currentClientKey && k === currentClientKey;
+      });
+
+      const pendingOtherClients = state.sharedOrders.filter((o) => {
+        if (!Array.isArray(o.items) || !o.items.length) return false;
+        if (String(o.folio || "") === currentFolio) return false;
+        if (isOrderFulfilled(o)) return false;
+        const k = buildClientGroupKey(o.clientName, o.phone);
+        return !currentClientKey || k !== currentClientKey;
+      });
+
+      return {
+        currentClientKey,
+        pendingSameClient,
+        nextSameClientOrder: pendingSameClient[0] || null,
+        pendingOtherClients,
+        nextOtherClientOrder: pendingOtherClients[0] || null
+      };
     }
 
     function mergeSharedOrder(orderRecord) {
@@ -2279,7 +2626,9 @@
       selectEl.innerHTML = groups
         .map((g) => {
           const phoneTag = g.phone && g.phone !== "Sin teléfono" ? ` (${g.phone})` : "";
-          return `<option value="${g.key.replace(/"/g, "&quot;")}" ${g.key === state.selectedTrayClientKey ? "selected" : ""}>${g.name}${phoneTag} · ${g.orders.length} ${g.orders.length === 1 ? "pedido" : "pedidos"}</option>`;
+          const pendingCount = g.orders.filter((o) => !isOrderFulfilled(o)).length;
+          const pendingBadge = pendingCount > 0 ? ` · ${pendingCount} pend.` : " · ✓ Todo surtido";
+          return `<option value="${g.key.replace(/"/g, "&quot;")}" ${g.key === state.selectedTrayClientKey ? "selected" : ""}>${g.name}${phoneTag} · ${g.orders.length} ${g.orders.length === 1 ? "pedido" : "pedidos"}${pendingBadge}</option>`;
         })
         .join("");
 
@@ -2304,14 +2653,14 @@
         .map((ord) => {
           const rows = normalizeOrderRows(ord.items || [], Boolean(ord.useWholesalePricing));
           const unitsCount = ord.totalUnits || rows.reduce((s, r) => s + r.qty, 0);
-          const isReady = String(ord.statusLabel || "").toLowerCase().includes("surtid");
+          const isReady = isOrderFulfilled(ord);
 
           const itemsMiniHtml = rows
             .map(
               (r) => `
               <div class="order-line-row">
                 <div class="order-line-left">
-                  <div class="order-line-thumb">${r.emoji}</div>
+                  <div class="order-line-thumb">${renderProductVisual(r)}</div>
                   <div style="min-width:0;">
                     <div class="order-line-title">${r.name}</div>
                     <div class="order-line-sub">${r.brand}${r.shade ? ` · ${r.shade}` : ""} · Cód: <strong>${r.barcode}</strong></div>
@@ -2388,13 +2737,17 @@
         showToast("Solo la cuenta Bodega puede surtir con escáner");
         return;
       }
-      const ord = state.sharedOrders.find((o) => o.folio === folio);
+      const ord = state.sharedOrders.find((o) => String(o.folio || "") === String(folio || ""));
       if (!ord || !Array.isArray(ord.items) || !ord.items.length) {
         showToast("No se encontraron artículos en ese pedido");
         return;
       }
+      const clientKey = buildClientGroupKey(ord.clientName, ord.phone);
+      state.selectedTrayClientKey = clientKey;
+      savePersistentState();
       startPickSession(ord.folio, ord.items, {
         clientName: ord.clientName || "Clienta",
+        clientKey,
         cloudId: ord.cloudId || null
       });
     }
@@ -2407,12 +2760,14 @@
       }
       if (state.sharedOrders.length) {
         const pending = state.sharedOrders.find(
-          (o) => !String(o.statusLabel || "").toLowerCase().includes("surtid") && Array.isArray(o.items) && o.items.length
+          (o) => !isOrderFulfilled(o) && Array.isArray(o.items) && o.items.length
         );
         const chosen = pending || state.sharedOrders.find((o) => Array.isArray(o.items) && o.items.length);
         if (chosen) {
+          const clientKey = buildClientGroupKey(chosen.clientName, chosen.phone);
           startPickSession(chosen.folio, chosen.items, {
             clientName: chosen.clientName || "Clienta",
+            clientKey,
             cloudId: chosen.cloudId || null
           });
           return;
@@ -2458,6 +2813,7 @@
       }
       startPickSession(ord.folio, ord.items, {
         clientName: ord.clientName || "Clienta",
+        clientKey: buildClientGroupKey(ord.clientName, ord.phone),
         cloudId: ord.cloudId || null
       });
     }
@@ -2482,6 +2838,7 @@
             brand: it.brand || (p && p.brand) || "General",
             shade,
             emoji: it.emoji || (p && p.emoji) || "✨",
+            imageUrl: it.imageUrl || (p && p.imageUrl) || "",
             barcode: it.barcode || (p && p.barcode) || `KS-${it.prodId}`,
             targetQty: qty,
             pickedQty: 0
@@ -2491,6 +2848,9 @@
 
       pickSession.folio = folio;
       pickSession.cloudId = meta.cloudId || null;
+      pickSession.clientKey = meta.clientKey || "";
+      pickSession.clientName = meta.clientName || "";
+      pickSession.markedDone = false;
       pickSession.lines = [...grouped.values()];
       pickSession.lastCodeValue = "";
       pickSession.lastCodeTime = 0;
@@ -2498,6 +2858,8 @@
       const clientSuffix = meta.clientName ? ` · ${meta.clientName}` : "";
       document.getElementById("scannerTitle").textContent = `📷 Surtido Bodega · #${folio}${clientSuffix}`;
       document.getElementById("manualBarcodeInput").value = "";
+      const nextFlowEl = document.getElementById("nextPickFlowContainer");
+      if (nextFlowEl) nextFlowEl.innerHTML = "";
       setScanFeedback("Listo para surtir en Bodega: cada lectura suma 1 unidad (1 de N, 2 de N...).", "scan-info");
 
       const simSelect = document.getElementById("simBarcodeSelect");
@@ -2515,16 +2877,27 @@
     async function markCurrentPickOrderDone() {
       if (!pickSession.folio) return;
       const folioActual = pickSession.folio;
+      pickSession.markedDone = true;
       await updateOrderStatusInCloud(folioActual, "Surtida en Bodega ✓");
-      renderOrdersTrayOrders();
-      closeScannerModal();
-      showToast(`✓ Orden #${folioActual} marcada como surtida`);
+      renderOrdersTray();
+
+      const nav = getPickFlowNavigation();
+      if (nav.nextSameClientOrder || nav.nextOtherClientOrder) {
+        renderPickChecklist();
+        showToast(`✓ Orden #${folioActual} marcada como surtida. Elige siguiente pedido o clienta.`);
+      } else {
+        closeScannerModal();
+        showToast(`✓ Orden #${folioActual} surtida. ¡No quedan pedidos pendientes!`);
+      }
     }
 
     function resetPickSession() {
+      pickSession.markedDone = false;
       pickSession.lines.forEach((l) => {
         l.pickedQty = 0;
       });
+      const nextFlowEl = document.getElementById("nextPickFlowContainer");
+      if (nextFlowEl) nextFlowEl.innerHTML = "";
       setScanFeedback("Conteo reiniciado en 0.", "scan-info");
       renderPickChecklist();
     }
@@ -2538,21 +2911,79 @@
 
     function renderPickChecklist() {
       const box = document.getElementById("pickChecklistContainer");
+      const nextFlowEl = document.getElementById("nextPickFlowContainer");
       const totalTarget = pickSession.lines.reduce((s, l) => s + l.targetQty, 0);
       const totalPicked = pickSession.lines.reduce((s, l) => s + l.pickedQty, 0);
       const allDone = totalPicked === totalTarget && totalTarget > 0;
 
       if (allDone && pickSession.folio) {
         const folioCompletado = pickSession.folio;
-        updateOrderStatusInCloud(folioCompletado, "Surtida en Bodega ✓");
-        renderOrdersTrayOrders();
-        setTimeout(() => {
-          const modalEl = document.getElementById("scannerModal");
-          if (modalEl && modalEl.classList.contains("open") && pickSession.folio === folioCompletado) {
-            closeScannerModal();
-            showToast(`✓ Todo surtido en #${folioCompletado}`);
+        if (!pickSession.markedDone) {
+          pickSession.markedDone = true;
+          updateOrderStatusInCloud(folioCompletado, "Surtida en Bodega ✓");
+          renderOrdersTray();
+        }
+
+        const nav = getPickFlowNavigation();
+
+        if (nav.nextSameClientOrder) {
+          const nextOrd = nav.nextSameClientOrder;
+          const escapedNextFolio = String(nextOrd.folio || "").replace(/'/g, "\\'");
+          const pendCount = nav.pendingSameClient.length;
+          if (nextFlowEl) {
+            nextFlowEl.innerHTML = `
+              <div class="next-pick-banner">
+                <div class="next-pick-banner-title">
+                  ✓ Orden #${folioCompletado} surtida · ${pickSession.clientName || "Esta clienta"} tiene ${pendCount} ${pendCount === 1 ? "pedido pendiente más" : "pedidos pendientes más"}
+                </div>
+                <div class="next-pick-actions">
+                  <button class="btn-primary" style="flex:1;" onclick="startPickSessionByFolio('${escapedNextFolio}')">
+                    Siguiente pedido de ${pickSession.clientName || "la misma clienta"} (#${nextOrd.folio}) →
+                  </button>
+                  <button class="btn-outline" onclick="closeScannerModal()">Cerrar</button>
+                </div>
+              </div>
+            `;
           }
-        }, 450);
+        } else if (nav.nextOtherClientOrder) {
+          const nextClientOrd = nav.nextOtherClientOrder;
+          const escapedNextClientFolio = String(nextClientOrd.folio || "").replace(/'/g, "\\'");
+          const nextClientName = nextClientOrd.clientName || "Siguiente clienta";
+          if (nextFlowEl) {
+            nextFlowEl.innerHTML = `
+              <div class="next-pick-banner">
+                <div class="next-pick-banner-title">
+                  ✓ Todos los pedidos de ${pickSession.clientName || "esta clienta"} quedaron surtidos
+                </div>
+                <div class="next-pick-actions">
+                  <button class="btn-gold" style="flex:1;" onclick="startPickSessionByFolio('${escapedNextClientFolio}')">
+                    Siguiente clienta: ${nextClientName} (#${nextClientOrd.folio}) →
+                  </button>
+                  <button class="btn-outline" onclick="closeScannerModal()">Cerrar</button>
+                </div>
+              </div>
+            `;
+          }
+        } else {
+          if (nextFlowEl) {
+            nextFlowEl.innerHTML = `
+              <div class="next-pick-banner">
+                <div class="next-pick-banner-title">
+                  ✓ ¡Todas las clientas y todos los pedidos están surtidos!
+                </div>
+              </div>
+            `;
+          }
+          setTimeout(() => {
+            const modalEl = document.getElementById("scannerModal");
+            if (modalEl && modalEl.classList.contains("open") && pickSession.folio === folioCompletado) {
+              closeScannerModal();
+              showToast(`✓ Todo surtido en #${folioCompletado}`);
+            }
+          }, 600);
+        }
+      } else if (nextFlowEl) {
+        nextFlowEl.innerHTML = "";
       }
 
       const headerSummary = `
@@ -2570,7 +3001,7 @@
             <div class="pick-row ${isDone ? "done" : ""}">
               <div class="pick-row-top">
                 <div style="display:flex; align-items:center; gap:10px; min-width:0;">
-                  <div class="order-line-thumb">${l.emoji}</div>
+                  <div class="order-line-thumb">${renderProductVisual(l)}</div>
                   <div style="min-width:0;">
                     <div class="order-line-title">${l.name}</div>
                     <div class="order-line-sub">${l.brand}${l.shade ? ` · ${l.shade}` : ""} · Cód: <strong>${l.barcode}</strong></div>
@@ -3025,7 +3456,7 @@
             <article class="card">
               <div>
                 <div class="thumb" onclick="openDetail(${p.id})">
-                  <span>${p.emoji}</span>
+                  ${renderProductVisual(p)}
                   <button class="fav-btn" onclick="toggleFavorite(${p.id}, event)" title="Favorito">
                     ${isFav ? "❤️" : "🤍"}
                   </button>
@@ -3076,11 +3507,18 @@
       const shadeObj = p.shades.find((s) => s.name === activeShadeName) || p.shades[0];
       const wholesaleUser = isWholesaleAccount();
 
+      const photoBannerHtml = p.imageUrl
+        ? `<div style="margin-bottom:12px; border-radius:14px; overflow:hidden; border:1px solid var(--border); background:#fff; max-height:280px; display:flex; justify-content:center;">
+             <img src="${String(p.imageUrl).replace(/"/g, "&quot;")}" alt="${String(p.name).replace(/"/g, "&quot;")}" style="max-height:280px; width:100%; object-fit:contain;" />
+           </div>`
+        : "";
+
       document.getElementById("detailContent").innerHTML = `
         <div class="modal-head">
           <h3>${p.emoji} ${p.name}</h3>
           <button class="close-btn" onclick="closeModal('detailModal')">✕</button>
         </div>
+        ${photoBannerHtml}
         <p style="font-size:12px; color:var(--primary); font-weight:700; margin-bottom:6px;">
           Marca: ${p.brand || "General"} · Categoría: ${p.category}${isWarehouseAccount() ? ` · Código: ${p.barcode || "N/A"}` : ""}
         </p>
@@ -3232,6 +3670,7 @@
         const brand = it.brand || (p && p.brand) || "General";
         const shade = it.shade || "";
         const emoji = it.emoji || (p && p.emoji) || "✨";
+        const imageUrl = it.imageUrl || (p && p.imageUrl) || "";
         const barcode = it.barcode || (p && p.barcode) || `KS-${it.prodId}`;
         const qty = Number(it.qty) || 1;
         const unitPrice =
@@ -3243,7 +3682,7 @@
                 : Number(p.retail)
               : 0;
         const lineTotal = typeof it.lineTotal === "number" ? it.lineTotal : unitPrice * qty;
-        return { name, brand, shade, emoji, barcode, qty, unitPrice, lineTotal };
+        return { name, brand, shade, emoji, imageUrl, barcode, qty, unitPrice, lineTotal };
       });
     }
 
@@ -3257,7 +3696,7 @@
           (r) => `
             <div class="order-line-row">
               <div class="order-line-left">
-                <div class="order-line-thumb">${r.emoji}</div>
+                <div class="order-line-thumb">${renderProductVisual(r)}</div>
                 <div style="min-width:0;">
                   <div class="order-line-title">${r.name}</div>
                   <div class="order-line-sub">${r.brand}${r.shade ? ` · ${r.shade}` : ""}${canScan ? ` · Cód: ${r.barcode}` : ""}</div>
@@ -3556,6 +3995,7 @@
           const brand = item.brand || (p && p.brand) || "General";
           const barcode = item.barcode || (p && p.barcode) || `KS-${item.prodId}`;
           const emoji = item.emoji || (p && p.emoji) || "✨";
+          const imageUrl = item.imageUrl || (p && p.imageUrl) || "";
           const unit = p
             ? (totals.useWholesalePricing ? Number(p.wholesale) : Number(p.retail))
             : (Number(item.unitPrice) || 0);
@@ -3568,6 +4008,7 @@
             brand,
             barcode,
             emoji,
+            imageUrl,
             unitPrice: unit,
             lineTotal
           };
@@ -4399,6 +4840,7 @@
           name: "Tinta Labial Mate Fijo",
           category: "Labios",
           emoji: "💋",
+          imageUrl: "",
           barcode: "750100100107",
           retail: 65,
           wholesale: 45,
@@ -4416,6 +4858,7 @@
           name: "Polvo Compacto Translúcido",
           category: "Rostro",
           emoji: "🪞",
+          imageUrl: "",
           barcode: "750100100108",
           retail: 110,
           wholesale: 78,
@@ -4682,6 +5125,7 @@
     }
 
     async function addNewProduct() {
+      const pubBtn = document.getElementById("publishProdBtn");
       try {
         stopNewProdBarcodeScanner();
 
@@ -4706,14 +5150,22 @@
           return;
         }
 
+        if (pubBtn) {
+          pubBtn.disabled = true;
+          pubBtn.textContent = "Guardando foto y producto...";
+        }
+
         const newId = Date.now();
         const finalBarcode = barcode || `KS-${String(newId).slice(-6)}`;
+        const imageUrl = photoEditorState.hasImage ? await uploadEditedProductPhoto(newId) : "";
+
         const newProd = {
           id: newId,
           brand,
           name,
           category,
           emoji: "✨",
+          imageUrl,
           barcode: finalBarcode,
           retail,
           wholesale,
@@ -4735,6 +5187,7 @@
         if (brandEl) brandEl.value = "";
         if (barcodeEl) barcodeEl.value = "";
         if (videoEl) videoEl.value = "";
+        clearProductPhotoEditor();
 
         savePersistentState();
         renderAllViews();
@@ -4747,6 +5200,11 @@
       } catch (err) {
         console.error("Error al publicar producto:", err);
         showToast("Error al guardar: revisa consola");
+      } finally {
+        if (pubBtn) {
+          pubBtn.disabled = false;
+          pubBtn.textContent = "Publicar producto en el catálogo";
+        }
       }
     }
 

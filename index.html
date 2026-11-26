@@ -21,7 +21,7 @@
           start_url: "./",
           scope: "./",
           display: "standalone",
-          background_color: "#fdf6f9",
+          background_color: "#f8d7e3",
           theme_color: "#c2185b",
           icons: [
             {
@@ -40,7 +40,7 @@
   <title>KS Cosmetics Mayoreo</title>
   <style>
     :root {
-      --bg: #fdf6f9;
+      --bg: #f8d7e3;
       --card: #ffffff;
       --ink: #23121c;
       --muted: #6f5564;
@@ -56,7 +56,7 @@
       --err-bg: #ffebee;
       --gold: #6d4c00;
       --gold-bg: #fff3cd;
-      --border: #f0d6e0;
+      --border: #efc2d4;
       --shadow: 0 8px 24px rgba(136, 14, 79, 0.08);
     }
 
@@ -497,7 +497,7 @@
       font-size: 10px;
       font-weight: 700;
       color: var(--muted);
-      background: var(--bg);
+      background: var(--soft);
       border: 1px solid var(--border);
       padding: 1px 6px;
       border-radius: 999px;
@@ -707,7 +707,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      background: var(--bg);
+      background: var(--soft);
       padding: 5px;
       border-radius: 12px;
       border: 1px solid var(--border);
@@ -729,7 +729,7 @@
     }
 
     .profile-card {
-      background: var(--bg);
+      background: var(--soft);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 12px 14px;
@@ -741,7 +741,7 @@
     .profile-card p:last-child { margin-bottom: 0; }
 
     .admin-section {
-      background: var(--bg);
+      background: var(--soft);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 14px;
@@ -763,6 +763,39 @@
       border: 1px solid var(--border);
       font: inherit;
       background: #fff;
+    }
+
+    .inline-code-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .inline-code-row input {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font: inherit;
+      background: #fff;
+    }
+
+    .mini-scanner-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 8px;
+    }
+
+    .mini-scanner-box video {
+      width: 100%;
+      max-height: 170px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #14080f;
+      display: block;
+      margin-bottom: 8px;
     }
 
     .recovery-dispatch-box {
@@ -999,7 +1032,7 @@
     .pick-row.done .pick-bar-fill { background: #2e7d32; }
 
     .summary-box {
-      background: var(--bg);
+      background: var(--soft);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 12px;
@@ -1008,7 +1041,7 @@
     }
 
     .status-banner { border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 12px; font-weight: 700; }
-    .status-retail { background: var(--soft); color: var(--primary-dark); }
+    .status-retail { background: #fff; color: var(--primary-dark); border: 1px solid var(--border); }
     .status-pending-total { background: var(--warn-bg); color: var(--warn); }
     .status-wholesale-ok { background: var(--ok-bg); color: var(--ok); }
 
@@ -1317,6 +1350,7 @@
         <div id="bannerListContainer" style="margin-top:12px;"></div>
       </div>
 
+      <!-- 6. Agregar producto rápido (solo lee código de barras con escáner) -->
       <div class="admin-section">
         <h4>Agregar producto rápido</h4>
         <div class="field">
@@ -1350,8 +1384,18 @@
           </div>
         </div>
         <div class="field">
-          <label>Código de barras (opcional)</label>
-          <input type="text" id="newProdBarcode" placeholder="Ej. 750100100999" />
+          <label>Código de barras (escanéalo para llenarlo solo)</label>
+          <div class="inline-code-row">
+            <input type="text" id="newProdBarcode" placeholder="Escanea el producto..." />
+            <button type="button" class="btn-gold" id="newProdScanBtn" onclick="toggleNewProdBarcodeScanner()">📷 Escanear</button>
+          </div>
+          <div class="mini-scanner-box" id="newProdScannerPanel" style="display:none;">
+            <video id="newProdVideo" playsinline muted></video>
+            <p id="newProdScanStatus" style="font-size:12px; color:var(--muted); margin-bottom:6px;">
+              Apunta la cámara al código de barras para capturarlo aquí.
+            </p>
+            <button type="button" class="btn-outline" style="padding:5px 10px; font-size:11px;" onclick="stopNewProdBarcodeScanner()">Cerrar cámara</button>
+          </div>
         </div>
         <div class="field">
           <label>Enlace de reseña (YouTube / TikTok opcional)</label>
@@ -1425,6 +1469,11 @@
       scanTimer: null,
       lastCodeTime: 0,
       lastCodeValue: ""
+    };
+
+    const newProdScanSession = {
+      cameraStream: null,
+      scanTimer: null
     };
 
     const DEFAULT_PRODUCTS = [
@@ -1589,6 +1638,85 @@
       ],
       products: DEFAULT_PRODUCTS.map((p) => ({ ...p }))
     };
+
+    function stopNewProdBarcodeScanner() {
+      if (newProdScanSession.scanTimer) {
+        clearInterval(newProdScanSession.scanTimer);
+        newProdScanSession.scanTimer = null;
+      }
+      if (newProdScanSession.cameraStream) {
+        newProdScanSession.cameraStream.getTracks().forEach((t) => t.stop());
+        newProdScanSession.cameraStream = null;
+      }
+      const video = document.getElementById("newProdVideo");
+      if (video) {
+        video.pause();
+        video.srcObject = null;
+      }
+      const panel = document.getElementById("newProdScannerPanel");
+      if (panel) panel.style.display = "none";
+      const btn = document.getElementById("newProdScanBtn");
+      if (btn) btn.textContent = "📷 Escanear";
+    }
+
+    async function toggleNewProdBarcodeScanner() {
+      if (newProdScanSession.cameraStream) {
+        stopNewProdBarcodeScanner();
+        return;
+      }
+
+      const panel = document.getElementById("newProdScannerPanel");
+      const statusEl = document.getElementById("newProdScanStatus");
+      const btn = document.getElementById("newProdScanBtn");
+      if (panel) panel.style.display = "block";
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (statusEl) statusEl.textContent = "Este navegador no abre cámara aquí; escribe o pega el código arriba.";
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } },
+          audio: false
+        });
+        newProdScanSession.cameraStream = stream;
+        const video = document.getElementById("newProdVideo");
+        video.srcObject = stream;
+        await video.play();
+        if (btn) btn.textContent = "Detener";
+
+        if ("BarcodeDetector" in window) {
+          if (statusEl) statusEl.textContent = "Escaneando código de barras...";
+          const detector = new BarcodeDetector({
+            formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39", "qr_code"]
+          });
+          newProdScanSession.scanTimer = setInterval(async () => {
+            if (!newProdScanSession.cameraStream || video.readyState < 2) return;
+            try {
+              const codes = await detector.detect(video);
+              if (codes && codes.length) {
+                const val = (codes[0].rawValue || "").trim();
+                if (val) {
+                  document.getElementById("newProdBarcode").value = val;
+                  if (navigator.vibrate) {
+                    try { navigator.vibrate(70); } catch (e) {}
+                  }
+                  showToast(`Código capturado: ${val}`);
+                  stopNewProdBarcodeScanner();
+                }
+              }
+            } catch (err) {}
+          }, 300);
+        } else if (statusEl) {
+          statusEl.textContent = "Cámara activa. Si no detecta automático, enfoca el código o escríbelo arriba.";
+        }
+      } catch (err) {
+        if (statusEl) {
+          statusEl.textContent = "No se pudo abrir la cámara (revisa permisos o escribe el código arriba).";
+        }
+      }
+    }
 
     function syncHeaderScrollState() {
       const header = document.getElementById("mainHeader");
@@ -1992,6 +2120,9 @@
     function closeModal(id) {
       if (id === "scannerModal") {
         stopCameraScanner();
+      }
+      if (id === "adminModal") {
+        stopNewProdBarcodeScanner();
       }
       document.getElementById(id).classList.remove("open");
     }
@@ -2818,7 +2949,7 @@
       canvas.height = height;
       const ctx = canvas.getContext("2d");
 
-      ctx.fillStyle = "#fdf6f9";
+      ctx.fillStyle = "#f8d7e3";
       ctx.fillRect(0, 0, width, height);
 
       const cardX = padding;
@@ -2826,7 +2957,7 @@
       const cardW = width - padding * 2;
       const cardH = height - padding * 2;
       ctx.fillStyle = "#ffffff";
-      ctx.strokeStyle = "#f0d6e0";
+      ctx.strokeStyle = "#efc2d4";
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.roundRect(cardX, cardY, cardW, cardH, 20);
@@ -2845,7 +2976,7 @@
       ctx.font = "14px system-ui, -apple-system, sans-serif";
       ctx.fillText("Hoja de surtido · KS Cosmetics Mayoreo", cardX + 24, cardY + 106);
 
-      ctx.strokeStyle = "#f0d6e0";
+      ctx.strokeStyle = "#efc2d4";
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(cardX + 20, cardY + 128);
@@ -3985,6 +4116,7 @@
 
     function logoutDemo() {
       stopCameraScanner();
+      stopNewProdBarcodeScanner();
       userStores.guest = { favorites: [], cart: [], orders: [] };
       state.activeUserKey = "guest";
       state.user = null;
@@ -4346,6 +4478,7 @@
     }
 
     async function addNewProduct() {
+      stopNewProdBarcodeScanner();
       const name = document.getElementById("newProdName").value.trim();
       const brand = document.getElementById("newProdBrand").value.trim() || "KS Studio";
       const category = document.getElementById("newProdCat").value;

@@ -98,9 +98,7 @@
       transition: gap 0.22s ease;
     }
 
-    header.scrolled .header-top {
-      gap: 6px;
-    }
+    header.scrolled .header-top { gap: 6px; }
 
     .brand-box {
       display: flex;
@@ -259,11 +257,7 @@
       min-height: 220px;
     }
 
-    .banner-image-stage {
-      position: relative;
-      width: 100%;
-      display: block;
-    }
+    .banner-image-stage { position: relative; width: 100%; display: block; }
 
     .banner-hero-img {
       width: 100%;
@@ -611,9 +605,7 @@
       z-index: 40;
     }
 
-    #scannerModal {
-      z-index: 55;
-    }
+    #scannerModal { z-index: 55; }
 
     .modal-backdrop.open { display: flex; }
 
@@ -2451,7 +2443,7 @@
 
       const grouped = new Map();
       rawItems.forEach((it) => {
-        const p = state.products.find((prod) => prod.id === it.prodId);
+        const p = state.products.find((prod) => Number(prod.id) === Number(it.prodId));
         const shade = it.shade || "";
         const key = `${it.prodId}__${shade}`;
         const qty = Number(it.qty) || 1;
@@ -2923,10 +2915,10 @@
     }
 
     function adjustSelectionQty(prodId, shade, delta) {
-      const p = state.products.find((item) => item.id === prodId);
+      const p = state.products.find((item) => Number(item.id) === Number(prodId));
       if (!p) return;
       const store = getCurrentStore();
-      const idx = store.cart.findIndex((item) => item.prodId === prodId && item.shade === shade);
+      const idx = store.cart.findIndex((item) => Number(item.prodId) === Number(prodId) && item.shade === shade);
 
       if (idx >= 0) {
         const nextQty = (Number(store.cart[idx].qty) || 0) + delta;
@@ -3042,7 +3034,7 @@
     }
 
     function openDetail(prodId) {
-      const p = state.products.find((item) => item.id === prodId);
+      const p = state.products.find((item) => Number(item.id) === Number(prodId));
       if (!p) return;
       const activeShadeName = state.selectedShades[p.id] || p.shades[0].name;
       const shadeObj = p.shades.find((s) => s.name === activeShadeName) || p.shades[0];
@@ -3098,11 +3090,11 @@
     }
 
     function addToCart(prodId) {
-      const p = state.products.find((item) => item.id === prodId);
+      const p = state.products.find((item) => Number(item.id) === Number(prodId));
       if (!p) return;
       const store = getCurrentStore();
       const shade = state.selectedShades[p.id] || p.shades[0].name;
-      const existing = store.cart.find((item) => item.prodId === prodId && item.shade === shade);
+      const existing = store.cart.find((item) => Number(item.prodId) === Number(prodId) && item.shade === shade);
       if (existing) {
         existing.qty += 1;
       } else {
@@ -3138,15 +3130,21 @@
 
     function getCartTotals(forceRetail = false) {
       const store = getCurrentStore();
-      const totalPieces = store.cart.reduce((acc, item) => acc + item.qty, 0);
+      const totalPieces = store.cart.reduce((acc, item) => acc + (Number(item.qty) || 1), 0);
       let retailSubtotal = 0;
       let wholesaleTotal = 0;
 
       store.cart.forEach((item) => {
-        const p = state.products.find((prod) => prod.id === item.prodId);
-        if (!p) return;
-        retailSubtotal += p.retail * item.qty;
-        wholesaleTotal += p.wholesale * item.qty;
+        const p = state.products.find((prod) => Number(prod.id) === Number(item.prodId));
+        const qty = Number(item.qty) || 1;
+        if (p) {
+          retailSubtotal += (Number(p.retail) || 0) * qty;
+          wholesaleTotal += (Number(p.wholesale) || 0) * qty;
+        } else {
+          const fallbackUnit = Number(item.unitPrice) || 0;
+          retailSubtotal += fallbackUnit * qty;
+          wholesaleTotal += fallbackUnit * qty;
+        }
       });
 
       const wholesaleUser = isWholesaleAccount() && !forceRetail;
@@ -3193,7 +3191,7 @@
 
     function normalizeOrderRows(items, useWholesale) {
       return (items || []).map((it) => {
-        const p = state.products.find((prod) => prod.id === it.prodId);
+        const p = state.products.find((prod) => Number(prod.id) === Number(it.prodId));
         const name = it.name || (p ? p.name : "Producto");
         const brand = it.brand || (p && p.brand) || "General";
         const shade = it.shade || "";
@@ -3205,8 +3203,8 @@
             ? it.unitPrice
             : p
               ? useWholesale
-                ? p.wholesale
-                : p.retail
+                ? Number(p.wholesale)
+                : Number(p.retail)
               : 0;
         const lineTotal = typeof it.lineTotal === "number" ? it.lineTotal : unitPrice * qty;
         return { name, brand, shade, emoji, barcode, qty, unitPrice, lineTotal };
@@ -3332,14 +3330,17 @@
 
       container.innerHTML = store.cart
         .map((item, idx) => {
-          const p = state.products.find((prod) => prod.id === item.prodId);
-          if (!p) return "";
-          const unitPrice = totals.useWholesalePricing ? p.wholesale : p.retail;
+          const p = state.products.find((prod) => Number(prod.id) === Number(item.prodId));
+          const prodName = item.name || (p ? p.name : "Producto");
+          const brand = item.brand || (p && p.brand) || "General";
+          const unitPrice = p
+            ? (totals.useWholesalePricing ? Number(p.wholesale) : Number(p.retail))
+            : (Number(item.unitPrice) || 0);
           return `
             <div class="cart-item">
               <div>
-                <strong>${p.name}</strong> <span style="font-size:11px; color:var(--muted);">[${p.brand || "General"}]</span>
-                <div style="font-size:12px; color:var(--muted);">Tono: ${item.shade} · $${unitPrice} c/u</div>
+                <strong>${prodName}</strong> <span style="font-size:11px; color:var(--muted);">[${brand}]</span>
+                <div style="font-size:12px; color:var(--muted);">Tono: ${item.shade || "Tono"} · $${unitPrice} c/u</div>
               </div>
               <div class="qty-box">
                 <button class="qty-btn" onclick="changeQty(${idx}, -1)">-</button>
@@ -3476,107 +3477,128 @@
     }
 
     async function submitCustomerOrder(forceRetail = false, openWhatsApp = false) {
-      const store = getCurrentStore();
-      if (!store.cart.length) {
-        showToast("Agrega al menos un producto primero");
-        return;
-      }
+      try {
+        const store = getCurrentStore();
+        if (!store || !Array.isArray(store.cart) || !store.cart.length) {
+          showToast("Agrega al menos un producto primero");
+          return;
+        }
 
-      const totals = getCartTotals(forceRetail);
+        const totals = getCartTotals(forceRetail);
 
-      if (!totals.wholesaleUser && totals.unlockedBySubtotal && !totals.meetsFinalWholesaleTotal) {
-        showToast(`Agrega $${totals.missingFinalWholesaleTotal} MXN más en mayoreo o elige Confirmar como Menudeo`);
-        return;
-      }
+        if (!totals.wholesaleUser && totals.unlockedBySubtotal && !totals.meetsFinalWholesaleTotal) {
+          showToast(`Agrega $${totals.missingFinalWholesaleTotal} MXN más en mayoreo o elige Confirmar como Menudeo`);
+          return;
+        }
 
-      const name = document.getElementById("custName").value.trim() || (state.user && state.user.name) || "Clienta";
-      const phone = document.getElementById("custPhone").value.trim() || (state.user && state.user.phone) || "Sin especificar";
-      const address = document.getElementById("custAddress").value.trim() || "Sin dirección especificada";
-      const delivery = document.getElementById("custDelivery").value.trim() || "Por coordinar";
-      const folio = state.draftFolio || ("KS-" + Math.floor(1000 + Math.random() * 9000));
-      state.draftFolio = "KS-" + Math.floor(1000 + Math.random() * 9000);
+        const nameEl = document.getElementById("custName");
+        const phoneEl = document.getElementById("custPhone");
+        const addressEl = document.getElementById("custAddress");
+        const deliveryEl = document.getElementById("custDelivery");
 
-      const statusLabel = isAdminAccount()
-        ? "Pedido Admin · Pendiente surtido"
-        : isWarehouseAccount()
-          ? "Orden Bodega · Pendiente surtido"
-          : totals.wholesaleUser
-            ? "Mayorista · Pendiente surtido"
-            : totals.meetsFinalWholesaleTotal
-              ? "Mayoreo ($1,000+) · Pendiente surtido"
-              : "Menudeo · Pendiente surtido";
+        const name = (nameEl?.value || "").trim() || (state.user && state.user.name) || "Clienta";
+        const phone = (phoneEl?.value || "").trim() || (state.user && state.user.phone) || "Sin especificar";
+        const address = (addressEl?.value || "").trim() || "Sin dirección especificada";
+        const delivery = (deliveryEl?.value || "").trim() || "Por coordinar";
 
-      const detailedItems = store.cart.map((item) => {
-        const p = state.products.find((prod) => prod.id === item.prodId);
-        const brand = p.brand || "General";
-        const barcode = p.barcode || `KS-${p.id}`;
-        const unit = totals.useWholesalePricing ? p.wholesale : p.retail;
-        const lineTotal = unit * item.qty;
-        return {
-          ...item,
-          name: p.name,
-          brand,
-          barcode,
-          emoji: p.emoji,
-          unitPrice: unit,
-          lineTotal
-        };
-      });
+        const folio = state.draftFolio || ("KS-" + Math.floor(1000 + Math.random() * 9000));
+        state.draftFolio = "KS-" + Math.floor(1000 + Math.random() * 9000);
 
-      const newOrder = {
-        folio,
-        date: new Date().toLocaleDateString("es-MX"),
-        clientName: name,
-        phone,
-        clientAddress: address,
-        deliveryType: delivery,
-        total: totals.finalTotal,
-        totalUnits: totals.totalPieces,
-        statusLabel,
-        useWholesalePricing: totals.useWholesalePricing,
-        items: detailedItems
-      };
+        const statusLabel = isAdminAccount()
+          ? "Pedido Admin · Pendiente surtido"
+          : isWarehouseAccount()
+            ? "Orden Bodega · Pendiente surtido"
+            : totals.wholesaleUser
+              ? "Mayorista · Pendiente surtido"
+              : totals.meetsFinalWholesaleTotal
+                ? "Mayoreo ($1,000+) · Pendiente surtido"
+                : "Menudeo · Pendiente surtido";
 
-      const cloudId = await persistOrderToCloud(newOrder);
-      if (cloudId) newOrder.cloudId = cloudId;
-
-      store.orders.unshift(newOrder);
-      mergeSharedOrder(newOrder);
-      state.selectedTrayClientKey = buildClientGroupKey(name, phone);
-
-      if (openWhatsApp) {
-        const unitsWord = totals.totalPieces === 1 ? "unidad" : "unidades";
-        const lines = [
-          `*Orden #${folio}* · ${statusLabel}`,
-          `*${totals.totalPieces} ${unitsWord}*`,
-          `Clienta: ${name}`,
-          `Tel: ${phone}`,
-          `Dirección: ${address}`,
-          `Entrega: ${delivery}`,
-          `------------------------------`
-        ];
-        detailedItems.forEach((it) => {
-          lines.push(`${it.emoji} *${it.name}*`);
-          lines.push(`${it.brand} · ${it.shade} · Cód: ${it.barcode}`);
-          lines.push(`${it.qty} × $${it.unitPrice} MXN — *$${it.lineTotal} MXN*`);
-          lines.push(``);
+        const detailedItems = store.cart.map((item) => {
+          const p = state.products.find((prod) => Number(prod.id) === Number(item.prodId));
+          const prodName = item.name || (p ? p.name : "Producto");
+          const brand = item.brand || (p && p.brand) || "General";
+          const barcode = item.barcode || (p && p.barcode) || `KS-${item.prodId}`;
+          const emoji = item.emoji || (p && p.emoji) || "✨";
+          const unit = p
+            ? (totals.useWholesalePricing ? Number(p.wholesale) : Number(p.retail))
+            : (Number(item.unitPrice) || 0);
+          const qty = Number(item.qty) || 1;
+          const lineTotal = unit * qty;
+          return {
+            ...item,
+            qty,
+            name: prodName,
+            brand,
+            barcode,
+            emoji,
+            unitPrice: unit,
+            lineTotal
+          };
         });
-        while (lines.length && lines[lines.length - 1] === "") lines.pop();
-        lines.push(`------------------------------`);
-        if (totals.savings > 0) lines.push(`Ahorro mayoreo: -$${totals.savings} MXN`);
-        lines.push(`*Total: $${totals.finalTotal} MXN*`);
 
-        const cleanWa = state.waNumber.replace(/\D/g, "");
-        window.open(`https://wa.me/${cleanWa}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener");
+        const newOrder = {
+          folio,
+          date: new Date().toLocaleDateString("es-MX"),
+          clientName: name,
+          phone,
+          clientAddress: address,
+          deliveryType: delivery,
+          total: totals.finalTotal,
+          totalUnits: totals.totalPieces,
+          statusLabel,
+          useWholesalePricing: totals.useWholesalePricing,
+          items: detailedItems
+        };
+
+        store.orders.unshift(newOrder);
+        mergeSharedOrder(newOrder);
+        state.selectedTrayClientKey = buildClientGroupKey(name, phone);
+
+        if (openWhatsApp) {
+          const unitsWord = totals.totalPieces === 1 ? "unidad" : "unidades";
+          const lines = [
+            `*Orden #${folio}* · ${statusLabel}`,
+            `*${totals.totalPieces} ${unitsWord}*`,
+            `Clienta: ${name}`,
+            `Tel: ${phone}`,
+            `Dirección: ${address}`,
+            `Entrega: ${delivery}`,
+            `------------------------------`
+          ];
+          detailedItems.forEach((it) => {
+            lines.push(`${it.emoji} *${it.name}*`);
+            lines.push(`${it.brand} · ${it.shade || "Tono"} · Cód: ${it.barcode}`);
+            lines.push(`${it.qty} × $${it.unitPrice} MXN — *$${it.lineTotal} MXN*`);
+            lines.push(``);
+          });
+          while (lines.length && lines[lines.length - 1] === "") lines.pop();
+          lines.push(`------------------------------`);
+          if (totals.savings > 0) lines.push(`Ahorro mayoreo: -$${totals.savings} MXN`);
+          lines.push(`*Total: $${totals.finalTotal} MXN*`);
+
+          const cleanWa = (state.waNumber || "").replace(/\D/g, "");
+          window.open(`https://wa.me/${cleanWa}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener");
+        }
+
+        store.cart = [];
+        savePersistentState();
+        updateBadges();
+        renderCart();
+        renderProducts(state.activeTab === "favorites");
+        closeModal("cartModal");
+        showToast(`✓ Pedido #${folio} guardado y enviado a Bodega`);
+
+        persistOrderToCloud(newOrder).then((cloudId) => {
+          if (cloudId) {
+            newOrder.cloudId = cloudId;
+            savePersistentState();
+          }
+        }).catch(() => {});
+      } catch (err) {
+        console.error("Error al confirmar pedido:", err);
+        showToast("Error al confirmar: " + (err && err.message ? err.message : "revisa consola"));
       }
-
-      store.cart = [];
-      savePersistentState();
-      updateBadges();
-      renderCart();
-      renderProducts(state.activeTab === "favorites");
-      closeModal("cartModal");
-      showToast(`✓ Pedido #${folio} guardado y sincronizado para Bodega y Admin`);
     }
 
     function setAuthMode(mode) {
@@ -4280,7 +4302,7 @@
       const ord = store.orders[orderIndex];
       if (!ord) return;
       ord.items.forEach((it) => {
-        const existing = store.cart.find((c) => c.prodId === it.prodId && c.shade === it.shade);
+        const existing = store.cart.find((c) => Number(c.prodId) === Number(it.prodId) && c.shade === it.shade);
         if (existing) existing.qty += it.qty;
         else store.cart.push({ prodId: it.prodId, shade: it.shade, qty: it.qty });
       });
@@ -4303,7 +4325,7 @@
     }
 
     async function updateProductBarcode(prodId, newCode) {
-      const p = state.products.find((item) => item.id === prodId);
+      const p = state.products.find((item) => Number(item.id) === Number(prodId));
       if (!p) return;
       p.barcode = (newCode || "").trim() || `KS-${prodId}`;
       savePersistentState();
@@ -4370,7 +4392,7 @@
       ];
 
       for (const imp of sampleImported) {
-        if (!state.products.some((p) => p.id === imp.id)) {
+        if (!state.products.some((p) => Number(p.id) === Number(imp.id))) {
           state.products.unshift(imp);
           state.selectedShades[imp.id] = imp.shades[0].name;
           await upsertProductToCloud(imp);
@@ -4521,7 +4543,7 @@
     }
 
     async function toggleBannerActive(id) {
-      const item = state.banners.find((b) => b.id === id);
+      const item = state.banners.find((b) => Number(b.id) === Number(id));
       if (!item) return;
       item.active = !item.active;
       savePersistentState();
@@ -4535,7 +4557,7 @@
         showToast("Deja al menos un banner activo");
         return;
       }
-      state.banners = state.banners.filter((b) => b.id !== id);
+      state.banners = state.banners.filter((b) => Number(b.id) !== Number(id));
       state.activeBannerIndex = 0;
       savePersistentState();
       await deleteBannerFromCloud(id);
@@ -4692,7 +4714,7 @@
 
     function updateBadges() {
       const store = getCurrentStore();
-      const totalPieces = store.cart.reduce((acc, item) => acc + item.qty, 0);
+      const totalPieces = store.cart.reduce((acc, item) => acc + (Number(item.qty) || 1), 0);
       const hCount = document.getElementById("headerCartCount");
       const nCount = document.getElementById("navCartCount");
       if (hCount) hCount.textContent = totalPieces;

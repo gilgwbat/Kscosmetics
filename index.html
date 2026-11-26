@@ -66,24 +66,15 @@
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--ink);
-      padding-bottom: 96px;
+      padding-bottom: 84px;
       line-height: 1.45;
     }
 
     header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
+      position: relative;
       background: rgba(255, 255, 255, 0.96);
-      backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border);
       padding: 12px 16px;
-      transition: padding 0.22s ease;
-    }
-
-    header.scrolled {
-      padding: 8px 16px;
-      box-shadow: 0 4px 16px rgba(136, 14, 79, 0.08);
     }
 
     .header-top {
@@ -95,10 +86,7 @@
       justify-content: center;
       gap: 10px;
       text-align: center;
-      transition: gap 0.22s ease;
     }
-
-    header.scrolled .header-top { gap: 6px; }
 
     .brand-box {
       display: flex;
@@ -106,17 +94,6 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      max-height: 160px;
-      opacity: 1;
-      overflow: hidden;
-      transition: max-height 0.25s ease, opacity 0.18s ease, margin 0.25s ease;
-    }
-
-    header.scrolled .brand-box {
-      max-height: 0;
-      opacity: 0;
-      margin: 0;
-      pointer-events: none;
     }
 
     .logo {
@@ -216,6 +193,19 @@
       border: 1px solid #f5d67b;
       font-weight: 800;
       padding: 9px 12px;
+    }
+
+    .btn-remove {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--err-bg);
+      color: var(--err);
+      font-weight: 800;
+      font-size: 13px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
     }
 
     .btn-link {
@@ -569,23 +559,29 @@
 
     .floating-cart-btn {
       position: fixed;
+      left: auto;
+      top: auto;
       right: 16px;
       bottom: 78px;
-      z-index: 26;
+      z-index: 30;
       background: var(--primary);
       color: #fff;
       font-weight: 800;
       font-size: 13px;
       padding: 11px 16px;
       border-radius: 999px;
-      box-shadow: 0 10px 24px rgba(136, 14, 79, 0.32);
+      box-shadow: 0 10px 24px rgba(136, 14, 79, 0.34);
       display: none;
       align-items: center;
       gap: 8px;
-      border: 2px solid rgba(255, 255, 255, 0.85);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      touch-action: none;
+      user-select: none;
+      cursor: grab;
     }
 
     .floating-cart-btn.visible { display: inline-flex; }
+    .floating-cart-btn.dragging { cursor: grabbing; transform: scale(1.04); }
     .floating-cart-btn:hover { background: var(--primary-dark); }
 
     .bottom-nav {
@@ -1217,7 +1213,7 @@
     <section class="grid" id="productGrid"></section>
   </main>
 
-  <button class="floating-cart-btn" id="floatingCartBtn" onclick="openModal('cartModal')" title="Ver tu bolsa">
+  <button class="floating-cart-btn" id="floatingCartBtn" title="Arrastra o toca para ver tu bolsa">
     <span>🧺 Bolsa</span>
     <span class="cart-count" id="floatingCartCount">0</span>
     <span id="floatingCartTotal">$0</span>
@@ -1246,15 +1242,24 @@
   <div class="modal-backdrop" id="ordersTrayModal" onclick="backdropClose(event, 'ordersTrayModal')">
     <div class="modal">
       <div class="modal-head">
-        <h3>📦 Pedidos de Clientas · Surtido</h3>
+        <h3>📦 Pedidos · Bodega e Historial</h3>
         <div style="display:flex; align-items:center; gap:8px;">
           <button class="btn-soft" onclick="refreshSharedOrders(true)">🔄 Actualizar</button>
           <button class="close-btn" onclick="closeModal('ordersTrayModal')">✕</button>
         </div>
       </div>
 
+      <div class="auth-tabs" id="trayStatusTabs">
+        <button class="auth-tab-btn active" id="tabTrayPending" onclick="setTrayStatusTab('pending')">
+          ⏳ Pedidos pendientes (0)
+        </button>
+        <button class="auth-tab-btn" id="tabTrayReady" onclick="setTrayStatusTab('ready')">
+          ✓ Pedidos listos · Historial (0)
+        </button>
+      </div>
+
       <div class="field">
-        <label>1. Seleccionar clienta</label>
+        <label>Filtrar por clienta</label>
         <select id="trayClientSelect" onchange="onTrayClientChange(this.value)"></select>
       </div>
 
@@ -1291,7 +1296,7 @@
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
         <button class="btn-primary" id="toggleCamBtn" onclick="toggleCameraScanner()">Encender cámara</button>
         <button class="btn-soft" onclick="resetPickSession()">Reiniciar conteo</button>
-        <button class="btn-gold" onclick="markCurrentPickOrderDone()">✓ Listo</button>
+        <button class="btn-gold" onclick="markCurrentPickOrderDone(true)">✓ Listo y enviar WhatsApp</button>
       </div>
 
       <div class="field">
@@ -1372,7 +1377,7 @@
     </div>
   </div>
 
-  <!-- Modal Operativo / Admin (Bodega: inventario + alta de productos; Admin: todo) -->
+  <!-- Modal Operativo / Admin (Bodega: inventario + alta/baja de productos; Admin: todo) -->
   <div class="modal-backdrop" id="adminModal" onclick="backdropClose(event, 'adminModal')">
     <div class="modal">
       <div class="modal-head">
@@ -1383,15 +1388,15 @@
       <div class="admin-section">
         <h4>Pedidos sincronizados de clientas</h4>
         <p style="font-size:12px; color:var(--muted); margin-bottom:8px;">
-          Revisa pedidos de clientas por nombre o teléfono y pasa directo a surtir con el escáner.
+          Revisa pedidos pendientes y el historial de pedidos listos para surtir o enviar por WhatsApp.
         </p>
         <button class="btn-gold" onclick="closeModal('adminModal'); openOrdersTrayModal();">
-          📦 Ver pedidos por clienta
+          📦 Ver pedidos pendientes y listos
         </button>
       </div>
 
       <div class="admin-section">
-        <h4>Inventario y códigos de barras de productos</h4>
+        <h4>Inventario, códigos de barras y eliminar productos</h4>
         <div id="barcodeAdminList"></div>
       </div>
 
@@ -1790,9 +1795,11 @@
       activeTab: "catalog",
       activeUserKey: "guest",
       draftFolio: "KS-7835",
-      selectedTrayClientKey: "",
+      trayStatusTab: "pending",
+      selectedTrayClientKey: "__ALL__",
       lastCheckoutAddress: "",
       lastCheckoutDelivery: "",
+      floatingCartPos: null,
       user: null,
       staffAccounts: {
         admin: {
@@ -2094,10 +2101,98 @@
       }
     }
 
-    function syncHeaderScrollState() {
-      const header = document.getElementById("mainHeader");
-      if (!header) return;
-      header.classList.toggle("scrolled", window.scrollY > 36);
+    function applyFloatingCartPosition() {
+      const btn = document.getElementById("floatingCartBtn");
+      if (!btn) return;
+      const pos = state.floatingCartPos;
+      if (!pos || typeof pos.left !== "number" || typeof pos.top !== "number") {
+        btn.style.left = "auto";
+        btn.style.top = "auto";
+        btn.style.right = "16px";
+        btn.style.bottom = "78px";
+        return;
+      }
+      const rect = btn.getBoundingClientRect();
+      const w = rect.width || 130;
+      const h = rect.height || 42;
+      const maxX = Math.max(8, window.innerWidth - w - 8);
+      const maxY = Math.max(8, window.innerHeight - h - 8);
+      const clampedX = Math.min(maxX, Math.max(8, pos.left));
+      const clampedY = Math.min(maxY, Math.max(8, pos.top));
+      btn.style.right = "auto";
+      btn.style.bottom = "auto";
+      btn.style.left = `${clampedX}px`;
+      btn.style.top = `${clampedY}px`;
+    }
+
+    function initDraggableFloatingCart() {
+      const btn = document.getElementById("floatingCartBtn");
+      if (!btn) return;
+
+      let dragState = null;
+
+      btn.addEventListener("pointerdown", (e) => {
+        if (e.button !== undefined && e.button !== 0 && e.pointerType === "mouse") return;
+        const rect = btn.getBoundingClientRect();
+        dragState = {
+          pointerId: e.pointerId,
+          startX: e.clientX,
+          startY: e.clientY,
+          originLeft: rect.left,
+          originTop: rect.top,
+          moved: false
+        };
+        try { btn.setPointerCapture(e.pointerId); } catch (err) {}
+      });
+
+      btn.addEventListener("pointermove", (e) => {
+        if (!dragState || e.pointerId !== dragState.pointerId) return;
+        const dx = e.clientX - dragState.startX;
+        const dy = e.clientY - dragState.startY;
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+          dragState.moved = true;
+          btn.classList.add("dragging");
+        }
+        if (!dragState.moved) return;
+
+        const w = btn.offsetWidth || 130;
+        const h = btn.offsetHeight || 42;
+        const nextLeft = Math.min(window.innerWidth - w - 8, Math.max(8, dragState.originLeft + dx));
+        const nextTop = Math.min(window.innerHeight - h - 8, Math.max(8, dragState.originTop + dy));
+
+        btn.style.right = "auto";
+        btn.style.bottom = "auto";
+        btn.style.left = `${nextLeft}px`;
+        btn.style.top = `${nextTop}px`;
+      });
+
+      const finishDrag = (e) => {
+        if (!dragState || e.pointerId !== dragState.pointerId) return;
+        const wasMoved = dragState.moved;
+        btn.classList.remove("dragging");
+        try { btn.releasePointerCapture(e.pointerId); } catch (err) {}
+
+        if (wasMoved) {
+          const rect = btn.getBoundingClientRect();
+          state.floatingCartPos = { left: rect.left, top: rect.top };
+          savePersistentState();
+          btn.dataset.suppressClick = "1";
+          setTimeout(() => {
+            delete btn.dataset.suppressClick;
+          }, 80);
+        }
+        dragState = null;
+      };
+
+      btn.addEventListener("pointerup", finishDrag);
+      btn.addEventListener("pointercancel", finishDrag);
+
+      btn.addEventListener("click", () => {
+        if (btn.dataset.suppressClick === "1") return;
+        openModal("cartModal");
+      });
+
+      window.addEventListener("resize", applyFloatingCartPosition, { passive: true });
     }
 
     function toDbProduct(p) {
@@ -2154,6 +2249,38 @@
       try {
         await supabaseClient.from("products").upsert(toDbProduct(productObj), { onConflict: "id" });
       } catch (e) {}
+    }
+
+    async function deleteCatalogProduct(prodId) {
+      if (!isInventoryAccount()) return;
+      const numericId = Number(prodId);
+      const target = state.products.find((p) => Number(p.id) === numericId);
+      if (!target) return;
+
+      if (!window.confirm(`¿Eliminar "${target.name}" del catálogo y del inventario?`)) return;
+
+      state.products = state.products.filter((p) => Number(p.id) !== numericId);
+      delete state.selectedShades[numericId];
+
+      Object.values(userStores).forEach((st) => {
+        if (!st) return;
+        if (Array.isArray(st.cart)) {
+          st.cart = st.cart.filter((c) => Number(c.prodId) !== numericId);
+        }
+        if (Array.isArray(st.favorites)) {
+          st.favorites = st.favorites.filter((fid) => Number(fid) !== numericId);
+        }
+      });
+
+      savePersistentState();
+      renderAllViews();
+      showToast(`🗑️ "${target.name}" eliminado del catálogo`);
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from("products").delete().eq("id", numericId);
+        } catch (e) {}
+      }
     }
 
     async function loadProductsFromCloud() {
@@ -2587,9 +2714,11 @@
             activeBrand: state.activeBrand,
             activeUserKey: state.activeUserKey,
             draftFolio: state.draftFolio,
+            trayStatusTab: state.trayStatusTab,
             selectedTrayClientKey: state.selectedTrayClientKey,
             lastCheckoutAddress: state.lastCheckoutAddress,
             lastCheckoutDelivery: state.lastCheckoutDelivery,
+            floatingCartPos: state.floatingCartPos,
             user: state.user,
             staffAccounts: state.staffAccounts,
             registeredClients: state.registeredClients,
@@ -2634,6 +2763,7 @@
           }
           if (!state.activeCategory) state.activeCategory = "Todos";
           if (!state.activeBrand) state.activeBrand = "Todas";
+          if (!state.trayStatusTab) state.trayStatusTab = "pending";
         }
         if (parsed && parsed.userStores) {
           Object.assign(userStores, parsed.userStores);
@@ -2723,10 +2853,12 @@
       renderAuth();
       renderAdminLists();
       updateBadges();
+      applyFloatingCartPosition();
     }
 
     function init() {
       loadPersistentState();
+      initDraggableFloatingCart();
       prefillCheckoutFields();
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -2736,6 +2868,7 @@
           (o) => String(o.folio || "").toLowerCase() === sharedFolioParam.toLowerCase()
         );
         if (matchOrd) {
+          state.trayStatusTab = isOrderFulfilled(matchOrd) ? "ready" : "pending";
           state.selectedTrayClientKey = buildClientGroupKey(matchOrd.clientName, matchOrd.phone);
         }
         showToast(`Folio de orden detectado: #${sharedFolioParam}`);
@@ -2744,8 +2877,6 @@
       document.getElementById("adminWaNumber").value = state.waNumber;
       document.getElementById("adminStoreId").value = state.tiendanubeStoreId;
       document.getElementById("syncLogText").textContent = state.lastSyncText;
-      window.addEventListener("scroll", syncHeaderScrollState, { passive: true });
-      syncHeaderScrollState();
 
       renderAllViews();
 
@@ -2762,6 +2893,7 @@
                   (o) => String(o.folio || "").toLowerCase() === sharedFolioParam.toLowerCase()
                 );
                 if (matchOrdAfterSync) {
+                  state.trayStatusTab = isOrderFulfilled(matchOrdAfterSync) ? "ready" : "pending";
                   state.selectedTrayClientKey = buildClientGroupKey(matchOrdAfterSync.clientName, matchOrdAfterSync.phone);
                 }
               }
@@ -2853,9 +2985,25 @@
       if (notify) showToast("Pedidos actualizados");
     }
 
+    function setTrayStatusTab(tab) {
+      if (!isStaffTrayAccount()) return;
+      state.trayStatusTab = tab === "ready" ? "ready" : "pending";
+      state.selectedTrayClientKey = "__ALL__";
+      savePersistentState();
+      renderOrdersTray();
+    }
+
+    function getOrdersForActiveTrayTab() {
+      const wantReady = state.trayStatusTab === "ready";
+      return state.sharedOrders.filter((ord) =>
+        wantReady ? isOrderFulfilled(ord) : !isOrderFulfilled(ord)
+      );
+    }
+
     function getClientGroupsForTray() {
+      const filteredOrders = getOrdersForActiveTrayTab();
       const groupsMap = new Map();
-      state.sharedOrders.forEach((ord) => {
+      filteredOrders.forEach((ord) => {
         const name = ord.clientName || "Clienta";
         const phone = ord.phone || "";
         const key = buildClientGroupKey(name, phone);
@@ -2872,8 +3020,11 @@
       return [...groupsMap.values()];
     }
 
-    async function openOrdersTrayModal() {
+    async function openOrdersTrayModal(preferredTab = null) {
       if (!isStaffTrayAccount()) return;
+      if (preferredTab === "pending" || preferredTab === "ready") {
+        state.trayStatusTab = preferredTab;
+      }
       await loadSharedOrdersFromCloud();
       renderOrdersTray();
       document.getElementById("ordersTrayModal").classList.add("open");
@@ -2888,29 +3039,52 @@
 
     function renderOrdersTray() {
       const selectEl = document.getElementById("trayClientSelect");
+      const tabPendEl = document.getElementById("tabTrayPending");
+      const tabReadyEl = document.getElementById("tabTrayReady");
       if (!selectEl) return;
 
+      const totalPending = state.sharedOrders.filter((o) => !isOrderFulfilled(o)).length;
+      const totalReady = state.sharedOrders.filter((o) => isOrderFulfilled(o)).length;
+
+      if (tabPendEl) {
+        tabPendEl.classList.toggle("active", state.trayStatusTab !== "ready");
+        tabPendEl.textContent = `⏳ Pedidos pendientes (${totalPending})`;
+      }
+      if (tabReadyEl) {
+        tabReadyEl.classList.toggle("active", state.trayStatusTab === "ready");
+        tabReadyEl.textContent = `✓ Pedidos listos · Historial (${totalReady})`;
+      }
+
       const groups = getClientGroupsForTray();
+      const tabOrders = getOrdersForActiveTrayTab();
+
       if (!groups.length) {
-        selectEl.innerHTML = `<option value="">Sin pedidos registrados aún</option>`;
-        document.getElementById("trayOrdersListContainer").innerHTML = `
-          <p style="font-size:13px; color:var(--muted);">Aún no hay pedidos de clientas sincronizados.</p>
-        `;
+        selectEl.innerHTML = `<option value="__ALL__">${
+          state.trayStatusTab === "ready"
+            ? "Sin pedidos listos en historial aún"
+            : "Sin pedidos pendientes por surtir"
+        }</option>`;
+        renderOrdersTrayOrders();
         return;
       }
 
-      if (!groups.some((g) => g.key === state.selectedTrayClientKey)) {
-        state.selectedTrayClientKey = groups[0].key;
+      if (
+        state.selectedTrayClientKey !== "__ALL__" &&
+        !groups.some((g) => g.key === state.selectedTrayClientKey)
+      ) {
+        state.selectedTrayClientKey = "__ALL__";
       }
 
-      selectEl.innerHTML = groups
-        .map((g) => {
-          const phoneTag = g.phone && g.phone !== "Sin teléfono" ? ` (${g.phone})` : "";
-          const pendingCount = g.orders.filter((o) => !isOrderFulfilled(o)).length;
-          const pendingBadge = pendingCount > 0 ? ` · ${pendingCount} pend.` : " · ✓ Todo surtido";
-          return `<option value="${g.key.replace(/"/g, "&quot;")}" ${g.key === state.selectedTrayClientKey ? "selected" : ""}>${g.name}${phoneTag} · ${g.orders.length} ${g.orders.length === 1 ? "pedido" : "pedidos"}${pendingBadge}</option>`;
-        })
-        .join("");
+      const allOption = `<option value="__ALL__" ${state.selectedTrayClientKey === "__ALL__" ? "selected" : ""}>Todas las clientas (${tabOrders.length} ${tabOrders.length === 1 ? "pedido" : "pedidos"})</option>`;
+
+      selectEl.innerHTML =
+        allOption +
+        groups
+          .map((g) => {
+            const phoneTag = g.phone && g.phone !== "Sin teléfono" ? ` (${g.phone})` : "";
+            return `<option value="${g.key.replace(/"/g, "&quot;")}" ${g.key === state.selectedTrayClientKey ? "selected" : ""}>${g.name}${phoneTag} · ${g.orders.length} ${g.orders.length === 1 ? "pedido" : "pedidos"}</option>`;
+          })
+          .join("");
 
       renderOrdersTrayOrders();
     }
@@ -2919,17 +3093,28 @@
       const container = document.getElementById("trayOrdersListContainer");
       if (!container) return;
 
-      const groups = getClientGroupsForTray();
-      const selectedGroup = groups.find((g) => g.key === state.selectedTrayClientKey) || groups[0];
+      const tabOrders = getOrdersForActiveTrayTab();
+      const isReadyTab = state.trayStatusTab === "ready";
 
-      if (!selectedGroup) {
-        container.innerHTML = `<p style="font-size:13px; color:var(--muted);">Selecciona una clienta para ver sus pedidos.</p>`;
+      if (!tabOrders.length) {
+        container.innerHTML = `<p style="font-size:13px; color:var(--muted);">${
+          isReadyTab
+            ? "Aún no hay pedidos marcados como surtidos en el historial."
+            : "No hay pedidos pendientes por surtir en este momento."
+        }</p>`;
         return;
       }
 
+      const visibleOrders =
+        state.selectedTrayClientKey && state.selectedTrayClientKey !== "__ALL__"
+          ? tabOrders.filter(
+              (o) => buildClientGroupKey(o.clientName, o.phone) === state.selectedTrayClientKey
+            )
+          : tabOrders;
+
       const canScan = isStaffTrayAccount();
 
-      container.innerHTML = selectedGroup.orders
+      container.innerHTML = visibleOrders
         .map((ord) => {
           const rows = normalizeOrderRows(ord.items || [], Boolean(ord.useWholesalePricing));
           const unitsCount = ord.totalUnits || rows.reduce((s, r) => s + r.qty, 0);
@@ -2962,11 +3147,12 @@
             <div class="client-order-card">
               <div class="order-sheet-head">
                 <div>
-                  <div class="order-folio">Pedido #${ord.folio}</div>
+                  <div class="order-folio">Pedido #${ord.folio} · ${ord.clientName || "Clienta"}</div>
                   <span class="order-units-pill">${unitsCount} ${unitsCount === 1 ? "unidad" : "unidades"} · ${ord.date || ""}</span>
                 </div>
                 <span class="order-status-pill ${isReady ? "ready" : ""}">${ord.statusLabel || "Pendiente surtido"}</span>
               </div>
+              ${ord.phone && ord.phone !== "Sin teléfono" ? `<p style="font-size:12px; color:var(--muted); margin-bottom:4px;">📱 ${ord.phone}</p>` : ""}
               ${ord.clientAddress ? `<p style="font-size:12px; color:var(--muted); margin-bottom:6px;">📍 ${ord.clientAddress}</p>` : ""}
               <div>${itemsMiniHtml}</div>
               ${noteHtml}
@@ -2976,8 +3162,13 @@
               </div>
               <div class="order-sheet-actions">
                 ${
-                  canScan
+                  canScan && !isReady
                     ? `<button class="btn-primary" style="flex:1;" onclick="startPickSessionByFolio('${escapedFolio}')">📷 Surtir con escáner</button>`
+                    : ""
+                }
+                ${
+                  canScan && !isReady
+                    ? `<button class="btn-gold" onclick="quickMarkTrayOrderFulfilled('${escapedFolio}')">✓ Listo + WA</button>`
                     : ""
                 }
                 <button class="btn-soft" onclick="sendSharedOrderWhatsApp('${escapedFolio}')">💬 Enviar por WhatsApp</button>
@@ -2988,6 +3179,31 @@
         .join("");
     }
 
+    async function quickMarkTrayOrderFulfilled(folio) {
+      if (!isStaffTrayAccount()) return;
+      const ord = state.sharedOrders.find((o) => String(o.folio || "") === String(folio || ""));
+      if (!ord) return;
+      await updateOrderInCloud(ord.folio, {
+        statusLabel: "Surtida en Bodega ✓"
+      });
+      state.trayStatusTab = "ready";
+      renderOrdersTray();
+      sendSharedOrderWhatsApp(ord.folio);
+      showToast(`✓ Pedido #${ord.folio} movido a Pedidos listos`);
+    }
+
+    function formatWarehouseFulfilledBanner(folio) {
+      const cleanFolio = String(folio || "").trim().toUpperCase();
+      return `# *ESTATUS DE TU PEDIDO NÚMERO ${cleanFolio} : SURTIDO EN BODEGA*`;
+    }
+
+    function resolveWhatsAppTargetPhone(clientPhone) {
+      const digits = normalizePhoneDigits(clientPhone);
+      if (digits.length === 10) return "521" + digits;
+      if (digits.length >= 11) return digits;
+      return normalizePhoneDigits(state.waNumber || "");
+    }
+
     function sendSharedOrderWhatsApp(folio) {
       if (!isStaffTrayAccount()) return;
       const ord = state.sharedOrders.find((o) => o.folio === folio);
@@ -2996,17 +3212,19 @@
       const unitsCount = ord.totalUnits || rows.reduce((s, r) => s + r.qty, 0);
       const clientName = ord.clientName || "Clienta";
       const appOrderUrl = `${window.location.origin}${window.location.pathname}?orden=${encodeURIComponent(ord.folio)}`;
+      const isReady = isOrderFulfilled(ord);
 
       const lines = [
-        `*KS Cosmetics · Orden de ${clientName}*`,
-        `*Número de orden: #${ord.folio}* · *${ord.statusLabel || "Pedido"}*`,
+        isReady ? formatWarehouseFulfilledBanner(ord.folio) : `*KS Cosmetics · Orden de ${clientName}*`,
+        isReady ? "" : `*Número de orden: #${ord.folio}* · *${ord.statusLabel || "Pedido"}*`,
+        `Clienta: *${clientName}*`,
         `Abrir en app: ${appOrderUrl}`,
         `*${unitsCount} ${unitsCount === 1 ? "unidad" : "unidades"}*`,
         ord.phone ? `Tel: ${ord.phone}` : "",
         ord.clientAddress ? `Dirección: ${ord.clientAddress}` : "",
         ord.warehouseNote ? `Nota / Ajuste: ${ord.warehouseNote}` : "",
         `------------------------------`
-      ].filter(Boolean);
+      ].filter((line) => line !== "");
 
       rows.forEach((r) => {
         lines.push(`${r.emoji} *${r.name}* (${r.shade || "Tono"})`);
@@ -3015,8 +3233,10 @@
       lines.push(`------------------------------`);
       lines.push(`*Total: $${ord.total} MXN*`);
 
-      const cleanWa = (state.waNumber || "").replace(/\D/g, "");
-      window.open(`https://wa.me/${cleanWa}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener");
+      const targetWa = isReady
+        ? resolveWhatsAppTargetPhone(ord.phone)
+        : normalizePhoneDigits(state.waNumber || "");
+      window.open(`https://wa.me/${targetWa}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener");
     }
 
     function resendSavedOrderWhatsApp(orderIndex) {
@@ -3026,17 +3246,18 @@
       const rows = normalizeOrderRows(ord.items || [], Boolean(ord.useWholesalePricing));
       const unitsCount = ord.totalUnits || rows.reduce((s, r) => s + r.qty, 0);
       const clientName = ord.clientName || (state.user && state.user.name) || "Clienta";
+      const isReady = isOrderFulfilled(ord);
 
       const lines = [
-        `*Pedido de ${clientName}*`,
-        `*Número de orden: #${ord.folio}* · *${ord.statusLabel || "Registrada"}*`,
+        isReady ? formatWarehouseFulfilledBanner(ord.folio) : `*Pedido de ${clientName}*`,
+        isReady ? "" : `*Número de orden: #${ord.folio}* · *${ord.statusLabel || "Registrada"}*`,
         `*${unitsCount} ${unitsCount === 1 ? "unidad" : "unidades"}*`,
         ord.phone ? `Tel: ${ord.phone}` : "",
         ord.clientAddress ? `Dirección: ${ord.clientAddress}` : "",
         ord.deliveryType ? `Entrega: ${ord.deliveryType}` : "",
         ord.warehouseNote ? `Nota / Ajuste: ${ord.warehouseNote}` : "",
         `------------------------------`
-      ].filter(Boolean);
+      ].filter((line) => line !== "");
 
       rows.forEach((r) => {
         lines.push(`${r.emoji} *${r.name}* (${r.shade || "Tono"})`);
@@ -3223,7 +3444,7 @@
       showToast("✓ Nota y ajuste guardados en la orden");
     }
 
-    async function markCurrentPickOrderDone() {
+    async function markCurrentPickOrderDone(openWhatsApp = true) {
       if (!isStaffTrayAccount() || !pickSession.folio) return;
       const folioActual = pickSession.folio;
       const noteInp = document.getElementById("pickWarehouseNoteInput");
@@ -3235,14 +3456,19 @@
         statusLabel: "Surtida en Bodega ✓",
         warehouseNote: pickSession.warehouseNote
       });
+      state.trayStatusTab = "ready";
       renderOrdersTray();
+
+      if (openWhatsApp) {
+        sendSharedOrderWhatsApp(folioActual);
+      }
 
       const nav = getPickFlowNavigation();
       if (nav.nextSameClientOrder || nav.nextOtherClientOrder) {
         renderPickChecklist();
-        showToast(`✓ Orden #${folioActual} marcada como surtida. Elige siguiente pedido o clienta.`);
+        showToast(`✓ Orden #${folioActual} pasó a Pedidos listos.`);
       } else {
-        showToast(`✓ Orden #${folioActual} surtida. ¡No quedan pedidos pendientes!`);
+        showToast(`✓ Orden #${folioActual} surtida y lista en historial.`);
         renderPickChecklist();
       }
     }
@@ -3275,13 +3501,16 @@
 
       if (allDone && pickSession.folio) {
         const folioCompletado = pickSession.folio;
+        const escapedFolio = String(folioCompletado).replace(/'/g, "\\'");
         if (!pickSession.markedDone) {
           pickSession.markedDone = true;
           updateOrderStatusInCloud(folioCompletado, "Surtida en Bodega ✓");
+          state.trayStatusTab = "ready";
           renderOrdersTray();
         }
 
         const nav = getPickFlowNavigation();
+        const waButtonHtml = `<button class="btn-gold" onclick="sendSharedOrderWhatsApp('${escapedFolio}')">💬 Enviar aviso WhatsApp</button>`;
 
         if (nav.nextSameClientOrder) {
           const nextOrd = nav.nextSameClientOrder;
@@ -3294,6 +3523,7 @@
                   ✓ Orden #${folioCompletado} surtida · ${pickSession.clientName || "Esta clienta"} tiene ${pendCount} ${pendCount === 1 ? "pedido pendiente más" : "pedidos pendientes más"}
                 </div>
                 <div class="next-pick-actions">
+                  ${waButtonHtml}
                   <button class="btn-primary" style="flex:1;" onclick="startPickSessionByFolio('${escapedNextFolio}')">
                     Siguiente pedido de ${pickSession.clientName || "la misma clienta"} (#${nextOrd.folio}) →
                   </button>
@@ -3310,9 +3540,10 @@
             nextFlowEl.innerHTML = `
               <div class="next-pick-banner">
                 <div class="next-pick-banner-title">
-                  ✓ Todos los pedidos de ${pickSession.clientName || "esta clienta"} quedaron surtidos
+                  ✓ Todos los pedidos de ${pickSession.clientName || "esta clienta"} pasaron a Pedidos listos
                 </div>
                 <div class="next-pick-actions">
+                  ${waButtonHtml}
                   <button class="btn-gold" style="flex:1;" onclick="startPickSessionByFolio('${escapedNextClientFolio}')">
                     Siguiente clienta: ${nextClientName} (#${nextClientOrd.folio}) →
                   </button>
@@ -3326,10 +3557,12 @@
             nextFlowEl.innerHTML = `
               <div class="next-pick-banner">
                 <div class="next-pick-banner-title">
-                  ✓ Orden #${folioCompletado} surtida · ¡No quedan pedidos pendientes!
+                  ✓ Orden #${folioCompletado} surtida y guardada en Pedidos listos
                 </div>
                 <div class="next-pick-actions">
-                  <button class="btn-outline" onclick="closeScannerModal()">Cerrar escáner</button>
+                  ${waButtonHtml}
+                  <button class="btn-soft" onclick="closeScannerModal(); openOrdersTrayModal('ready');">Ver historial</button>
+                  <button class="btn-outline" onclick="closeScannerModal()">Cerrar</button>
                 </div>
               </div>
             `;
@@ -3635,7 +3868,7 @@
       const subText = isAdminAccount()
         ? `Sesión administradora activa (<strong>${state.user.name}</strong>). Revisa <strong>📦 Pedidos</strong> o abre <strong>⚙️ Panel Operativo</strong>.`
         : warehouseUser
-          ? `Sesión <strong>Bodega</strong> activa. Abre <strong>📦 Pedidos</strong> para surtir, <strong>📷 Escáner</strong> o <strong>⚙️ Inventario</strong> para alta de productos.`
+          ? `Sesión <strong>Bodega</strong> activa. Abre <strong>📦 Pedidos</strong> para surtir, <strong>📷 Escáner</strong> o <strong>⚙️ Inventario</strong> para alta y baja de productos.`
           : wholesaleUser
             ? `Bienvenida, <strong>${state.user.name}</strong>. Tienes precios mayoristas directos en todo el catálogo.`
             : baseSub;
@@ -3979,6 +4212,20 @@
       renderProducts(state.activeTab === "favorites");
     }
 
+    function removeCartItem(index) {
+      const store = getCurrentStore();
+      const item = store.cart[index];
+      if (!item) return;
+      const p = state.products.find((prod) => Number(prod.id) === Number(item.prodId));
+      const label = item.name || (p ? p.name : "Producto");
+      store.cart.splice(index, 1);
+      savePersistentState();
+      updateBadges();
+      renderCart();
+      renderProducts(state.activeTab === "favorites");
+      showToast(`Eliminado: ${label}`);
+    }
+
     function clearCart() {
       const store = getCurrentStore();
       if (!store.cart.length) {
@@ -4218,14 +4465,15 @@
             : (Number(item.unitPrice) || 0);
           return `
             <div class="cart-item">
-              <div>
+              <div style="min-width:0; flex:1;">
                 <strong>${prodName}</strong> <span style="font-size:11px; color:var(--muted);">[${brand}]</span>
                 <div style="font-size:12px; color:var(--muted);">Tono: ${item.shade || "Tono"} · $${unitPrice} c/u</div>
               </div>
               <div class="qty-box">
-                <button class="qty-btn" onclick="changeQty(${idx}, -1)">-</button>
+                <button class="qty-btn" onclick="changeQty(${idx}, -1)" title="Restar 1">-</button>
                 <span>${item.qty}</span>
-                <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+                <button class="qty-btn" onclick="changeQty(${idx}, 1)" title="Sumar 1">+</button>
+                <button class="btn-remove" onclick="removeCartItem(${idx})" title="Eliminar producto">✕</button>
               </div>
             </div>
           `;
@@ -4452,19 +4700,21 @@
 
         store.orders.unshift(newOrder);
         mergeSharedOrder(newOrder);
-        state.selectedTrayClientKey = buildClientGroupKey(name, phone);
+        state.trayStatusTab = "pending";
+        state.selectedTrayClientKey = "__ALL__";
 
         if (openWhatsApp) {
           const unitsWord = totals.totalPieces === 1 ? "unidad" : "unidades";
+          const isReady = isOrderFulfilled(newOrder);
           const lines = [
-            `*Pedido de ${name}*`,
-            `*Número de orden: #${folio}* · ${statusLabel}`,
+            isReady ? formatWarehouseFulfilledBanner(folio) : `*Pedido de ${name}*`,
+            isReady ? "" : `*Número de orden: #${folio}* · ${statusLabel}`,
             `*${totals.totalPieces} ${unitsWord}*`,
             `Tel: ${phone}`,
             `Dirección: ${address}`,
             `Entrega: ${delivery}`,
             `------------------------------`
-          ];
+          ].filter((line) => line !== "");
           detailedItems.forEach((it) => {
             lines.push(`${it.emoji} *${it.name}*`);
             lines.push(`${it.brand} · ${it.shade || "Tono"}`);
@@ -4866,9 +5116,9 @@
           </div>
 
           <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
-            ${isAdm || isWh ? `<button class="btn-gold" onclick="closeModal('authModal'); openOrdersTrayModal();">📦 Ver Pedidos de Clientas</button>` : ""}
+            ${isAdm || isWh ? `<button class="btn-gold" onclick="closeModal('authModal'); openOrdersTrayModal();">📦 Ver Pedidos (Pendientes / Listos)</button>` : ""}
             ${isAdm ? `<button class="btn-primary" onclick="closeModal('authModal'); openAdminPanel();">Abrir Panel Admin</button>` : ""}
-            ${isWh ? `<button class="btn-primary" onclick="closeModal('authModal'); openAdminPanel();">📦 Alta e Inventario Bodega</button>` : ""}
+            ${isWh ? `<button class="btn-primary" onclick="closeModal('authModal'); openAdminPanel();">📦 Alta / Baja Inventario Bodega</button>` : ""}
             ${isWh ? `<button class="btn-soft" onclick="closeModal('authModal'); openScannerDirect();">📷 Abrir Escáner</button>` : ""}
             <button class="btn-outline" onclick="logoutDemo()">Cerrar sesión</button>
           </div>
@@ -5589,11 +5839,17 @@
               </div>
               <input
                 type="text"
-                style="width:155px; padding:6px 8px; border-radius:8px; border:1px solid var(--border); font-size:12px;"
+                style="width:130px; padding:6px 8px; border-radius:8px; border:1px solid var(--border); font-size:12px;"
                 value="${(p.barcode || "").replace(/"/g, "&quot;")}"
                 onchange="updateProductBarcode(${p.id}, this.value)"
                 placeholder="Código barras"
               />
+              <button
+                type="button"
+                class="btn-remove"
+                onclick="deleteCatalogProduct(${p.id})"
+                title="Eliminar producto del catálogo"
+              >🗑️</button>
             </div>
           `
           )
@@ -5756,7 +6012,10 @@
       if (nCount) nCount.textContent = totalPieces;
       if (fCount) fCount.textContent = totalPieces;
       if (fTotal) fTotal.textContent = `$${totals.finalTotal}`;
-      if (fBtn) fBtn.classList.toggle("visible", totalPieces > 0);
+      if (fBtn) {
+        fBtn.classList.toggle("visible", totalPieces > 0);
+        if (totalPieces > 0) applyFloatingCartPosition();
+      }
 
       const adminBtn = document.getElementById("adminBtn");
       if (adminBtn) {

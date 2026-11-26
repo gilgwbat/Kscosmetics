@@ -1401,7 +1401,7 @@
           <label>Enlace de reseña (YouTube / TikTok opcional)</label>
           <input type="url" id="newProdVideo" placeholder="https://www.tiktok.com/@.../video/..." />
         </div>
-        <button class="btn-primary" style="width:100%;" onclick="addNewProduct()">
+        <button type="button" class="btn-primary" style="width:100%;" onclick="addNewProduct()">
           Publicar producto en el catálogo
         </button>
       </div>
@@ -4478,52 +4478,72 @@
     }
 
     async function addNewProduct() {
-      stopNewProdBarcodeScanner();
-      const name = document.getElementById("newProdName").value.trim();
-      const brand = document.getElementById("newProdBrand").value.trim() || "KS Studio";
-      const category = document.getElementById("newProdCat").value;
-      const retail = Number(document.getElementById("newProdRetail").value) || 80;
-      const wholesale = Number(document.getElementById("newProdWholesale").value) || 55;
-      const barcode = document.getElementById("newProdBarcode").value.trim();
-      const videoUrl = document.getElementById("newProdVideo").value.trim();
+      try {
+        stopNewProdBarcodeScanner();
 
-      if (!name) {
-        showToast("Escribe el nombre del cosmético");
-        return;
+        const nameEl = document.getElementById("newProdName");
+        const brandEl = document.getElementById("newProdBrand");
+        const catEl = document.getElementById("newProdCat");
+        const retailEl = document.getElementById("newProdRetail");
+        const wholesaleEl = document.getElementById("newProdWholesale");
+        const barcodeEl = document.getElementById("newProdBarcode");
+        const videoEl = document.getElementById("newProdVideo");
+
+        const name = (nameEl?.value || "").trim();
+        const brand = (brandEl?.value || "").trim() || "KS Studio";
+        const category = catEl?.value || "Labios";
+        const retail = Number(retailEl?.value) || 80;
+        const wholesale = Number(wholesaleEl?.value) || 55;
+        const barcode = (barcodeEl?.value || "").trim();
+        const videoUrl = (videoEl?.value || "").trim();
+
+        if (!name) {
+          showToast("Escribe el nombre del cosmético");
+          return;
+        }
+
+        const newId = Date.now();
+        const finalBarcode = barcode || `KS-${String(newId).slice(-6)}`;
+        const newProd = {
+          id: newId,
+          brand,
+          name,
+          category,
+          emoji: "✨",
+          barcode: finalBarcode,
+          retail,
+          wholesale,
+          desc: "Producto agregado desde el panel de administración de KS Cosmetics Mayoreo.",
+          tip: "Aplica sobre piel limpia y seca según el acabado deseado.",
+          videoUrl,
+          shades: [
+            { name: "Tono Clásico", hex: "#d81b60" },
+            { name: "Tono Natural", hex: "#e5989b" }
+          ]
+        };
+
+        state.products.unshift(newProd);
+        state.selectedShades[newId] = "Tono Clásico";
+        state.activeCategory = "Todos";
+        state.activeBrand = "Todas";
+
+        if (nameEl) nameEl.value = "";
+        if (brandEl) brandEl.value = "";
+        if (barcodeEl) barcodeEl.value = "";
+        if (videoEl) videoEl.value = "";
+
+        savePersistentState();
+        renderAllViews();
+        closeModal("adminModal");
+        showToast(`"${name}" publicado · Cód: ${finalBarcode}`);
+
+        if (typeof upsertProductToCloud === "function") {
+          await upsertProductToCloud(newProd);
+        }
+      } catch (err) {
+        console.error("Error al publicar producto:", err);
+        showToast("Error al guardar: revisa consola");
       }
-
-      const newId = Date.now();
-      const newProd = {
-        id: newId,
-        brand,
-        name,
-        category,
-        emoji: "✨",
-        barcode: barcode || `KS-${String(newId).slice(-6)}`,
-        retail,
-        wholesale,
-        desc: "Producto agregado desde el panel de administración de KS Cosmetics Mayoreo.",
-        tip: "Aplica sobre piel limpia y seca según el acabado deseado.",
-        videoUrl,
-        shades: [
-          { name: "Tono Clásico", hex: "#d81b60" },
-          { name: "Tono Natural", hex: "#e5989b" }
-        ]
-      };
-
-      state.products.unshift(newProd);
-      state.selectedShades[newId] = "Tono Clásico";
-      document.getElementById("newProdName").value = "";
-      document.getElementById("newProdBrand").value = "";
-      document.getElementById("newProdBarcode").value = "";
-      document.getElementById("newProdVideo").value = "";
-
-      savePersistentState();
-      await upsertProductToCloud(newProd);
-
-      renderAllViews();
-      closeModal("adminModal");
-      showToast(`"${name}" (${brand}) publicado`);
     }
 
     function updateBadges() {

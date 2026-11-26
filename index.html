@@ -66,7 +66,7 @@
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--ink);
-      padding-bottom: 88px;
+      padding-bottom: 96px;
       line-height: 1.45;
     }
 
@@ -373,7 +373,7 @@
     .search-input { flex: 1 1 210px; }
     .brand-select { min-width: 175px; font-weight: 600; color: var(--ink); }
 
-    .cats { display: flex; gap: 6px; flex-wrap: wrap; }
+    .cats { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
     .cat-btn {
       padding: 7px 12px;
@@ -567,6 +567,27 @@
       .card-actions .btn-soft { padding: 9px 10px; font-size: 12px; }
     }
 
+    .floating-cart-btn {
+      position: fixed;
+      right: 16px;
+      bottom: 78px;
+      z-index: 26;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 11px 16px;
+      border-radius: 999px;
+      box-shadow: 0 10px 24px rgba(136, 14, 79, 0.32);
+      display: none;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.85);
+    }
+
+    .floating-cart-btn.visible { display: inline-flex; }
+    .floating-cart-btn:hover { background: var(--primary-dark); }
+
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -602,6 +623,14 @@
       padding: 1px 6px;
       border-radius: 999px;
       margin-left: 4px;
+    }
+
+    .floating-cart-btn .cart-count {
+      background: #fff;
+      color: var(--primary-dark);
+      font-size: 11px;
+      font-weight: 800;
+      margin-left: 0;
     }
 
     .modal-backdrop {
@@ -751,6 +780,16 @@
       border-radius: 12px;
       padding: 12px;
       margin-bottom: 10px;
+    }
+
+    .note-box {
+      background: var(--warn-bg);
+      border: 1px solid #f2d58b;
+      color: var(--warn);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      margin-top: 8px;
     }
 
     .field { margin-bottom: 10px; }
@@ -1178,6 +1217,12 @@
     <section class="grid" id="productGrid"></section>
   </main>
 
+  <button class="floating-cart-btn" id="floatingCartBtn" onclick="openModal('cartModal')" title="Ver tu bolsa">
+    <span>🧺 Bolsa</span>
+    <span class="cart-count" id="floatingCartCount">0</span>
+    <span id="floatingCartTotal">$0</span>
+  </button>
+
   <nav class="bottom-nav">
     <button class="nav-item active" id="navCatalog" onclick="setTab('catalog')">
       <span>🛍️</span>
@@ -1262,6 +1307,14 @@
         <div style="display:flex; gap:8px;">
           <select id="simBarcodeSelect"></select>
           <button class="btn-gold" onclick="processBarcodeScan(document.getElementById('simBarcodeSelect').value)">+1 Escanear</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Nota de bodega (faltante / sustituto / ajuste)</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="pickWarehouseNoteInput" placeholder="Ej. Faltó 1 tono Berry; se ajustó total..." />
+          <button class="btn-soft" onclick="savePickWarehouseNote()">Guardar nota</button>
         </div>
       </div>
 
@@ -1575,6 +1628,7 @@
       clientName: "",
       orderIndex: null,
       markedDone: false,
+      warehouseNote: "",
       lines: [],
       cameraStream: null,
       scanTimer: null,
@@ -1606,6 +1660,9 @@
         barcode: "750100100101",
         retail: 75,
         wholesale: 52,
+        stockQty: null,
+        stockStatus: "sin_sincronizar",
+        tnVariantId: "",
         desc: "Acabado aterciopelado de larga duración sin resecar. Ideal para reventa o surtido.",
         tip: "Aplica con el centro del labio y difumina suavemente hacia las comisuras.",
         videoUrl: "https://www.tiktok.com/@kscosmeticsmayoreo/video/7310000000000000001",
@@ -1625,6 +1682,9 @@
         barcode: "750100100102",
         retail: 95,
         wholesale: 68,
+        stockQty: null,
+        stockStatus: "sin_sincronizar",
+        tnVariantId: "",
         desc: "Pigmento líquido modulable que deja efecto jugoso natural en mejillas y labios.",
         tip: "Usa 1 o 2 puntos pequeños y difumina con yema de dedo o esponja húmeda.",
         videoUrl: "https://www.youtube.com/shorts/dQw4w9WgXcQ",
@@ -1644,6 +1704,9 @@
         barcode: "750100100103",
         retail: 140,
         wholesale: 105,
+        stockQty: null,
+        stockStatus: "sin_sincronizar",
+        tnVariantId: "",
         desc: "Cobertura media a alta con control de brillo para climas cálidos y jornadas largas.",
         tip: "Agita antes de usar y sella con polvo translúcido en zona T.",
         videoUrl: "",
@@ -1663,6 +1726,9 @@
         barcode: "750100100104",
         retail: 65,
         wholesale: 44,
+        stockQty: null,
+        stockStatus: "sin_sincronizar",
+        tnVariantId: "",
         desc: "Punta fina flexible negro intenso para trazo firme desde el primer pase.",
         tip: "Apoya el codo en una superficie firme y traza primero el rabillo exterior.",
         videoUrl: "",
@@ -1681,6 +1747,9 @@
         barcode: "750100100105",
         retail: 70,
         wholesale: 48,
+        stockQty: null,
+        stockStatus: "sin_sincronizar",
+        tnVariantId: "",
         desc: "Fijación flexible sin residuos blancos para peinado laminado o natural.",
         tip: "Cepilla hacia arriba y presiona suavemente con el mango del cepillo.",
         videoUrl: "",
@@ -1699,6 +1768,9 @@
         barcode: "750100100106",
         retail: 80,
         wholesale: 55,
+        stockQty: null,
+        stockStatus: "sin_sincronizar",
+        tnVariantId: "",
         desc: "Brillo espejo no pegajoso con sensación confortable para uso diario.",
         tip: "Úsalo solo para un brillo natural o encima de tu labial matte favorito.",
         videoUrl: "",
@@ -1719,6 +1791,8 @@
       activeUserKey: "guest",
       draftFolio: "KS-7835",
       selectedTrayClientKey: "",
+      lastCheckoutAddress: "",
+      lastCheckoutDelivery: "",
       user: null,
       staffAccounts: {
         admin: {
@@ -2037,6 +2111,9 @@
         barcode: p.barcode || `KS-${p.id}`,
         retail: Number(p.retail) || 0,
         wholesale: Number(p.wholesale) || 0,
+        stock_qty: typeof p.stockQty === "number" ? p.stockQty : null,
+        stock_status: p.stockStatus || "sin_sincronizar",
+        tn_variant_id: p.tnVariantId || "",
         description: p.desc || "",
         tip: p.tip || "",
         video_url: p.videoUrl || "",
@@ -2062,6 +2139,9 @@
         barcode: row.barcode || `KS-${row.id}`,
         retail: Number(row.retail) || 0,
         wholesale: Number(row.wholesale) || 0,
+        stockQty: typeof row.stock_qty === "number" ? row.stock_qty : null,
+        stockStatus: row.stock_status || "sin_sincronizar",
+        tnVariantId: row.tn_variant_id || "",
         desc: row.description || "",
         tip: row.tip || "",
         videoUrl: row.video_url || "",
@@ -2110,6 +2190,22 @@
       return String((ord && ord.statusLabel) || "").toLowerCase().includes("surtid");
     }
 
+    function syncUserOrdersStatus() {
+      if (!state.sharedOrders.length) return;
+      Object.values(userStores).forEach((st) => {
+        if (!st || !Array.isArray(st.orders)) return;
+        st.orders.forEach((uOrd) => {
+          const match = state.sharedOrders.find((sOrd) => String(sOrd.folio) === String(uOrd.folio));
+          if (match) {
+            if (match.statusLabel) uOrd.statusLabel = match.statusLabel;
+            if (typeof match.total === "number") uOrd.total = match.total;
+            if (typeof match.totalUnits === "number") uOrd.totalUnits = match.totalUnits;
+            if (match.warehouseNote !== undefined) uOrd.warehouseNote = match.warehouseNote;
+          }
+        });
+      });
+    }
+
     function getPickFlowNavigation() {
       const currentFolio = String(pickSession.folio || "").trim();
       const currentOrd = state.sharedOrders.find((o) => String(o.folio || "") === currentFolio);
@@ -2151,6 +2247,7 @@
         state.sharedOrders.unshift(orderRecord);
       }
       state.sharedOrders = state.sharedOrders.slice(0, 120);
+      syncUserOrdersStatus();
     }
 
     async function loadSharedOrdersFromCloud() {
@@ -2174,6 +2271,7 @@
           total: Number(row.total) || 0,
           totalUnits: Number(row.total_units) || 0,
           statusLabel: row.status_label || "Pendiente surtido",
+          warehouseNote: row.warehouse_note || "",
           useWholesalePricing: Number(row.total) >= WHOLESALE_THRESHOLD,
           items: Array.isArray(row.items) ? row.items : []
         }));
@@ -2182,28 +2280,71 @@
           (loc) => !cloudMapped.some((cld) => cld.folio === loc.folio)
         );
         state.sharedOrders = [...cloudMapped, ...localOnly].slice(0, 120);
+        syncUserOrdersStatus();
         savePersistentState();
       } catch (e) {}
     }
 
-    async function updateOrderStatusInCloud(folio, statusLabel) {
+    async function refreshClientOrderStatusesFromCloud() {
+      if (!supabaseClient || !state.user || isStaffTrayAccount()) return;
+      const store = getCurrentStore();
+      if (!store.orders.length) return;
+      const folios = store.orders.map((o) => o.folio).filter(Boolean);
+      if (!folios.length) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from("orders")
+          .select("folio, status_label, total, total_units, warehouse_note, items")
+          .in("folio", folios);
+        if (error || !Array.isArray(data)) return;
+        data.forEach((row) => {
+          const localOrd = store.orders.find((o) => o.folio === row.folio);
+          if (localOrd) {
+            if (row.status_label) localOrd.statusLabel = row.status_label;
+            if (typeof row.total === "number") localOrd.total = Number(row.total);
+            if (typeof row.total_units === "number") localOrd.totalUnits = Number(row.total_units);
+            if (row.warehouse_note !== undefined) localOrd.warehouseNote = row.warehouse_note || "";
+            if (Array.isArray(row.items) && row.items.length) localOrd.items = row.items;
+          }
+        });
+        savePersistentState();
+      } catch (e) {}
+    }
+
+    async function updateOrderInCloud(folio, patch) {
       if (!isStaffTrayAccount()) return;
       const target = state.sharedOrders.find((o) => o.folio === folio);
       if (target) {
-        target.statusLabel = statusLabel;
+        Object.assign(target, patch);
       }
       Object.values(userStores).forEach((st) => {
         if (!st || !Array.isArray(st.orders)) return;
         st.orders.forEach((o) => {
-          if (o.folio === folio) o.statusLabel = statusLabel;
+          if (o.folio === folio) {
+            if (patch.statusLabel !== undefined) o.statusLabel = patch.statusLabel;
+            if (patch.total !== undefined) o.total = patch.total;
+            if (patch.totalUnits !== undefined) o.totalUnits = patch.totalUnits;
+            if (patch.warehouseNote !== undefined) o.warehouseNote = patch.warehouseNote;
+            if (patch.items !== undefined) o.items = patch.items;
+          }
         });
       });
       savePersistentState();
 
       if (!supabaseClient) return;
+      const dbPatch = { updated_at: new Date().toISOString() };
+      if (patch.statusLabel !== undefined) dbPatch.status_label = patch.statusLabel;
+      if (patch.total !== undefined) dbPatch.total = patch.total;
+      if (patch.totalUnits !== undefined) dbPatch.total_units = patch.totalUnits;
+      if (patch.warehouseNote !== undefined) dbPatch.warehouse_note = patch.warehouseNote;
+      if (patch.items !== undefined) dbPatch.items = patch.items;
       try {
-        await supabaseClient.from("orders").update({ status_label: statusLabel }).eq("folio", folio);
+        await supabaseClient.from("orders").update(dbPatch).eq("folio", folio);
       } catch (e) {}
+    }
+
+    async function updateOrderStatusInCloud(folio, statusLabel) {
+      await updateOrderInCloud(folio, { statusLabel });
     }
 
     async function loadBannersFromCloud() {
@@ -2272,6 +2413,85 @@
         reader.onerror = () => resolve("");
         reader.readAsDataURL(file);
       });
+    }
+
+    async function syncClientAccountToCloud(clientRec) {
+      if (!supabaseClient || !clientRec || !clientRec.phone) return;
+      try {
+        await supabaseClient.from("client_accounts").upsert(
+          {
+            phone: normalizePhoneDigits(clientRec.phone),
+            name: clientRec.name || "Clienta",
+            username: clientRec.username || "",
+            email: clientRec.email || "",
+            address: clientRec.address || "",
+            last_delivery: clientRec.lastDelivery || "",
+            role: clientRec.role || "retail",
+            pass_hash: clientRec.passHash,
+            updated_at: new Date().toISOString()
+          },
+          { onConflict: "phone" }
+        );
+      } catch (e) {}
+    }
+
+    async function findClientInCloud(rawInput) {
+      if (!supabaseClient) return null;
+      const digits = normalizePhoneDigits(rawInput);
+      const cleanUser = normalizeUsername(rawInput);
+      const cleanEmail = (rawInput || "").trim().toLowerCase();
+      try {
+        if (digits.length >= 7) {
+          const { data } = await supabaseClient
+            .from("client_accounts")
+            .select("*")
+            .eq("phone", digits)
+            .limit(1);
+          if (data && data[0]) return mapCloudClientRow(data[0]);
+        }
+        if (cleanUser) {
+          const { data } = await supabaseClient
+            .from("client_accounts")
+            .select("*")
+            .ilike("username", cleanUser)
+            .limit(1);
+          if (data && data[0]) return mapCloudClientRow(data[0]);
+        }
+        if (cleanEmail && cleanEmail.includes("@")) {
+          const { data } = await supabaseClient
+            .from("client_accounts")
+            .select("*")
+            .ilike("email", cleanEmail)
+            .limit(1);
+          if (data && data[0]) return mapCloudClientRow(data[0]);
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    function mapCloudClientRow(row) {
+      return {
+        name: row.name,
+        phone: normalizePhoneDigits(row.phone),
+        username: row.username || "",
+        email: row.email || "",
+        address: row.address || "",
+        lastDelivery: row.last_delivery || "",
+        passHash: row.pass_hash,
+        role: row.role || "retail",
+        verified: true,
+        createdAt: row.created_at || new Date().toISOString()
+      };
+    }
+
+    function upsertLocalClientRecord(rec) {
+      const digits = normalizePhoneDigits(rec.phone);
+      const idx = state.registeredClients.findIndex((c) => normalizePhoneDigits(c.phone) === digits);
+      if (idx >= 0) {
+        state.registeredClients[idx] = { ...state.registeredClients[idx], ...rec, phone: digits };
+      } else {
+        state.registeredClients.unshift({ ...rec, phone: digits });
+      }
     }
 
     async function ensureStaffHashesInitialized() {
@@ -2368,6 +2588,8 @@
             activeUserKey: state.activeUserKey,
             draftFolio: state.draftFolio,
             selectedTrayClientKey: state.selectedTrayClientKey,
+            lastCheckoutAddress: state.lastCheckoutAddress,
+            lastCheckoutDelivery: state.lastCheckoutDelivery,
             user: state.user,
             staffAccounts: state.staffAccounts,
             registeredClients: state.registeredClients,
@@ -2461,6 +2683,29 @@
       });
     }
 
+    function prefillCheckoutFields() {
+      const nameEl = document.getElementById("custName");
+      const phoneEl = document.getElementById("custPhone");
+      const addrEl = document.getElementById("custAddress");
+      const delEl = document.getElementById("custDelivery");
+      if (!nameEl || !phoneEl || !addrEl || !delEl) return;
+
+      if (state.user && state.user.role !== "admin" && state.user.role !== "warehouse") {
+        if (!nameEl.value.trim()) nameEl.value = state.user.name || "";
+        if (!phoneEl.value.trim() && state.user.phone && state.user.phone !== "Sin teléfono") {
+          phoneEl.value = state.user.phone;
+        }
+        if (!addrEl.value.trim()) {
+          addrEl.value = state.user.address || state.lastCheckoutAddress || "";
+        }
+      } else if (!addrEl.value.trim() && state.lastCheckoutAddress) {
+        addrEl.value = state.lastCheckoutAddress;
+      }
+      if (!delEl.value.trim() && state.lastCheckoutDelivery) {
+        delEl.value = state.lastCheckoutDelivery;
+      }
+    }
+
     function renderAllViews() {
       state.products.forEach((p) => {
         if (!Array.isArray(p.shades) || !p.shades.length) {
@@ -2482,6 +2727,7 @@
 
     function init() {
       loadPersistentState();
+      prefillCheckoutFields();
 
       const urlParams = new URLSearchParams(window.location.search);
       const sharedFolioParam = (urlParams.get("orden") || "").trim();
@@ -2519,6 +2765,8 @@
                   state.selectedTrayClientKey = buildClientGroupKey(matchOrdAfterSync.clientName, matchOrdAfterSync.phone);
                 }
               }
+            } else if (state.user) {
+              await refreshClientOrderStatusesFromCloud();
             }
             document.getElementById("syncStatusBadge").textContent = "● Conectado a Supabase";
             renderAllViews();
@@ -2571,8 +2819,16 @@
       if (id === "scannerModal") {
         if (!isStaffTrayAccount()) return;
       }
-      if (id === "cartModal") renderCart();
-      if (id === "authModal") renderAuth();
+      if (id === "cartModal") {
+        prefillCheckoutFields();
+        renderCart();
+      }
+      if (id === "authModal") {
+        if (state.user && !isStaffTrayAccount()) {
+          refreshClientOrderStatusesFromCloud().then(() => renderAuth());
+        }
+        renderAuth();
+      }
       document.getElementById(id).classList.add("open");
     }
 
@@ -2698,6 +2954,9 @@
             .join("");
 
           const escapedFolio = String(ord.folio || "").replace(/'/g, "\\'");
+          const noteHtml = ord.warehouseNote
+            ? `<div class="note-box"><strong>Nota bodega / ajuste:</strong> ${ord.warehouseNote}</div>`
+            : "";
 
           return `
             <div class="client-order-card">
@@ -2710,6 +2969,7 @@
               </div>
               ${ord.clientAddress ? `<p style="font-size:12px; color:var(--muted); margin-bottom:6px;">📍 ${ord.clientAddress}</p>` : ""}
               <div>${itemsMiniHtml}</div>
+              ${noteHtml}
               <div class="order-sheet-foot">
                 <span>Total</span>
                 <span>$${ord.total} MXN</span>
@@ -2718,8 +2978,9 @@
                 ${
                   canScan
                     ? `<button class="btn-primary" style="flex:1;" onclick="startPickSessionByFolio('${escapedFolio}')">📷 Surtir con escáner</button>`
-                    : `<button class="btn-soft" onclick="sendExistingOrderWhatsApp('${escapedFolio}')">💬 Enviar por WhatsApp</button>`
+                    : ""
                 }
+                <button class="btn-soft" onclick="sendSharedOrderWhatsApp('${escapedFolio}')">💬 Enviar por WhatsApp</button>
               </div>
             </div>
           `;
@@ -2727,7 +2988,7 @@
         .join("");
     }
 
-    function sendExistingOrderWhatsApp(folio) {
+    function sendSharedOrderWhatsApp(folio) {
       if (!isStaffTrayAccount()) return;
       const ord = state.sharedOrders.find((o) => o.folio === folio);
       if (!ord) return;
@@ -2737,12 +2998,43 @@
       const appOrderUrl = `${window.location.origin}${window.location.pathname}?orden=${encodeURIComponent(ord.folio)}`;
 
       const lines = [
-        `*BODEGA · Orden de ${clientName}*`,
-        `*Número de orden: #${ord.folio}* · ${ord.statusLabel || "Pedido"}`,
+        `*KS Cosmetics · Orden de ${clientName}*`,
+        `*Número de orden: #${ord.folio}* · *${ord.statusLabel || "Pedido"}*`,
         `Abrir en app: ${appOrderUrl}`,
         `*${unitsCount} ${unitsCount === 1 ? "unidad" : "unidades"}*`,
         ord.phone ? `Tel: ${ord.phone}` : "",
         ord.clientAddress ? `Dirección: ${ord.clientAddress}` : "",
+        ord.warehouseNote ? `Nota / Ajuste: ${ord.warehouseNote}` : "",
+        `------------------------------`
+      ].filter(Boolean);
+
+      rows.forEach((r) => {
+        lines.push(`${r.emoji} *${r.name}* (${r.shade || "Tono"})`);
+        lines.push(`${r.qty} × $${r.unitPrice} MXN — *$${r.lineTotal} MXN*`);
+      });
+      lines.push(`------------------------------`);
+      lines.push(`*Total: $${ord.total} MXN*`);
+
+      const cleanWa = (state.waNumber || "").replace(/\D/g, "");
+      window.open(`https://wa.me/${cleanWa}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener");
+    }
+
+    function resendSavedOrderWhatsApp(orderIndex) {
+      const store = getCurrentStore();
+      const ord = store.orders[orderIndex];
+      if (!ord) return;
+      const rows = normalizeOrderRows(ord.items || [], Boolean(ord.useWholesalePricing));
+      const unitsCount = ord.totalUnits || rows.reduce((s, r) => s + r.qty, 0);
+      const clientName = ord.clientName || (state.user && state.user.name) || "Clienta";
+
+      const lines = [
+        `*Pedido de ${clientName}*`,
+        `*Número de orden: #${ord.folio}* · *${ord.statusLabel || "Registrada"}*`,
+        `*${unitsCount} ${unitsCount === 1 ? "unidad" : "unidades"}*`,
+        ord.phone ? `Tel: ${ord.phone}` : "",
+        ord.clientAddress ? `Dirección: ${ord.clientAddress}` : "",
+        ord.deliveryType ? `Entrega: ${ord.deliveryType}` : "",
+        ord.warehouseNote ? `Nota / Ajuste: ${ord.warehouseNote}` : "",
         `------------------------------`
       ].filter(Boolean);
 
@@ -2770,7 +3062,8 @@
       startPickSession(ord.folio, ord.items, {
         clientName: ord.clientName || "Clienta",
         clientKey,
-        cloudId: ord.cloudId || null
+        cloudId: ord.cloudId || null,
+        warehouseNote: ord.warehouseNote || ""
       });
     }
 
@@ -2786,7 +3079,8 @@
           startPickSession(chosen.folio, chosen.items, {
             clientName: chosen.clientName || "Clienta",
             clientKey,
-            cloudId: chosen.cloudId || null
+            cloudId: chosen.cloudId || null,
+            warehouseNote: chosen.warehouseNote || ""
           });
           return;
         }
@@ -2826,7 +3120,8 @@
       startPickSession(ord.folio, ord.items, {
         clientName: ord.clientName || "Clienta",
         clientKey: buildClientGroupKey(ord.clientName, ord.phone),
-        cloudId: ord.cloudId || null
+        cloudId: ord.cloudId || null,
+        warehouseNote: ord.warehouseNote || ""
       });
     }
 
@@ -2840,6 +3135,7 @@
         const shade = it.shade || "";
         const key = `${it.prodId}__${shade}`;
         const qty = Number(it.qty) || 1;
+        const unitPrice = typeof it.unitPrice === "number" ? it.unitPrice : (p ? Number(p.retail) : 0);
         if (grouped.has(key)) {
           grouped.get(key).targetQty += qty;
         } else {
@@ -2852,6 +3148,7 @@
             emoji: it.emoji || (p && p.emoji) || "✨",
             imageUrl: it.imageUrl || (p && p.imageUrl) || "",
             barcode: it.barcode || (p && p.barcode) || `KS-${it.prodId}`,
+            unitPrice,
             targetQty: qty,
             pickedQty: 0
           });
@@ -2862,6 +3159,7 @@
       pickSession.cloudId = meta.cloudId || null;
       pickSession.clientKey = meta.clientKey || "";
       pickSession.clientName = meta.clientName || "";
+      pickSession.warehouseNote = meta.warehouseNote || "";
       pickSession.markedDone = false;
       pickSession.lines = [...grouped.values()];
       pickSession.lastCodeValue = "";
@@ -2870,6 +3168,8 @@
       const clientSuffix = meta.clientName ? ` · ${meta.clientName}` : "";
       document.getElementById("scannerTitle").textContent = `📷 Surtido Bodega · #${folio}${clientSuffix}`;
       document.getElementById("manualBarcodeInput").value = "";
+      const noteInp = document.getElementById("pickWarehouseNoteInput");
+      if (noteInp) noteInp.value = pickSession.warehouseNote;
       const nextFlowEl = document.getElementById("nextPickFlowContainer");
       if (nextFlowEl) nextFlowEl.innerHTML = "";
       setScanFeedback("Listo para surtir en Bodega: cada lectura suma 1 unidad (1 de N, 2 de N...).", "scan-info");
@@ -2886,11 +3186,55 @@
       document.getElementById("scannerModal").classList.add("open");
     }
 
+    async function savePickWarehouseNote() {
+      if (!isStaffTrayAccount() || !pickSession.folio) return;
+      const noteInp = document.getElementById("pickWarehouseNoteInput");
+      const noteText = (noteInp ? noteInp.value : "").trim();
+      pickSession.warehouseNote = noteText;
+
+      const ord = state.sharedOrders.find((o) => o.folio === pickSession.folio);
+      const patch = { warehouseNote: noteText };
+
+      if (ord) {
+        const adjustedItems = (ord.items || []).map((it) => {
+          const matchLine = pickSession.lines.find(
+            (l) => Number(l.prodId) === Number(it.prodId) && (l.shade || "") === (it.shade || "")
+          );
+          if (matchLine && matchLine.pickedQty > 0 && matchLine.pickedQty < matchLine.targetQty) {
+            const unit = typeof it.unitPrice === "number" ? it.unitPrice : matchLine.unitPrice;
+            return {
+              ...it,
+              qty: matchLine.pickedQty,
+              unitPrice: unit,
+              lineTotal: unit * matchLine.pickedQty
+            };
+          }
+          return it;
+        });
+        const newUnits = adjustedItems.reduce((s, x) => s + (Number(x.qty) || 1), 0);
+        const newTotal = adjustedItems.reduce((s, x) => s + (Number(x.lineTotal) || 0), 0);
+        patch.items = adjustedItems;
+        patch.totalUnits = newUnits;
+        patch.total = newTotal;
+      }
+
+      await updateOrderInCloud(pickSession.folio, patch);
+      renderOrdersTray();
+      showToast("✓ Nota y ajuste guardados en la orden");
+    }
+
     async function markCurrentPickOrderDone() {
       if (!isStaffTrayAccount() || !pickSession.folio) return;
       const folioActual = pickSession.folio;
+      const noteInp = document.getElementById("pickWarehouseNoteInput");
+      if (noteInp && noteInp.value.trim()) {
+        pickSession.warehouseNote = noteInp.value.trim();
+      }
       pickSession.markedDone = true;
-      await updateOrderStatusInCloud(folioActual, "Surtida en Bodega ✓");
+      await updateOrderInCloud(folioActual, {
+        statusLabel: "Surtida en Bodega ✓",
+        warehouseNote: pickSession.warehouseNote
+      });
       renderOrdersTray();
 
       const nav = getPickFlowNavigation();
@@ -3189,6 +3533,21 @@
       }
     }
 
+    function clearAllFilters() {
+      const searchEl = document.getElementById("searchInput");
+      if (searchEl) searchEl.value = "";
+      state.activeBrand = "Todas";
+      state.activeCategory = "Todos";
+      state.activeTab = "catalog";
+      document.getElementById("navCatalog").classList.add("active");
+      document.getElementById("navFavorites").classList.remove("active");
+      savePersistentState();
+      renderBrands();
+      renderCategories();
+      renderProducts(false);
+      showToast("Filtros limpiados");
+    }
+
     function getActiveBanners() {
       const capped = Array.isArray(state.banners) && state.banners.length
         ? state.banners.slice(0, MAX_BANNERS)
@@ -3348,12 +3707,21 @@
       const cats = ["Todos", ...new Set(state.products.map((p) => p.category).filter(Boolean))];
       const wrap = document.getElementById("categoryTabs");
       if (!wrap) return;
-      wrap.innerHTML = cats
-        .map(
-          (c) =>
-            `<button class="cat-btn ${state.activeCategory === c ? "active" : ""}" onclick="selectCategory('${c.replace(/'/g, "\\'")}')">${c}</button>`
-        )
-        .join("");
+      const hasActiveFilters =
+        state.activeCategory !== "Todos" ||
+        state.activeBrand !== "Todas" ||
+        Boolean((document.getElementById("searchInput")?.value || "").trim());
+
+      wrap.innerHTML =
+        cats
+          .map(
+            (c) =>
+              `<button class="cat-btn ${state.activeCategory === c ? "active" : ""}" onclick="selectCategory('${c.replace(/'/g, "\\'")}')">${c}</button>`
+          )
+          .join("") +
+        (hasActiveFilters
+          ? `<button class="cat-btn" style="color:var(--primary-dark); border-color:var(--primary);" onclick="clearAllFilters()">✕ Limpiar filtros</button>`
+          : "");
     }
 
     function selectCategory(cat) {
@@ -3416,6 +3784,7 @@
     }
 
     function renderProducts(onlyFavs = false) {
+      renderCategories();
       const searchEl = document.getElementById("searchInput");
       const q = (searchEl ? searchEl.value : "").trim().toLowerCase();
       const grid = document.getElementById("productGrid");
@@ -3439,7 +3808,12 @@
       });
 
       if (!list.length) {
-        grid.innerHTML = `<p style="color:var(--muted); grid-column:1/-1;">No hay productos que coincidan con el filtro.</p>`;
+        grid.innerHTML = `
+          <div style="grid-column:1/-1; background:#fff; border:1px solid var(--border); border-radius:14px; padding:18px; text-align:center;">
+            <p style="color:var(--muted); margin-bottom:10px;">No hay productos que coincidan con el filtro.</p>
+            <button class="btn-soft" onclick="clearAllFilters()">Limpiar filtros</button>
+          </div>
+        `;
         return;
       }
 
@@ -3607,6 +3981,11 @@
 
     function clearCart() {
       const store = getCurrentStore();
+      if (!store.cart.length) {
+        showToast("Tu bolsa ya está vacía");
+        return;
+      }
+      if (!window.confirm("¿Seguro que quieres vaciar todos los productos de tu bolsa?")) return;
       store.cart = [];
       savePersistentState();
       updateBadges();
@@ -3699,10 +4078,11 @@
       });
     }
 
-    function buildOrderSheetHtml({ folio, statusLabel, items, totalAmount, useWholesale, isDraft = false, savedIndex = null }) {
+    function buildOrderSheetHtml({ folio, statusLabel, items, totalAmount, useWholesale, warehouseNote = "", isDraft = false, savedIndex = null }) {
       const rows = normalizeOrderRows(items, useWholesale);
       const unitsCount = rows.reduce((sum, r) => sum + r.qty, 0);
       const canScan = isStaffTrayAccount();
+      const isReady = String(statusLabel || "").toLowerCase().includes("surtid");
 
       const rowsHtml = rows
         .map(
@@ -3722,13 +4102,22 @@
         )
         .join("");
 
+      const noteHtml = warehouseNote
+        ? `<div class="note-box"><strong>Nota / Ajuste:</strong> ${warehouseNote}</div>`
+        : "";
+
       const scanBtnHtml = canScan
         ? isDraft
           ? `<button class="btn-soft" style="width:100%;" onclick="openPickScannerForDraft()">📷 Surtir con Escáner (1 de N)</button>`
           : savedIndex !== null
-            ? `<button class="btn-soft" style="width:100%;" onclick="openPickScannerForSavedOrder(${savedIndex})">📷 Surtir con Escáner (1 de N)</button>`
+            ? `<button class="btn-soft" style="flex:1;" onclick="openPickScannerForSavedOrder(${savedIndex})">📷 Surtir con Escáner (1 de N)</button>`
             : ""
         : "";
+
+      const resendWaBtnHtml =
+        !isDraft && savedIndex !== null
+          ? `<button class="btn-outline" style="flex:1;" onclick="resendSavedOrderWhatsApp(${savedIndex})">💬 Reenviar WhatsApp</button>`
+          : "";
 
       return `
         <div class="order-sheet">
@@ -3737,14 +4126,15 @@
               <div class="order-folio">Orden #${folio}</div>
               <span class="order-units-pill">${unitsCount} ${unitsCount === 1 ? "unidad" : "unidades"}</span>
             </div>
-            <span class="order-status-pill">${statusLabel}</span>
+            <span class="order-status-pill ${isReady ? "ready" : ""}">${statusLabel}</span>
           </div>
           <div>${rowsHtml}</div>
+          ${noteHtml}
           <div class="order-sheet-foot">
             <span>Total</span>
             <span>$${totalAmount} MXN</span>
           </div>
-          ${scanBtnHtml ? `<div class="order-sheet-actions">${scanBtnHtml}</div>` : ""}
+          ${scanBtnHtml || resendWaBtnHtml ? `<div class="order-sheet-actions">${scanBtnHtml}${resendWaBtnHtml}</div>` : ""}
         </div>
       `;
     }
@@ -3760,6 +4150,7 @@
         items: ord.items || [],
         totalAmount: ord.total,
         useWholesale: Boolean(ord.useWholesalePricing),
+        warehouseNote: ord.warehouseNote || "",
         isDraft: false,
         savedIndex: orderIndex
       });
@@ -3770,7 +4161,8 @@
           <button class="close-btn" onclick="closeModal('orderSummaryModal')">✕</button>
         </div>
         ${sheetHtml}
-        <div style="display:flex; gap:8px; margin-top:14px;">
+        <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
+          <button class="btn-outline" style="flex:1;" onclick="resendSavedOrderWhatsApp(${orderIndex})">💬 Enviar por WhatsApp</button>
           <button class="btn-soft" style="flex:1;" onclick="closeModal('orderSummaryModal'); reorder(${orderIndex});">Repetir pedido</button>
           <button class="btn-primary" style="flex:1;" onclick="closeModal('orderSummaryModal')">Cerrar</button>
         </div>
@@ -3954,6 +4346,7 @@
             total: orderRecord.total,
             total_units: orderRecord.totalUnits,
             status_label: orderRecord.statusLabel,
+            warehouse_note: orderRecord.warehouseNote || "",
             items: orderRecord.items
           })
           .select("id")
@@ -3988,6 +4381,21 @@
         const phone = (phoneEl?.value || "").trim() || (state.user && state.user.phone) || "Sin especificar";
         const address = (addressEl?.value || "").trim() || "Sin dirección especificada";
         const delivery = (deliveryEl?.value || "").trim() || "Por coordinar";
+
+        if (address !== "Sin dirección especificada") state.lastCheckoutAddress = address;
+        if (delivery !== "Por coordinar") state.lastCheckoutDelivery = delivery;
+
+        if (state.user && state.user.role !== "admin" && state.user.role !== "warehouse") {
+          state.user.address = address !== "Sin dirección especificada" ? address : (state.user.address || "");
+          const cIdx = state.registeredClients.findIndex(
+            (c) => normalizePhoneDigits(c.phone) === normalizePhoneDigits(state.user.phone)
+          );
+          if (cIdx >= 0) {
+            if (address !== "Sin dirección especificada") state.registeredClients[cIdx].address = address;
+            if (delivery !== "Por coordinar") state.registeredClients[cIdx].lastDelivery = delivery;
+            await syncClientAccountToCloud(state.registeredClients[cIdx]);
+          }
+        }
 
         const folio = state.draftFolio || ("KS-" + Math.floor(1000 + Math.random() * 9000));
         state.draftFolio = "KS-" + Math.floor(1000 + Math.random() * 9000);
@@ -4037,6 +4445,7 @@
           total: totals.finalTotal,
           totalUnits: totals.totalPieces,
           statusLabel,
+          warehouseNote: "",
           useWholesalePricing: totals.useWholesalePricing,
           items: detailedItems
         };
@@ -4146,6 +4555,8 @@
       const newUsername = normalizeUsername(document.getElementById("profUsernameInput").value || "");
       const newEmail = (document.getElementById("profEmailInput").value || "").trim();
       const newAddress = (document.getElementById("profAddressInput")?.value || "").trim();
+      const rawPhone = (document.getElementById("profPhoneInput")?.value || "").trim();
+      const newPhoneDigits = normalizePhoneDigits(rawPhone);
 
       if (!newName) {
         showToast("El nombre no puede quedar vacío");
@@ -4162,9 +4573,11 @@
         staff.displayName = newName;
         staff.username = newUsername;
         staff.email = newEmail;
+        if (newPhoneDigits.length >= 10) staff.phone = newPhoneDigits;
         state.user.name = newName;
         state.user.username = newUsername;
         state.user.email = newEmail;
+        if (newPhoneDigits.length >= 10) state.user.phone = newPhoneDigits;
         await syncStaffAccountToCloud(staff);
         savePersistentState();
         renderBanner();
@@ -4174,29 +4587,77 @@
         return;
       }
 
-      const idx = state.registeredClients.findIndex(
-        (c) => normalizePhoneDigits(c.phone) === normalizePhoneDigits(state.user.phone)
-      );
-      if (idx >= 0) {
-        state.registeredClients[idx].name = newName;
-        state.registeredClients[idx].username = newUsername;
-        state.registeredClients[idx].email = newEmail;
-        state.registeredClients[idx].address = newAddress;
+      if (newPhoneDigits && newPhoneDigits.length < 10) {
+        showToast("El celular debe tener 10 dígitos");
+        return;
       }
 
-      state.user.name = newName;
-      state.user.username = newUsername;
-      state.user.email = newEmail;
-      state.user.address = newAddress;
+      const oldDigits = normalizePhoneDigits(state.user.phone);
+      const finalPhone = newPhoneDigits || oldDigits;
+
+      if (finalPhone && finalPhone !== oldDigits) {
+        const conflict = state.registeredClients.some(
+          (c) => normalizePhoneDigits(c.phone) === finalPhone && normalizePhoneDigits(c.phone) !== oldDigits
+        );
+        if (conflict) {
+          showToast("Ese número de celular ya pertenece a otra cuenta");
+          return;
+        }
+      }
+
+      const oldKey = state.activeUserKey;
+      const newKey = buildUserKey(finalPhone, state.user.role);
+      if (oldKey && newKey && oldKey !== newKey && userStores[oldKey]) {
+        const prevStore = userStores[oldKey];
+        const targetStore = userStores[newKey] || { favorites: [], cart: [], orders: [] };
+        userStores[newKey] = {
+          favorites: [...new Set([...(targetStore.favorites || []), ...(prevStore.favorites || [])])],
+          cart: prevStore.cart && prevStore.cart.length ? prevStore.cart : (targetStore.cart || []),
+          orders: [...(prevStore.orders || []), ...(targetStore.orders || [])]
+        };
+        delete userStores[oldKey];
+        state.activeUserKey = newKey;
+      }
+
+      const idx = state.registeredClients.findIndex((c) => normalizePhoneDigits(c.phone) === oldDigits);
+      let updatedClientRec = null;
+      if (idx >= 0) {
+        state.registeredClients[idx] = {
+          ...state.registeredClients[idx],
+          name: newName,
+          phone: finalPhone,
+          username: newUsername,
+          email: newEmail,
+          address: newAddress
+        };
+        updatedClientRec = state.registeredClients[idx];
+      }
+
+      state.user = {
+        ...state.user,
+        key: newKey,
+        identifier: finalPhone,
+        name: newName,
+        phone: finalPhone,
+        username: newUsername,
+        email: newEmail,
+        address: newAddress
+      };
+      if (newAddress) state.lastCheckoutAddress = newAddress;
 
       document.getElementById("custName").value = newName;
+      document.getElementById("custPhone").value = finalPhone;
       document.getElementById("custAddress").value = newAddress;
+
+      if (updatedClientRec) {
+        await syncClientAccountToCloud(updatedClientRec);
+      }
 
       savePersistentState();
       renderBanner();
       renderAuth();
       updateBadges();
-      showToast("✓ Perfil y dirección guardados");
+      showToast("✓ Perfil, teléfono y dirección actualizados");
     }
 
     async function changeOwnPassword() {
@@ -4244,6 +4705,7 @@
       }
 
       state.registeredClients[idx].passHash = nextHash;
+      await syncClientAccountToCloud(state.registeredClients[idx]);
       savePersistentState();
       showToast("✓ Contraseña cambiada con éxito");
     }
@@ -4257,7 +4719,15 @@
         return;
       }
 
-      const found = findAccountByIdentifier(rawId);
+      let found = findAccountByIdentifier(rawId);
+      if (!found) {
+        const cloudClient = await findClientInCloud(rawId);
+        if (cloudClient) {
+          upsertLocalClientRecord(cloudClient);
+          found = findAccountByIdentifier(rawId);
+        }
+      }
+
       if (!found) {
         showToast("No encontramos ninguna cuenta con ese dato");
         return;
@@ -4341,6 +4811,7 @@
         );
         if (idx >= 0) {
           state.registeredClients[idx].passHash = newHash;
+          await syncClientAccountToCloud(state.registeredClients[idx]);
         }
       }
 
@@ -4370,12 +4841,13 @@
           "";
         const currentEmailVal = state.user.email || "";
         const currentAddressVal = state.user.address || "";
+        const currentPhoneVal = state.user.phone && state.user.phone !== "Sin teléfono" ? state.user.phone : "";
 
         box.innerHTML = `
           <div class="profile-card">
             <p><strong>${state.user.name}</strong></p>
             ${currentUsernameVal ? `<p style="font-size:12px; color:var(--muted);">Usuario: <strong>@${currentUsernameVal}</strong></p>` : ""}
-            ${state.user.phone && state.user.phone !== "Sin teléfono" ? `<p style="font-size:12px; color:var(--muted);">Celular: <strong>${state.user.phone}</strong></p>` : ""}
+            ${currentPhoneVal ? `<p style="font-size:12px; color:var(--muted);">Celular: <strong>${currentPhoneVal}</strong></p>` : ""}
             ${currentEmailVal ? `<p style="font-size:12px; color:var(--muted);">Correo: <strong>${currentEmailVal}</strong></p>` : ""}
             ${!isAdm && !isWh ? `<p style="font-size:12px; color:var(--muted);">Dirección: <strong>${currentAddressVal || "Sin registrar"}</strong></p>` : ""}
             <p style="margin-top:6px;">
@@ -4402,20 +4874,24 @@
           </div>
 
           <div class="admin-section">
-            <h4>Datos de cuenta y usuario</h4>
+            <h4>Datos de cuenta, celular y usuario</h4>
             <div class="field">
               <label>Nombre completo o negocio</label>
               <input type="text" id="profNameInput" value="${(state.user.name || "").replace(/"/g, "&quot;")}" />
             </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
               <div class="field">
+                <label>Celular (10 dígitos)</label>
+                <input type="tel" id="profPhoneInput" value="${currentPhoneVal.replace(/"/g, "&quot;")}" placeholder="9981234567" />
+              </div>
+              <div class="field">
                 <label>Nombre de usuario</label>
                 <input type="text" id="profUsernameInput" value="${currentUsernameVal.replace(/"/g, "&quot;")}" placeholder="Ej. mariana.ks" />
               </div>
-              <div class="field">
-                <label>Correo electrónico</label>
-                <input type="email" id="profEmailInput" value="${currentEmailVal.replace(/"/g, "&quot;")}" placeholder="correo@ejemplo.com" />
-              </div>
+            </div>
+            <div class="field">
+              <label>Correo electrónico</label>
+              <input type="email" id="profEmailInput" value="${currentEmailVal.replace(/"/g, "&quot;")}" placeholder="correo@ejemplo.com" />
             </div>
             ${
               !isAdm && !isWh
@@ -4458,10 +4934,12 @@
                   <div class="cart-item">
                     <div>
                       <strong>#${o.folio}</strong> · ${o.date} · <span>${o.totalUnits || (o.items || []).reduce((s, x) => s + (x.qty || 0), 0)} uds</span><br/>
-                      <span style="font-size:12px; color:var(--muted);">Total: $${o.total} MXN · ${o.statusLabel || ""}</span>
+                      <span style="font-size:12px; color:var(--muted);">Total: $${o.total} MXN · <strong>${o.statusLabel || ""}</strong></span>
+                      ${o.warehouseNote ? `<div style="font-size:11px; color:var(--warn);">Nota: ${o.warehouseNote}</div>` : ""}
                     </div>
                     <div style="display:flex; gap:6px; flex-wrap:wrap;">
                       <button class="btn-outline" onclick="openSavedOrderSummary(${i})">Ver lista</button>
+                      <button class="btn-outline" onclick="resendSavedOrderWhatsApp(${i})">💬 WA</button>
                       <button class="btn-soft" onclick="reorder(${i})">Repetir</button>
                     </div>
                   </div>
@@ -4624,7 +5102,9 @@
       }
 
       const alreadyLocal = state.registeredClients.some((c) => normalizePhoneDigits(c.phone) === digits);
-      if (alreadyLocal) {
+      const alreadyCloud = !alreadyLocal ? await findClientInCloud(digits) : null;
+      if (alreadyLocal || alreadyCloud) {
+        if (alreadyCloud) upsertLocalClientRecord(alreadyCloud);
         showToast("Ese número ya está registrado. Inicia sesión con tu contraseña");
         setAuthMode("login");
         return;
@@ -4640,13 +5120,15 @@
         username,
         email,
         address,
+        lastDelivery: "",
         passHash,
         role,
         verified: true,
         createdAt: new Date().toISOString()
       };
 
-      state.registeredClients.unshift(newClientRecord);
+      upsertLocalClientRecord(newClientRecord);
+      await syncClientAccountToCloud(newClientRecord);
       authUiState.mode = "login";
 
       applyUserSession({
@@ -4660,7 +5142,7 @@
       });
 
       closeModal("authModal");
-      showToast(`✓ Cuenta creada. ¡Bienvenida, ${name}!`);
+      showToast(`✓ Cuenta creada y guardada. ¡Bienvenida, ${name}!`);
     }
 
     function applyUserSession(userObj) {
@@ -4683,8 +5165,8 @@
       const isStaff = state.user.role === "admin" || state.user.role === "warehouse";
       document.getElementById("custName").value = isStaff ? "" : state.user.name;
       document.getElementById("custPhone").value = isStaff ? "" : state.user.phone;
-      document.getElementById("custAddress").value = isStaff ? "" : (state.user.address || "");
-      document.getElementById("custDelivery").value = "";
+      document.getElementById("custAddress").value = isStaff ? "" : (state.user.address || state.lastCheckoutAddress || "");
+      document.getElementById("custDelivery").value = state.lastCheckoutDelivery || "";
 
       savePersistentState();
       renderAllViews();
@@ -4736,13 +5218,21 @@
         }
       }
 
-      const foundClient = state.registeredClients.find((c) => {
+      let foundClient = state.registeredClients.find((c) => {
         const matchPhone = digits.length >= 7 && normalizePhoneDigits(c.phone) === digits;
         const matchUser = cleanUser && normalizeUsername(c.username) === cleanUser;
         const matchEmail = cleanEmail && (c.email || "").trim().toLowerCase() === cleanEmail;
         const matchName = (c.name || "").trim().toLowerCase() === cleanEmail;
         return matchPhone || matchUser || matchEmail || matchName;
       });
+
+      if (!foundClient) {
+        const cloudClient = await findClientInCloud(rawInput);
+        if (cloudClient) {
+          upsertLocalClientRecord(cloudClient);
+          foundClient = cloudClient;
+        }
+      }
 
       if (!foundClient) {
         showToast("No encontramos esa cuenta. Toca 'Registrarme nueva' para crearla");
@@ -4756,6 +5246,9 @@
 
       const matchedWholesale = findWholesaleClient(foundClient.name, foundClient.phone);
       const finalRole = matchedWholesale ? "wholesale" : foundClient.role || "retail";
+      if (foundClient.lastDelivery) {
+        state.lastCheckoutDelivery = foundClient.lastDelivery;
+      }
 
       applyUserSession({
         identifier: foundClient.phone,
@@ -4766,6 +5259,8 @@
         address: foundClient.address || "",
         role: finalRole
       });
+      await refreshClientOrderStatusesFromCloud();
+      renderAuth();
       closeModal("authModal");
       showToast(finalRole === "wholesale" ? `★ Bienvenida Mayorista, ${foundClient.name}` : `Bienvenida de vuelta, ${foundClient.name}`);
     }
@@ -4780,8 +5275,8 @@
 
       document.getElementById("custName").value = "";
       document.getElementById("custPhone").value = "";
-      document.getElementById("custAddress").value = "";
-      document.getElementById("custDelivery").value = "";
+      document.getElementById("custAddress").value = state.lastCheckoutAddress || "";
+      document.getElementById("custDelivery").value = state.lastCheckoutDelivery || "";
 
       savePersistentState();
       renderAllViews();
@@ -4860,6 +5355,9 @@
           barcode: "750100100107",
           retail: 65,
           wholesale: 45,
+          stockQty: null,
+          stockStatus: "pendiente_tn",
+          tnVariantId: "",
           desc: "Producto sincronizado desde catálogo Tiendanube.",
           tip: "Aplica capa delgada y deja secar unos segundos.",
           videoUrl: "",
@@ -4878,6 +5376,9 @@
           barcode: "750100100108",
           retail: 110,
           wholesale: 78,
+          stockQty: null,
+          stockStatus: "pendiente_tn",
+          tnVariantId: "",
           desc: "Sincronizado por ID de tienda para sellar maquillaje sin aportar peso.",
           tip: "Aplica a toques con borla en frente, nariz y barbilla.",
           videoUrl: "",
@@ -5062,6 +5563,7 @@
         showToast("Deja al menos un banner activo");
         return;
       }
+      if (!window.confirm("¿Seguro que quieres eliminar este banner?")) return;
       state.banners = state.banners.filter((b) => Number(b.id) !== Number(id));
       state.activeBannerIndex = 0;
       savePersistentState();
@@ -5198,6 +5700,9 @@
           barcode: finalBarcode,
           retail,
           wholesale,
+          stockQty: null,
+          stockStatus: "sin_sincronizar",
+          tnVariantId: "",
           desc: "Producto agregado al inventario de KS Cosmetics Mayoreo.",
           tip: "Aplica sobre piel limpia y seca según el acabado deseado.",
           videoUrl,
@@ -5240,10 +5745,18 @@
     function updateBadges() {
       const store = getCurrentStore();
       const totalPieces = store.cart.reduce((acc, item) => acc + (Number(item.qty) || 1), 0);
+      const totals = getCartTotals(false);
       const hCount = document.getElementById("headerCartCount");
       const nCount = document.getElementById("navCartCount");
+      const fBtn = document.getElementById("floatingCartBtn");
+      const fCount = document.getElementById("floatingCartCount");
+      const fTotal = document.getElementById("floatingCartTotal");
+
       if (hCount) hCount.textContent = totalPieces;
       if (nCount) nCount.textContent = totalPieces;
+      if (fCount) fCount.textContent = totalPieces;
+      if (fTotal) fTotal.textContent = `$${totals.finalTotal}`;
+      if (fBtn) fBtn.classList.toggle("visible", totalPieces > 0);
 
       const adminBtn = document.getElementById("adminBtn");
       if (adminBtn) {

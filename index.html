@@ -178,14 +178,6 @@
       margin-left: 4px;
     }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
     button {
       font: inherit;
       cursor: pointer;
@@ -237,6 +229,14 @@
       text-decoration: underline;
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     .container {
       max-width: 1080px;
       margin: 0 auto;
@@ -285,15 +285,8 @@
       color: #fff;
     }
 
-    .banner-caption-bar h1 {
-      font-size: 18px;
-      margin-bottom: 2px;
-    }
-
-    .banner-caption-bar p {
-      font-size: 13px;
-      opacity: 0.95;
-    }
+    .banner-caption-bar h1 { font-size: 18px; margin-bottom: 2px; }
+    .banner-caption-bar p { font-size: 13px; opacity: 0.95; }
 
     .banner-slide-bg {
       position: relative;
@@ -314,20 +307,11 @@
         min-height: 290px;
         max-height: 520px;
       }
-      .banner-content h1 {
-        font-size: 23px;
-      }
-      .banner-content p {
-        font-size: 15px;
-      }
+      .banner-content h1 { font-size: 23px; }
+      .banner-content p { font-size: 15px; }
     }
 
-    .banner-content {
-      position: relative;
-      z-index: 2;
-      max-width: 720px;
-    }
-
+    .banner-content { position: relative; z-index: 2; max-width: 720px; }
     .banner-content h1 { font-size: 20px; margin-bottom: 6px; }
     .banner-content p { font-size: 14px; opacity: 0.96; }
 
@@ -353,10 +337,7 @@
       padding: 0;
     }
 
-    .banner-dot-btn.active {
-      background: #fff;
-      transform: scale(1.2);
-    }
+    .banner-dot-btn.active { background: #fff; transform: scale(1.2); }
 
     .banner-arrow {
       background: rgba(255, 255, 255, 0.22);
@@ -395,21 +376,10 @@
       font: inherit;
     }
 
-    .search-input {
-      flex: 1 1 210px;
-    }
+    .search-input { flex: 1 1 210px; }
+    .brand-select { min-width: 175px; font-weight: 600; color: var(--ink); }
 
-    .brand-select {
-      min-width: 175px;
-      font-weight: 600;
-      color: var(--ink);
-    }
-
-    .cats {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
+    .cats { display: flex; gap: 6px; flex-wrap: wrap; }
 
     .cat-btn {
       padding: 7px 12px;
@@ -506,6 +476,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
     .prod-title {
       font-size: 13px;
       font-weight: 800;
@@ -514,12 +485,7 @@
       line-height: 1.25;
     }
 
-    .shades {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      flex-wrap: wrap;
-    }
+    .shades { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
 
     .shade-dot {
       width: 18px;
@@ -547,12 +513,7 @@
     .price-main { font-size: 14px; font-weight: 800; color: var(--primary-dark); }
     .price-sub { font-size: 10px; color: var(--muted); }
 
-    .card-actions {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
+    .card-actions { display: flex; gap: 6px; align-items: center; }
     .card-actions .btn-primary { flex: 1; padding: 8px 6px; font-size: 12px; }
     .card-actions .btn-soft { padding: 8px 7px; font-size: 11px; }
 
@@ -581,9 +542,7 @@
       flex-shrink: 0;
     }
 
-    .card-qty-btn:hover {
-      background: var(--primary-dark);
-    }
+    .card-qty-btn:hover { background: var(--primary-dark); }
 
     .card-qty-num {
       font-size: 13px;
@@ -594,34 +553,14 @@
     }
 
     @media (min-width: 640px) {
-      .grid {
-        gap: 14px;
-      }
-      .card {
-        padding: 14px;
-        border-radius: 16px;
-      }
-      .thumb {
-        height: 132px;
-        font-size: 44px;
-      }
-      .prod-title {
-        font-size: 15px;
-      }
-      .price-main {
-        font-size: 16px;
-      }
-      .price-sub {
-        font-size: 12px;
-      }
-      .card-actions .btn-primary {
-        padding: 9px 10px;
-        font-size: 13px;
-      }
-      .card-actions .btn-soft {
-        padding: 9px 10px;
-        font-size: 12px;
-      }
+      .grid { gap: 14px; }
+      .card { padding: 14px; border-radius: 16px; }
+      .thumb { height: 132px; font-size: 44px; }
+      .prod-title { font-size: 15px; }
+      .price-main { font-size: 16px; }
+      .price-sub { font-size: 12px; }
+      .card-actions .btn-primary { padding: 9px 10px; font-size: 13px; }
+      .card-actions .btn-soft { padding: 9px 10px; font-size: 12px; }
     }
 
     .bottom-nav {
@@ -672,13 +611,17 @@
       z-index: 40;
     }
 
+    #scannerModal {
+      z-index: 55;
+    }
+
     .modal-backdrop.open { display: flex; }
 
     .modal {
       background: #fff;
       border-radius: 18px;
       width: 100%;
-      max-width: 620px;
+      max-width: 640px;
       max-height: 90vh;
       overflow-y: auto;
       padding: 20px;
@@ -723,10 +666,7 @@
       color: var(--muted);
     }
 
-    .auth-tab-btn.active {
-      background: var(--primary);
-      color: #fff;
-    }
+    .auth-tab-btn.active { background: var(--primary); color: #fff; }
 
     .profile-card {
       background: var(--soft);
@@ -754,6 +694,14 @@
       color: var(--primary-dark);
     }
 
+    .client-order-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
     .field { margin-bottom: 10px; }
     .field label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; }
     .field input, .field select, .field textarea {
@@ -765,11 +713,7 @@
       background: #fff;
     }
 
-    .inline-code-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+    .inline-code-row { display: flex; gap: 8px; align-items: center; }
 
     .inline-code-row input {
       flex: 1;
@@ -878,6 +822,11 @@
       padding: 4px 9px;
       border-radius: 999px;
       white-space: nowrap;
+    }
+
+    .order-status-pill.ready {
+      background: var(--ok-bg);
+      color: var(--ok);
     }
 
     .order-line-row {
@@ -1091,7 +1040,7 @@
       border-radius: 999px;
       font-size: 13px;
       font-weight: 600;
-      z-index: 60;
+      z-index: 70;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease;
@@ -1116,6 +1065,7 @@
         </div>
       </div>
       <div class="header-actions">
+        <button class="btn-gold" id="ordersTrayBtn" style="display:none;" onclick="openOrdersTrayModal()">📦 Pedidos</button>
         <button class="btn-gold" id="scannerBtn" style="display:none;" onclick="openScannerDirect()">📷 Escáner</button>
         <button class="btn-soft" id="authBtn" onclick="openModal('authModal')">Entrar / Registro</button>
         <button class="btn-primary" id="adminBtn" style="display:none;" onclick="openAdminPanel()">⚙️ Panel Admin</button>
@@ -1165,6 +1115,26 @@
     </button>
   </nav>
 
+  <!-- Modal Bandeja Sincronizada de Pedidos (Bodega y Admin) -->
+  <div class="modal-backdrop" id="ordersTrayModal" onclick="backdropClose(event, 'ordersTrayModal')">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>📦 Pedidos de Clientas · Surtido</h3>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button class="btn-soft" onclick="refreshSharedOrders(true)">🔄 Actualizar</button>
+          <button class="close-btn" onclick="closeModal('ordersTrayModal')">✕</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>1. Seleccionar clienta</label>
+        <select id="trayClientSelect" onchange="onTrayClientChange(this.value)"></select>
+      </div>
+
+      <div id="trayOrdersListContainer"></div>
+    </div>
+  </div>
+
   <!-- Modal Detalle y Reseña -->
   <div class="modal-backdrop" id="detailModal" onclick="backdropClose(event, 'detailModal')">
     <div class="modal" id="detailContent"></div>
@@ -1194,6 +1164,7 @@
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
         <button class="btn-primary" id="toggleCamBtn" onclick="toggleCameraScanner()">Encender cámara</button>
         <button class="btn-soft" onclick="resetPickSession()">Reiniciar conteo</button>
+        <button class="btn-gold" onclick="markCurrentPickOrderDone()">✓ Marcar surtida</button>
       </div>
 
       <div class="field">
@@ -1273,7 +1244,17 @@
       </div>
 
       <div class="admin-section">
-        <h4>WhatsApp de recepción de pedidos</h4>
+        <h4>Pedidos sincronizados de clientas</h4>
+        <p style="font-size:12px; color:var(--muted); margin-bottom:8px;">
+          Los pedidos de clientas llegan aquí y a Bodega sin necesidad de mandar WhatsApp.
+        </p>
+        <button class="btn-gold" onclick="closeModal('adminModal'); openOrdersTrayModal();">
+          📦 Ver pedidos por clienta
+        </button>
+      </div>
+
+      <div class="admin-section">
+        <h4>WhatsApp de recepción de pedidos (opcional)</h4>
         <div class="field">
           <label>Número con lada (ej. 5219986490581)</label>
           <input type="text" id="adminWaNumber" />
@@ -1350,7 +1331,6 @@
         <div id="bannerListContainer" style="margin-top:12px;"></div>
       </div>
 
-      <!-- 6. Agregar producto rápido (solo lee código de barras con escáner) -->
       <div class="admin-section">
         <h4>Agregar producto rápido</h4>
         <div class="field">
@@ -1464,6 +1444,9 @@
 
     const pickSession = {
       folio: "",
+      cloudId: null,
+      clientKey: "",
+      orderIndex: null,
       lines: [],
       cameraStream: null,
       scanTimer: null,
@@ -1593,6 +1576,7 @@
       activeTab: "catalog",
       activeUserKey: "guest",
       draftFolio: "KS-7835",
+      selectedTrayClientKey: "",
       user: null,
       staffAccounts: {
         admin: {
@@ -1615,6 +1599,7 @@
         }
       },
       registeredClients: [],
+      sharedOrders: [],
       selectedShades: {},
       activeBannerIndex: 0,
       banners: [
@@ -1628,7 +1613,7 @@
         {
           id: 2,
           title: "Surtido Multimarca para Emprendedoras",
-          subtitle: "Filtra por marca o categoría y arma tu pedido directo a WhatsApp.",
+          subtitle: "Filtra por marca o categoría y arma tu pedido directo a WhatsApp o en la app.",
           imageUrl: "",
           active: true
         }
@@ -1638,6 +1623,13 @@
       ],
       products: DEFAULT_PRODUCTS.map((p) => ({ ...p }))
     };
+
+    function closeAllSubModalsBeforeScanner() {
+      ["orderSummaryModal", "cartModal", "ordersTrayModal", "detailModal", "authModal", "adminModal"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove("open");
+      });
+    }
 
     function stopNewProdBarcodeScanner() {
       if (newProdScanSession.scanTimer) {
@@ -1793,6 +1785,75 @@
             await upsertProductToCloud(item);
           }
         }
+      } catch (e) {}
+    }
+
+    function buildClientGroupKey(name, phone) {
+      const cleanDigits = normalizePhoneDigits(phone);
+      const cleanName = (name || "Clienta").trim().toLowerCase() || "clienta";
+      return cleanDigits.length >= 7 ? `tel:${cleanDigits}` : `nom:${cleanName}`;
+    }
+
+    function mergeSharedOrder(orderRecord) {
+      if (!orderRecord || !orderRecord.folio) return;
+      const idx = state.sharedOrders.findIndex((o) => o.folio === orderRecord.folio);
+      if (idx >= 0) {
+        state.sharedOrders[idx] = { ...state.sharedOrders[idx], ...orderRecord };
+      } else {
+        state.sharedOrders.unshift(orderRecord);
+      }
+      state.sharedOrders = state.sharedOrders.slice(0, 120);
+    }
+
+    async function loadSharedOrdersFromCloud() {
+      if (!supabaseClient) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from("orders")
+          .select("*")
+          .order("id", { ascending: false })
+          .limit(100);
+        if (error || !Array.isArray(data)) return;
+
+        const cloudMapped = data.map((row) => ({
+          cloudId: row.id,
+          folio: row.folio,
+          date: row.created_at ? new Date(row.created_at).toLocaleDateString("es-MX") : new Date().toLocaleDateString("es-MX"),
+          clientName: row.client_name || "Clienta",
+          phone: row.client_phone || "",
+          clientAddress: row.client_address || "",
+          deliveryType: row.delivery_type || "",
+          total: Number(row.total) || 0,
+          totalUnits: Number(row.total_units) || 0,
+          statusLabel: row.status_label || "Pendiente surtido",
+          useWholesalePricing: Number(row.total) >= WHOLESALE_THRESHOLD,
+          items: Array.isArray(row.items) ? row.items : []
+        }));
+
+        const localOnly = state.sharedOrders.filter(
+          (loc) => !cloudMapped.some((cld) => cld.folio === loc.folio)
+        );
+        state.sharedOrders = [...cloudMapped, ...localOnly].slice(0, 120);
+        savePersistentState();
+      } catch (e) {}
+    }
+
+    async function updateOrderStatusInCloud(folio, statusLabel) {
+      const target = state.sharedOrders.find((o) => o.folio === folio);
+      if (target) {
+        target.statusLabel = statusLabel;
+      }
+      Object.values(userStores).forEach((st) => {
+        if (!st || !Array.isArray(st.orders)) return;
+        st.orders.forEach((o) => {
+          if (o.folio === folio) o.statusLabel = statusLabel;
+        });
+      });
+      savePersistentState();
+
+      if (!supabaseClient) return;
+      try {
+        await supabaseClient.from("orders").update({ status_label: statusLabel }).eq("folio", folio);
       } catch (e) {}
     }
 
@@ -1957,9 +2018,11 @@
             activeBrand: state.activeBrand,
             activeUserKey: state.activeUserKey,
             draftFolio: state.draftFolio,
+            selectedTrayClientKey: state.selectedTrayClientKey,
             user: state.user,
             staffAccounts: state.staffAccounts,
             registeredClients: state.registeredClients,
+            sharedOrders: state.sharedOrders,
             selectedShades: state.selectedShades,
             activeBannerIndex: state.activeBannerIndex,
             banners: state.banners.slice(0, MAX_BANNERS),
@@ -1980,6 +2043,7 @@
         if (parsed && parsed.state) {
           Object.assign(state, parsed.state);
           if (!Array.isArray(state.registeredClients)) state.registeredClients = [];
+          if (!Array.isArray(state.sharedOrders)) state.sharedOrders = [];
           if (!Array.isArray(state.banners) || !state.banners.length) {
             state.banners = [
               {
@@ -2012,6 +2076,10 @@
 
     function isWarehouseAccount() {
       return Boolean(state.user && state.user.role === "warehouse");
+    }
+
+    function isStaffTrayAccount() {
+      return isAdminAccount() || isWarehouseAccount();
     }
 
     function isWholesaleAccount() {
@@ -2075,6 +2143,7 @@
           if (supabaseClient) {
             await loadProductsFromCloud();
             await loadBannersFromCloud();
+            await loadSharedOrdersFromCloud();
             document.getElementById("syncStatusBadge").textContent = "● Conectado a Supabase";
             renderAllViews();
           }
@@ -2107,6 +2176,10 @@
         openAdminPanel();
         return;
       }
+      if (id === "ordersTrayModal") {
+        openOrdersTrayModal();
+        return;
+      }
       if (id === "scannerModal" && !isWarehouseAccount()) {
         showToast("El escáner es exclusivo de la cuenta Bodega");
         openModal("authModal");
@@ -2131,19 +2204,207 @@
       if (e.target.id === id) closeModal(id);
     }
 
+    async function refreshSharedOrders(notify = false) {
+      await loadSharedOrdersFromCloud();
+      renderOrdersTray();
+      if (notify) showToast("Pedidos actualizados");
+    }
+
+    function getClientGroupsForTray() {
+      const groupsMap = new Map();
+      state.sharedOrders.forEach((ord) => {
+        const name = ord.clientName || "Clienta";
+        const phone = ord.phone || "";
+        const key = buildClientGroupKey(name, phone);
+        if (!groupsMap.has(key)) {
+          groupsMap.set(key, {
+            key,
+            name,
+            phone,
+            orders: []
+          });
+        }
+        groupsMap.get(key).orders.push(ord);
+      });
+      return [...groupsMap.values()];
+    }
+
+    async function openOrdersTrayModal() {
+      if (!isStaffTrayAccount()) {
+        showToast("Inicia sesión como Bodega o Admin para ver pedidos de clientas");
+        openModal("authModal");
+        return;
+      }
+      await loadSharedOrdersFromCloud();
+      renderOrdersTray();
+      document.getElementById("ordersTrayModal").classList.add("open");
+    }
+
+    function onTrayClientChange(clientKey) {
+      state.selectedTrayClientKey = clientKey;
+      savePersistentState();
+      renderOrdersTrayOrders();
+    }
+
+    function renderOrdersTray() {
+      const selectEl = document.getElementById("trayClientSelect");
+      if (!selectEl) return;
+
+      const groups = getClientGroupsForTray();
+      if (!groups.length) {
+        selectEl.innerHTML = `<option value="">Sin pedidos registrados aún</option>`;
+        document.getElementById("trayOrdersListContainer").innerHTML = `
+          <p style="font-size:13px; color:var(--muted);">Aún no hay pedidos de clientas sincronizados.</p>
+        `;
+        return;
+      }
+
+      if (!groups.some((g) => g.key === state.selectedTrayClientKey)) {
+        state.selectedTrayClientKey = groups[0].key;
+      }
+
+      selectEl.innerHTML = groups
+        .map((g) => {
+          const phoneTag = g.phone && g.phone !== "Sin teléfono" ? ` (${g.phone})` : "";
+          return `<option value="${g.key.replace(/"/g, "&quot;")}" ${g.key === state.selectedTrayClientKey ? "selected" : ""}>${g.name}${phoneTag} · ${g.orders.length} ${g.orders.length === 1 ? "pedido" : "pedidos"}</option>`;
+        })
+        .join("");
+
+      renderOrdersTrayOrders();
+    }
+
+    function renderOrdersTrayOrders() {
+      const container = document.getElementById("trayOrdersListContainer");
+      if (!container) return;
+
+      const groups = getClientGroupsForTray();
+      const selectedGroup = groups.find((g) => g.key === state.selectedTrayClientKey) || groups[0];
+
+      if (!selectedGroup) {
+        container.innerHTML = `<p style="font-size:13px; color:var(--muted);">Selecciona una clienta para ver sus pedidos.</p>`;
+        return;
+      }
+
+      const canScan = isWarehouseAccount();
+
+      container.innerHTML = selectedGroup.orders
+        .map((ord) => {
+          const rows = normalizeOrderRows(ord.items || [], Boolean(ord.useWholesalePricing));
+          const unitsCount = ord.totalUnits || rows.reduce((s, r) => s + r.qty, 0);
+          const isReady = String(ord.statusLabel || "").toLowerCase().includes("surtid");
+
+          const itemsMiniHtml = rows
+            .map(
+              (r) => `
+              <div class="order-line-row">
+                <div class="order-line-left">
+                  <div class="order-line-thumb">${r.emoji}</div>
+                  <div style="min-width:0;">
+                    <div class="order-line-title">${r.name}</div>
+                    <div class="order-line-sub">${r.brand}${r.shade ? ` · ${r.shade}` : ""} · Cód: <strong>${r.barcode}</strong></div>
+                    <div class="order-line-math">${r.qty} × $${r.unitPrice} MXN</div>
+                  </div>
+                </div>
+                <div class="order-line-amount">$${r.lineTotal} MXN</div>
+              </div>
+            `
+            )
+            .join("");
+
+          const escapedFolio = String(ord.folio || "").replace(/'/g, "\\'");
+
+          return `
+            <div class="client-order-card">
+              <div class="order-sheet-head">
+                <div>
+                  <div class="order-folio">Pedido #${ord.folio}</div>
+                  <span class="order-units-pill">${unitsCount} ${unitsCount === 1 ? "unidad" : "unidades"} · ${ord.date || ""}</span>
+                </div>
+                <span class="order-status-pill ${isReady ? "ready" : ""}">${ord.statusLabel || "Pendiente surtido"}</span>
+              </div>
+              ${ord.clientAddress ? `<p style="font-size:12px; color:var(--muted); margin-bottom:6px;">📍 ${ord.clientAddress}</p>` : ""}
+              <div>${itemsMiniHtml}</div>
+              <div class="order-sheet-foot">
+                <span>Total</span>
+                <span>$${ord.total} MXN</span>
+              </div>
+              <div class="order-sheet-actions">
+                ${
+                  canScan
+                    ? `<button class="btn-primary" style="flex:1;" onclick="startPickSessionByFolio('${escapedFolio}')">📷 Surtir con escáner</button>`
+                    : `<button class="btn-soft" onclick="sendExistingOrderWhatsApp('${escapedFolio}')">💬 Enviar por WhatsApp</button>`
+                }
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function sendExistingOrderWhatsApp(folio) {
+      const ord = state.sharedOrders.find((o) => o.folio === folio);
+      if (!ord) return;
+      const rows = normalizeOrderRows(ord.items || [], Boolean(ord.useWholesalePricing));
+      const unitsCount = ord.totalUnits || rows.reduce((s, r) => s + r.qty, 0);
+      const lines = [
+        `*Orden #${ord.folio}* · ${ord.statusLabel || "Pedido"}`,
+        `*${unitsCount} unidades*`,
+        `Clienta: ${ord.clientName || "Clienta"}`,
+        ord.phone ? `Tel: ${ord.phone}` : "",
+        ord.clientAddress ? `Dirección: ${ord.clientAddress}` : "",
+        `------------------------------`
+      ].filter(Boolean);
+
+      rows.forEach((r) => {
+        lines.push(`${r.emoji} *${r.name}* (${r.shade || "Tono"})`);
+        lines.push(`${r.qty} × $${r.unitPrice} MXN — *$${r.lineTotal} MXN*`);
+      });
+      lines.push(`------------------------------`);
+      lines.push(`*Total: $${ord.total} MXN*`);
+
+      const cleanWa = (state.waNumber || "").replace(/\D/g, "");
+      window.open(`https://wa.me/${cleanWa}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener");
+    }
+
+    function startPickSessionByFolio(folio) {
+      if (!isWarehouseAccount()) {
+        showToast("Solo la cuenta Bodega puede surtir con escáner");
+        return;
+      }
+      const ord = state.sharedOrders.find((o) => o.folio === folio);
+      if (!ord || !Array.isArray(ord.items) || !ord.items.length) {
+        showToast("No se encontraron artículos en ese pedido");
+        return;
+      }
+      startPickSession(ord.folio, ord.items, {
+        clientName: ord.clientName || "Clienta",
+        cloudId: ord.cloudId || null
+      });
+    }
+
     function openScannerDirect() {
       if (!isWarehouseAccount()) {
         showToast("Solo la cuenta Bodega puede usar el escáner");
         openModal("authModal");
         return;
       }
+      if (state.sharedOrders.length) {
+        const pending = state.sharedOrders.find(
+          (o) => !String(o.statusLabel || "").toLowerCase().includes("surtid") && Array.isArray(o.items) && o.items.length
+        );
+        const chosen = pending || state.sharedOrders.find((o) => Array.isArray(o.items) && o.items.length);
+        if (chosen) {
+          startPickSession(chosen.folio, chosen.items, {
+            clientName: chosen.clientName || "Clienta",
+            cloudId: chosen.cloudId || null
+          });
+          return;
+        }
+      }
+
       const store = getCurrentStore();
       if (store.cart.length) {
         startPickSession(state.draftFolio, store.cart);
-        return;
-      }
-      if (store.orders.length && store.orders[0].items && store.orders[0].items.length) {
-        startPickSession(store.orders[0].folio, store.orders[0].items);
         return;
       }
       const demoItems = [
@@ -2178,11 +2439,16 @@
         showToast("Esta orden no tiene productos");
         return;
       }
-      startPickSession(ord.folio, ord.items);
+      startPickSession(ord.folio, ord.items, {
+        clientName: ord.clientName || "Clienta",
+        cloudId: ord.cloudId || null
+      });
     }
 
-    function startPickSession(folio, rawItems) {
+    function startPickSession(folio, rawItems, meta = {}) {
       if (!isWarehouseAccount()) return;
+      closeAllSubModalsBeforeScanner();
+
       const grouped = new Map();
       rawItems.forEach((it) => {
         const p = state.products.find((prod) => prod.id === it.prodId);
@@ -2207,11 +2473,13 @@
       });
 
       pickSession.folio = folio;
+      pickSession.cloudId = meta.cloudId || null;
       pickSession.lines = [...grouped.values()];
       pickSession.lastCodeValue = "";
       pickSession.lastCodeTime = 0;
 
-      document.getElementById("scannerTitle").textContent = `📷 Surtido Bodega · Orden #${folio}`;
+      const clientSuffix = meta.clientName ? ` · ${meta.clientName}` : "";
+      document.getElementById("scannerTitle").textContent = `📷 Surtido Bodega · #${folio}${clientSuffix}`;
       document.getElementById("manualBarcodeInput").value = "";
       setScanFeedback("Listo para surtir en Bodega: cada código leído suma 1 unidad (1 de N, 2 de N...).", "scan-info");
 
@@ -2224,7 +2492,14 @@
         .join("");
 
       renderPickChecklist();
-      openModal("scannerModal");
+      document.getElementById("scannerModal").classList.add("open");
+    }
+
+    async function markCurrentPickOrderDone() {
+      if (!pickSession.folio) return;
+      await updateOrderStatusInCloud(pickSession.folio, "Surtida en Bodega ✓");
+      renderOrdersTrayOrders();
+      showToast(`Orden #${pickSession.folio} marcada como surtida`);
     }
 
     function resetPickSession() {
@@ -2246,11 +2521,16 @@
       const box = document.getElementById("pickChecklistContainer");
       const totalTarget = pickSession.lines.reduce((s, l) => s + l.targetQty, 0);
       const totalPicked = pickSession.lines.reduce((s, l) => s + l.pickedQty, 0);
+      const allDone = totalPicked === totalTarget && totalTarget > 0;
+
+      if (allDone && pickSession.folio) {
+        updateOrderStatusInCloud(pickSession.folio, "Surtida en Bodega ✓");
+      }
 
       const headerSummary = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13px;">
           <strong>Avance de surtido: ${totalPicked} de ${totalTarget} unidades</strong>
-          <span class="badge-sync">${totalPicked === totalTarget && totalTarget > 0 ? "✓ ORDEN SURTIDA" : "En surtido"}</span>
+          <span class="badge-sync">${allDone ? "✓ ORDEN SURTIDA" : "En surtido"}</span>
         </div>
       `;
 
@@ -2523,9 +2803,9 @@
             : baseTitle;
 
       const subText = isAdminAccount()
-        ? `Sesión administradora activa (<strong>${state.user.name}</strong>). Usa el botón <strong>Panel Admin</strong> arriba para gestionar tienda, banner y mayoristas.`
+        ? `Sesión administradora activa (<strong>${state.user.name}</strong>). Revisa <strong>📦 Pedidos</strong> o abre el <strong>Panel Admin</strong>.`
         : warehouseUser
-          ? `Sesión <strong>Bodega</strong> activa. Usa <strong>📷 Escáner</strong> arriba para surtir pedidos por código de barras.`
+          ? `Sesión <strong>Bodega</strong> activa. Abre <strong>📦 Pedidos</strong> para elegir clienta y surtir con <strong>📷 Escáner</strong>.`
           : wholesaleUser
             ? `Bienvenida, <strong>${state.user.name}</strong>. Tienes precios mayoristas directos en todo el catálogo.`
             : baseSub;
@@ -2933,156 +3213,6 @@
       });
     }
 
-    function renderOrderImageBlob({ folio, statusLabel, items, totalAmount, useWholesale }) {
-      const rows = normalizeOrderRows(items, useWholesale);
-      const unitsCount = rows.reduce((sum, r) => sum + r.qty, 0);
-
-      const width = 760;
-      const headerHeight = 148;
-      const rowHeight = 116;
-      const footerHeight = 96;
-      const padding = 28;
-      const height = padding * 2 + headerHeight + rows.length * rowHeight + footerHeight;
-
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-
-      ctx.fillStyle = "#f8d7e3";
-      ctx.fillRect(0, 0, width, height);
-
-      const cardX = padding;
-      const cardY = padding;
-      const cardW = width - padding * 2;
-      const cardH = height - padding * 2;
-      ctx.fillStyle = "#ffffff";
-      ctx.strokeStyle = "#efc2d4";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.roundRect(cardX, cardY, cardW, cardH, 20);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = "#23121c";
-      ctx.font = "bold 26px system-ui, -apple-system, sans-serif";
-      ctx.fillText(`Orden #${folio}`, cardX + 24, cardY + 46);
-
-      ctx.fillStyle = "#880e4f";
-      ctx.font = "bold 16px system-ui, -apple-system, sans-serif";
-      ctx.fillText(`${unitsCount} ${unitsCount === 1 ? "unidad" : "unidades"} · ${statusLabel}`, cardX + 24, cardY + 78);
-
-      ctx.fillStyle = "#6f5564";
-      ctx.font = "14px system-ui, -apple-system, sans-serif";
-      ctx.fillText("Hoja de surtido · KS Cosmetics Mayoreo", cardX + 24, cardY + 106);
-
-      ctx.strokeStyle = "#efc2d4";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(cardX + 20, cardY + 128);
-      ctx.lineTo(cardX + cardW - 20, cardY + 128);
-      ctx.stroke();
-
-      let currentY = cardY + headerHeight;
-      rows.forEach((r, idx) => {
-        const boxX = cardX + 24;
-        const boxY = currentY + 16;
-        const boxSize = 64;
-
-        ctx.fillStyle = "#fce4ec";
-        ctx.beginPath();
-        ctx.roundRect(boxX, boxY, boxSize, boxSize, 14);
-        ctx.fill();
-
-        ctx.font = "32px system-ui, -apple-system, sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "#23121c";
-        ctx.fillText(r.emoji, boxX + boxSize / 2, boxY + boxSize / 2 + 1);
-
-        ctx.textAlign = "left";
-        ctx.textBaseline = "alphabetic";
-
-        const textX = boxX + boxSize + 18;
-        ctx.fillStyle = "#23121c";
-        ctx.font = "bold 19px system-ui, -apple-system, sans-serif";
-        ctx.fillText(r.name, textX, currentY + 32);
-
-        ctx.fillStyle = "#6f5564";
-        ctx.font = "14px system-ui, -apple-system, sans-serif";
-        ctx.fillText(`${r.brand}${r.shade ? ` · ${r.shade}` : ""} · Cód: ${r.barcode}`, textX, currentY + 56);
-
-        ctx.fillStyle = "#880e4f";
-        ctx.font = "bold 16px system-ui, -apple-system, sans-serif";
-        ctx.fillText(`Cant: ${r.qty}  ×  $${r.unitPrice} MXN`, textX, currentY + 84);
-
-        ctx.textAlign = "right";
-        ctx.fillStyle = "#23121c";
-        ctx.font = "bold 20px system-ui, -apple-system, sans-serif";
-        ctx.fillText(`$${r.lineTotal} MXN`, cardX + cardW - 24, currentY + 56);
-        ctx.textAlign = "left";
-
-        if (idx < rows.length - 1) {
-          ctx.strokeStyle = "#f5e3eb";
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(cardX + 24, currentY + rowHeight);
-          ctx.lineTo(cardX + cardW - 24, currentY + rowHeight);
-          ctx.stroke();
-        }
-        currentY += rowHeight;
-      });
-
-      ctx.setLineDash([6, 6]);
-      ctx.strokeStyle = "#d9a7bc";
-      ctx.beginPath();
-      ctx.moveTo(cardX + 24, currentY + 12);
-      ctx.lineTo(cardX + cardW - 24, currentY + 12);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      ctx.fillStyle = "#880e4f";
-      ctx.font = "bold 24px system-ui, -apple-system, sans-serif";
-      ctx.fillText("Total", cardX + 24, currentY + 54);
-
-      ctx.textAlign = "right";
-      ctx.fillText(`$${totalAmount} MXN`, cardX + cardW - 24, currentY + 54);
-      ctx.textAlign = "left";
-
-      return new Promise((resolve) => {
-        canvas.toBlob((blob) => resolve(blob), "image/png");
-      });
-    }
-
-    async function dispatchOrderImageAutomatic(payload) {
-      try {
-        const blob = await renderOrderImageBlob(payload);
-        if (!blob) return;
-        const fileName = `orden-${payload.folio}.png`;
-        const file = new File([blob], fileName, { type: "image/png" });
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({
-              files: [file],
-              title: `Orden #${payload.folio}`,
-              text: `Orden #${payload.folio} · Total $${payload.totalAmount} MXN`
-            });
-            return;
-          } catch (err) {}
-        }
-
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 4000);
-      } catch (e) {}
-    }
-
     function buildOrderSheetHtml({ folio, statusLabel, items, totalAmount, useWholesale, isDraft = false, savedIndex = null }) {
       const rows = normalizeOrderRows(items, useWholesale);
       const unitsCount = rows.reduce((sum, r) => sum + r.qty, 0);
@@ -3191,8 +3321,8 @@
           </div>
         `;
         actions.innerHTML = `
-          <button class="btn-primary" style="width:100%; padding:12px;" onclick="sendWhatsAppOrder(false)">
-            Enviar Pedido por WhatsApp
+          <button class="btn-primary" style="width:100%; padding:12px;" onclick="submitCustomerOrder(false, false)">
+            Confirmar Pedido (Bodega y Admin)
           </button>
         `;
         return;
@@ -3296,40 +3426,56 @@
       if (!totals.wholesaleUser && totals.unlockedBySubtotal && !totals.meetsFinalWholesaleTotal) {
         actions.innerHTML = `
           <div style="display:flex; flex-direction:column; gap:8px;">
-            <button class="btn-primary" style="width:100%; padding:12px;" onclick="sendWhatsAppOrder(false)">
+            <button class="btn-primary" style="width:100%; padding:12px;" onclick="submitCustomerOrder(false, false)">
               Enviar como Mayoreo (completa +$${totals.missingFinalWholesaleTotal} MXN)
             </button>
-            <button class="btn-soft" style="width:100%; padding:11px;" onclick="sendWhatsAppOrder(true)">
-              Pedir como Menudeo ($${totals.retailSubtotal} MXN)
+            <button class="btn-soft" style="width:100%; padding:11px;" onclick="submitCustomerOrder(true, false)">
+              Confirmar como Menudeo ($${totals.retailSubtotal} MXN)
+            </button>
+            <button class="btn-outline" style="width:100%; padding:10px;" onclick="submitCustomerOrder(true, true)">
+              Confirmar y abrir WhatsApp (opcional)
             </button>
           </div>
         `;
       } else {
         actions.innerHTML = `
-          <button class="btn-primary" style="width:100%; padding:12px;" onclick="sendWhatsAppOrder(false)">
-            Enviar Pedido por WhatsApp
-          </button>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button class="btn-primary" style="width:100%; padding:12px;" onclick="submitCustomerOrder(false, false)">
+              Confirmar Pedido (Sincronizar con Bodega)
+            </button>
+            <button class="btn-soft" style="width:100%; padding:10px;" onclick="submitCustomerOrder(false, true)">
+              Confirmar y enviar por WhatsApp (opcional)
+            </button>
+          </div>
         `;
       }
     }
 
     async function persistOrderToCloud(orderRecord) {
-      if (!supabaseClient) return;
+      if (!supabaseClient) return null;
       try {
-        await supabaseClient.from("orders").insert({
-          folio: orderRecord.folio,
-          client_phone: normalizePhoneDigits(orderRecord.phone || (state.user && state.user.phone)),
-          client_name: orderRecord.clientName || (state.user && state.user.name) || "Clienta",
-          client_address: orderRecord.clientAddress || "",
-          total: orderRecord.total,
-          total_units: orderRecord.totalUnits,
-          status_label: orderRecord.statusLabel,
-          items: orderRecord.items
-        });
-      } catch (e) {}
+        const { data } = await supabaseClient
+          .from("orders")
+          .insert({
+            folio: orderRecord.folio,
+            client_phone: normalizePhoneDigits(orderRecord.phone || (state.user && state.user.phone)),
+            client_name: orderRecord.clientName || (state.user && state.user.name) || "Clienta",
+            client_address: orderRecord.clientAddress || "",
+            delivery_type: orderRecord.deliveryType || "",
+            total: orderRecord.total,
+            total_units: orderRecord.totalUnits,
+            status_label: orderRecord.statusLabel,
+            items: orderRecord.items
+          })
+          .select("id")
+          .single();
+        return data && data.id ? data.id : null;
+      } catch (e) {
+        return null;
+      }
     }
 
-    async function sendWhatsAppOrder(forceRetail = false) {
+    async function submitCustomerOrder(forceRetail = false, openWhatsApp = false) {
       const store = getCurrentStore();
       if (!store.cart.length) {
         showToast("Agrega al menos un producto primero");
@@ -3339,38 +3485,26 @@
       const totals = getCartTotals(forceRetail);
 
       if (!totals.wholesaleUser && totals.unlockedBySubtotal && !totals.meetsFinalWholesaleTotal) {
-        showToast(`Agrega $${totals.missingFinalWholesaleTotal} MXN más en mayoreo o elige Pedir como Menudeo`);
+        showToast(`Agrega $${totals.missingFinalWholesaleTotal} MXN más en mayoreo o elige Confirmar como Menudeo`);
         return;
       }
 
-      const name = document.getElementById("custName").value.trim() || "Clienta";
-      const phone = document.getElementById("custPhone").value.trim() || "Sin especificar";
+      const name = document.getElementById("custName").value.trim() || (state.user && state.user.name) || "Clienta";
+      const phone = document.getElementById("custPhone").value.trim() || (state.user && state.user.phone) || "Sin especificar";
       const address = document.getElementById("custAddress").value.trim() || "Sin dirección especificada";
       const delivery = document.getElementById("custDelivery").value.trim() || "Por coordinar";
       const folio = state.draftFolio || ("KS-" + Math.floor(1000 + Math.random() * 9000));
       state.draftFolio = "KS-" + Math.floor(1000 + Math.random() * 9000);
 
       const statusLabel = isAdminAccount()
-        ? "Pedido Admin"
+        ? "Pedido Admin · Pendiente surtido"
         : isWarehouseAccount()
-          ? "Orden Bodega"
+          ? "Orden Bodega · Pendiente surtido"
           : totals.wholesaleUser
-            ? "Clienta Mayorista"
+            ? "Mayorista · Pendiente surtido"
             : totals.meetsFinalWholesaleTotal
-              ? "Mayoreo ($1,000+)"
-              : "Menudeo";
-
-      const unitsWord = totals.totalPieces === 1 ? "unidad" : "unidades";
-
-      const lines = [
-        `*Orden #${folio}* · ${statusLabel}`,
-        `*${totals.totalPieces} ${unitsWord}*`,
-        `Clienta: ${name}`,
-        `Tel: ${phone}`,
-        `Dirección: ${address}`,
-        `Entrega: ${delivery}`,
-        `------------------------------`
-      ];
+              ? "Mayoreo ($1,000+) · Pendiente surtido"
+              : "Menudeo · Pendiente surtido";
 
       const detailedItems = store.cart.map((item) => {
         const p = state.products.find((prod) => prod.id === item.prodId);
@@ -3378,10 +3512,6 @@
         const barcode = p.barcode || `KS-${p.id}`;
         const unit = totals.useWholesalePricing ? p.wholesale : p.retail;
         const lineTotal = unit * item.qty;
-        lines.push(`${p.emoji} *${p.name}*`);
-        lines.push(`${brand} · ${item.shade} · Cód: ${barcode}`);
-        lines.push(`${item.qty} × $${unit} MXN — *$${lineTotal} MXN*`);
-        lines.push(``);
         return {
           ...item,
           name: p.name,
@@ -3393,20 +3523,13 @@
         };
       });
 
-      while (lines.length && lines[lines.length - 1] === "") {
-        lines.pop();
-      }
-
-      lines.push(`------------------------------`);
-      if (totals.savings > 0) lines.push(`Ahorro mayoreo: -$${totals.savings} MXN`);
-      lines.push(`*Total: $${totals.finalTotal} MXN*`);
-
       const newOrder = {
         folio,
         date: new Date().toLocaleDateString("es-MX"),
         clientName: name,
         phone,
         clientAddress: address,
+        deliveryType: delivery,
         total: totals.finalTotal,
         totalUnits: totals.totalPieces,
         statusLabel,
@@ -3414,19 +3537,38 @@
         items: detailedItems
       };
 
+      const cloudId = await persistOrderToCloud(newOrder);
+      if (cloudId) newOrder.cloudId = cloudId;
+
       store.orders.unshift(newOrder);
-      await persistOrderToCloud(newOrder);
+      mergeSharedOrder(newOrder);
+      state.selectedTrayClientKey = buildClientGroupKey(name, phone);
 
-      await dispatchOrderImageAutomatic({
-        folio,
-        statusLabel,
-        items: detailedItems,
-        totalAmount: totals.finalTotal,
-        useWholesale: totals.useWholesalePricing
-      });
+      if (openWhatsApp) {
+        const unitsWord = totals.totalPieces === 1 ? "unidad" : "unidades";
+        const lines = [
+          `*Orden #${folio}* · ${statusLabel}`,
+          `*${totals.totalPieces} ${unitsWord}*`,
+          `Clienta: ${name}`,
+          `Tel: ${phone}`,
+          `Dirección: ${address}`,
+          `Entrega: ${delivery}`,
+          `------------------------------`
+        ];
+        detailedItems.forEach((it) => {
+          lines.push(`${it.emoji} *${it.name}*`);
+          lines.push(`${it.brand} · ${it.shade} · Cód: ${it.barcode}`);
+          lines.push(`${it.qty} × $${it.unitPrice} MXN — *$${it.lineTotal} MXN*`);
+          lines.push(``);
+        });
+        while (lines.length && lines[lines.length - 1] === "") lines.pop();
+        lines.push(`------------------------------`);
+        if (totals.savings > 0) lines.push(`Ahorro mayoreo: -$${totals.savings} MXN`);
+        lines.push(`*Total: $${totals.finalTotal} MXN*`);
 
-      const cleanWa = state.waNumber.replace(/\D/g, "");
-      const url = `https://wa.me/${cleanWa}?text=${encodeURIComponent(lines.join("\n"))}`;
+        const cleanWa = state.waNumber.replace(/\D/g, "");
+        window.open(`https://wa.me/${cleanWa}?text=${encodeURIComponent(lines.join("\n"))}`, "_blank", "noopener");
+      }
 
       store.cart = [];
       savePersistentState();
@@ -3434,8 +3576,7 @@
       renderCart();
       renderProducts(state.activeTab === "favorites");
       closeModal("cartModal");
-      window.open(url, "_blank", "noopener");
-      showToast(`Imagen y pedido #${folio} enviados al flujo de WhatsApp`);
+      showToast(`✓ Pedido #${folio} guardado y sincronizado para Bodega y Admin`);
     }
 
     function setAuthMode(mode) {
@@ -3741,8 +3882,9 @@
           </div>
 
           <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+            ${isAdm || isWh ? `<button class="btn-gold" onclick="closeModal('authModal'); openOrdersTrayModal();">📦 Ver Pedidos de Clientas</button>` : ""}
             ${isAdm ? `<button class="btn-primary" onclick="closeModal('authModal'); openAdminPanel();">Abrir Panel Admin</button>` : ""}
-            ${isWh ? `<button class="btn-gold" onclick="closeModal('authModal'); openScannerDirect();">📷 Abrir Escáner Bodega</button>` : ""}
+            ${isWh ? `<button class="btn-primary" onclick="closeModal('authModal'); openScannerDirect();">📷 Abrir Escáner Bodega</button>` : ""}
             <button class="btn-outline" onclick="logoutDemo()">Cerrar sesión</button>
           </div>
 
@@ -3803,10 +3945,10 @@
                   <div class="cart-item">
                     <div>
                       <strong>#${o.folio}</strong> · ${o.date} · <span>${o.totalUnits || (o.items || []).reduce((s, x) => s + (x.qty || 0), 0)} uds</span><br/>
-                      <span style="font-size:12px; color:var(--muted);">Total: $${o.total} MXN</span>
+                      <span style="font-size:12px; color:var(--muted);">Total: $${o.total} MXN · ${o.statusLabel || ""}</span>
                     </div>
                     <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                      ${isWh ? `<button class="btn-soft" onclick="closeModal('authModal'); openPickScannerForSavedOrder(${i});">Surtir</button>` : ""}
+                      ${isWh ? `<button class="btn-soft" onclick="openPickScannerForSavedOrder(${i});">Surtir</button>` : ""}
                       <button class="btn-outline" onclick="openSavedOrderSummary(${i})">Ver lista</button>
                       <button class="btn-soft" onclick="reorder(${i})">Repetir</button>
                     </div>
@@ -4072,7 +4214,9 @@
               role: staff.role
             });
             closeModal("authModal");
-            showToast(key === "admin" ? "Sesión Admin activada" : "Sesión Bodega activada · Escáner disponible");
+            await loadSharedOrdersFromCloud();
+            renderOrdersTray();
+            showToast(key === "admin" ? "Sesión Admin activada" : "Sesión Bodega activada · Escáner y Pedidos listos");
           } else {
             showToast("Contraseña incorrecta");
           }
@@ -4556,6 +4700,9 @@
 
       const adminBtn = document.getElementById("adminBtn");
       if (adminBtn) adminBtn.style.display = isAdminAccount() ? "inline-flex" : "none";
+
+      const ordersTrayBtn = document.getElementById("ordersTrayBtn");
+      if (ordersTrayBtn) ordersTrayBtn.style.display = isStaffTrayAccount() ? "inline-flex" : "none";
 
       const scannerBtn = document.getElementById("scannerBtn");
       if (scannerBtn) scannerBtn.style.display = isWarehouseAccount() ? "inline-flex" : "none";

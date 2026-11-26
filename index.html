@@ -1150,7 +1150,7 @@
         <button class="btn-gold" id="ordersTrayBtn" style="display:none;" onclick="openOrdersTrayModal()">📦 Pedidos</button>
         <button class="btn-gold" id="scannerBtn" style="display:none;" onclick="openScannerDirect()">📷 Escáner</button>
         <button class="btn-soft" id="authBtn" onclick="openModal('authModal')">Entrar / Registro</button>
-        <button class="btn-primary" id="adminBtn" style="display:none;" onclick="openAdminPanel()">⚙️ Panel Admin</button>
+        <button class="btn-primary" id="adminBtn" style="display:none;" onclick="openAdminPanel()">⚙️ Panel Operativo</button>
         <button class="btn-primary" onclick="openModal('cartModal')">
           Bolsa <span class="cart-count" id="headerCartCount">0</span>
         </button>
@@ -1166,7 +1166,7 @@
         type="search"
         class="search-input"
         id="searchInput"
-        placeholder="Buscar producto, marca, tono o código..."
+        placeholder="Buscar producto, marca o tono..."
         oninput="renderProducts()"
       />
       <select class="brand-select" id="brandFilter" onchange="selectBrand(this.value)">
@@ -1227,7 +1227,7 @@
     <div class="modal" id="orderSummaryContent"></div>
   </div>
 
-  <!-- Modal Surtido con Escáner de Código de Barras (Exclusivo Bodega) -->
+  <!-- Modal Surtido con Escáner de Código de Barras (Bodega y Admin) -->
   <div class="modal-backdrop" id="scannerModal" onclick="backdropClose(event, 'scannerModal')">
     <div class="modal">
       <div class="modal-head">
@@ -1319,18 +1319,18 @@
     </div>
   </div>
 
-  <!-- Modal Admin -->
+  <!-- Modal Operativo / Admin (Bodega: inventario + alta de productos; Admin: todo) -->
   <div class="modal-backdrop" id="adminModal" onclick="backdropClose(event, 'adminModal')">
     <div class="modal">
       <div class="modal-head">
-        <h3>Panel Admin · KS Cosmetics</h3>
+        <h3 id="opsModalTitle">Panel Bodega e Inventario</h3>
         <button class="close-btn" onclick="closeModal('adminModal')">✕</button>
       </div>
 
       <div class="admin-section">
         <h4>Pedidos sincronizados de clientas</h4>
         <p style="font-size:12px; color:var(--muted); margin-bottom:8px;">
-          Los pedidos de clientas llegan aquí y a Bodega sin necesidad de mandar WhatsApp.
+          Revisa pedidos de clientas por nombre o teléfono y pasa directo a surtir con el escáner.
         </p>
         <button class="btn-gold" onclick="closeModal('adminModal'); openOrdersTrayModal();">
           📦 Ver pedidos por clienta
@@ -1338,85 +1338,12 @@
       </div>
 
       <div class="admin-section">
-        <h4>WhatsApp de recepción de pedidos (opcional)</h4>
-        <div class="field">
-          <label>Número con lada (ej. 5219986490581)</label>
-          <input type="text" id="adminWaNumber" />
-        </div>
-        <button class="btn-soft" onclick="saveWaNumber()">Guardar WhatsApp</button>
-      </div>
-
-      <div class="admin-section">
-        <h4>Códigos de barras de productos (para surtido en Bodega)</h4>
+        <h4>Inventario y códigos de barras de productos</h4>
         <div id="barcodeAdminList"></div>
       </div>
 
       <div class="admin-section">
-        <h4>Sincronización Tiendanube por Store ID</h4>
-        <div class="field">
-          <label>ID de Tienda (Store ID)</label>
-          <input type="text" id="adminStoreId" placeholder="Ej. 4829104" />
-        </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="btn-outline" onclick="saveStoreId()">Guardar ID</button>
-          <button class="btn-primary" onclick="syncTiendanubeById()">Sincronizar con este ID</button>
-        </div>
-        <p id="syncLogText" style="font-size:12px; color:var(--muted); margin-top:8px;"></p>
-      </div>
-
-      <div class="admin-section">
-        <h4>Alta y ascenso de Clientas Mayoristas</h4>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-          <div class="field">
-            <label>Nombre o boutique</label>
-            <input type="text" id="whNameInput" placeholder="Ej. Estética Camila" />
-          </div>
-          <div class="field">
-            <label>Teléfono</label>
-            <input type="tel" id="whPhoneInput" placeholder="998 555 0199" />
-          </div>
-        </div>
-        <button class="btn-gold" onclick="registerWholesaleClient()">Dar de alta como Mayorista</button>
-        <div id="wholesaleListContainer" style="margin-top:10px;"></div>
-      </div>
-
-      <div class="admin-section">
-        <h4>Banner de marca y productos · <span id="bannerQuotaLabel">0 / 5</span></h4>
-        <div class="field">
-          <label>Espacio / ranura del banner (1 al 5)</label>
-          <select id="bannerSlotSelect">
-            <option value="0">Banner 1</option>
-            <option value="1">Banner 2</option>
-            <option value="2">Banner 3</option>
-            <option value="3">Banner 4</option>
-            <option value="4">Banner 5</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Subir imagen (se muestra limpia sin letras encima si dejas vacío el texto)</label>
-          <input type="file" id="bannerFileInput" accept="image/*" />
-        </div>
-        <div class="field">
-          <label>O pega enlace directo de imagen (opcional)</label>
-          <input type="url" id="bannerUrlInput" placeholder="https://..." />
-        </div>
-        <div class="field">
-          <label>Título sobre el banner (opcional — déjalo vacío si tu imagen ya tiene texto)</label>
-          <input type="text" id="bannerTitleInput" placeholder="Opcional" />
-        </div>
-        <div class="field">
-          <label>Texto / promoción adicional (opcional)</label>
-          <input type="text" id="bannerSubInput" placeholder="Opcional" />
-        </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="btn-primary" id="saveBannerBtn" onclick="saveBannerSlide()">Guardar banner</button>
-          <button class="btn-soft" onclick="clearBannerForm()">Limpiar campos</button>
-        </div>
-        <div id="bannerListContainer" style="margin-top:12px;"></div>
-      </div>
-
-      <div class="admin-section">
-        <h4>Agregar producto con foto, editor de fondo y código de barras</h4>
+        <h4>Alta de producto e inventario (foto, editor de fondo y código)</h4>
         <div class="field">
           <label>Nombre del cosmético</label>
           <input type="text" id="newProdName" placeholder="Ej. Gloss Brillo Espejo" />
@@ -1448,7 +1375,6 @@
           </div>
         </div>
 
-        <!-- Foto del producto: Tomar foto, Subir archivo y Editor de fondo -->
         <div class="field">
           <label>Foto del producto y fondo</label>
           <input type="file" id="cameraPhotoInput" accept="image/*" capture="environment" style="display:none;" onchange="handlePhotoFileSelected(this.files[0])" />
@@ -1507,6 +1433,82 @@
         <button type="button" class="btn-primary" style="width:100%;" id="publishProdBtn" onclick="addNewProduct()">
           Publicar producto en el catálogo
         </button>
+      </div>
+
+      <!-- Sección Exclusiva Admin -->
+      <div id="adminOnlySections" style="display:none;">
+        <div class="admin-section">
+          <h4>WhatsApp de recepción de pedidos (opcional)</h4>
+          <div class="field">
+            <label>Número con lada (ej. 5219986490581)</label>
+            <input type="text" id="adminWaNumber" />
+          </div>
+          <button class="btn-soft" onclick="saveWaNumber()">Guardar WhatsApp</button>
+        </div>
+
+        <div class="admin-section">
+          <h4>Sincronización Tiendanube por Store ID</h4>
+          <div class="field">
+            <label>ID de Tienda (Store ID)</label>
+            <input type="text" id="adminStoreId" placeholder="Ej. 4829104" />
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-outline" onclick="saveStoreId()">Guardar ID</button>
+            <button class="btn-primary" onclick="syncTiendanubeById()">Sincronizar con este ID</button>
+          </div>
+          <p id="syncLogText" style="font-size:12px; color:var(--muted); margin-top:8px;"></p>
+        </div>
+
+        <div class="admin-section">
+          <h4>Alta y ascenso de Clientas Mayoristas</h4>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div class="field">
+              <label>Nombre o boutique</label>
+              <input type="text" id="whNameInput" placeholder="Ej. Estética Camila" />
+            </div>
+            <div class="field">
+              <label>Teléfono</label>
+              <input type="tel" id="whPhoneInput" placeholder="998 555 0199" />
+            </div>
+          </div>
+          <button class="btn-gold" onclick="registerWholesaleClient()">Dar de alta como Mayorista</button>
+          <div id="wholesaleListContainer" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="admin-section">
+          <h4>Banner de marca y productos · <span id="bannerQuotaLabel">0 / 5</span></h4>
+          <div class="field">
+            <label>Espacio / ranura del banner (1 al 5)</label>
+            <select id="bannerSlotSelect">
+              <option value="0">Banner 1</option>
+              <option value="1">Banner 2</option>
+              <option value="2">Banner 3</option>
+              <option value="3">Banner 4</option>
+              <option value="4">Banner 5</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Subir imagen (se muestra limpia sin letras encima si dejas vacío el texto)</label>
+            <input type="file" id="bannerFileInput" accept="image/*" />
+          </div>
+          <div class="field">
+            <label>O pega enlace directo de imagen (opcional)</label>
+            <input type="url" id="bannerUrlInput" placeholder="https://..." />
+          </div>
+          <div class="field">
+            <label>Título sobre el banner (opcional — déjalo vacío si tu imagen ya tiene texto)</label>
+            <input type="text" id="bannerTitleInput" placeholder="Opcional" />
+          </div>
+          <div class="field">
+            <label>Texto / promoción adicional (opcional)</label>
+            <input type="text" id="bannerSubInput" placeholder="Opcional" />
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn-primary" id="saveBannerBtn" onclick="saveBannerSlide()">Guardar banner</button>
+            <button class="btn-soft" onclick="clearBannerForm()">Limpiar campos</button>
+          </div>
+          <div id="bannerListContainer" style="margin-top:12px;"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1775,6 +1777,7 @@
     }
 
     function handlePhotoFileSelected(file) {
+      if (!isInventoryAccount()) return;
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (ev) => {
@@ -1809,6 +1812,7 @@
     }
 
     function setPhotoBgPreset(preset, btnEl) {
+      if (!isInventoryAccount()) return;
       photoEditorState.bgPreset = preset;
       document.querySelectorAll(".bg-chip").forEach((chip) => chip.classList.remove("active"));
       if (btnEl) btnEl.classList.add("active");
@@ -1816,6 +1820,7 @@
     }
 
     function onPhotoTransformChange() {
+      if (!isInventoryAccount()) return;
       const slider = document.getElementById("photoZoomRange");
       const label = document.getElementById("photoZoomVal");
       const pct = Number(slider ? slider.value : 100) || 100;
@@ -1825,11 +1830,13 @@
     }
 
     function rotateProductPhoto(deg) {
+      if (!isInventoryAccount()) return;
       photoEditorState.rotationDeg = (photoEditorState.rotationDeg + deg) % 360;
       drawEditedProductCanvas();
     }
 
     function resetPhotoTransform() {
+      if (!isInventoryAccount()) return;
       photoEditorState.zoom = 1;
       photoEditorState.rotationDeg = 0;
       const slider = document.getElementById("photoZoomRange");
@@ -1898,6 +1905,7 @@
     }
 
     async function uploadEditedProductPhoto(productId) {
+      if (!isInventoryAccount()) return "";
       const canvas = document.getElementById("prodPhotoCanvas");
       if (!photoEditorState.hasImage || !canvas) return "";
 
@@ -1953,6 +1961,7 @@
     }
 
     async function toggleNewProdBarcodeScanner() {
+      if (!isInventoryAccount()) return;
       if (newProdScanSession.cameraStream) {
         stopNewProdBarcodeScanner();
         return;
@@ -2061,7 +2070,7 @@
     }
 
     async function upsertProductToCloud(productObj) {
-      if (!supabaseClient) return;
+      if (!supabaseClient || !isInventoryAccount()) return;
       try {
         await supabaseClient.from("products").upsert(toDbProduct(productObj), { onConflict: "id" });
       } catch (e) {}
@@ -2083,7 +2092,7 @@
             }
           });
           savePersistentState();
-        } else {
+        } else if (isInventoryAccount()) {
           for (const item of state.products) {
             await upsertProductToCloud(item);
           }
@@ -2145,7 +2154,7 @@
     }
 
     async function loadSharedOrdersFromCloud() {
-      if (!supabaseClient) return;
+      if (!supabaseClient || !isStaffTrayAccount()) return;
       try {
         const { data, error } = await supabaseClient
           .from("orders")
@@ -2178,6 +2187,7 @@
     }
 
     async function updateOrderStatusInCloud(folio, statusLabel) {
+      if (!isStaffTrayAccount()) return;
       const target = state.sharedOrders.find((o) => o.folio === folio);
       if (target) {
         target.statusLabel = statusLabel;
@@ -2219,7 +2229,7 @@
     }
 
     async function saveBannersToCloud() {
-      if (!supabaseClient) return;
+      if (!supabaseClient || !isAdminAccount()) return;
       try {
         const rows = state.banners.slice(0, MAX_BANNERS).map((b, idx) => ({
           id: Number(b.id),
@@ -2234,14 +2244,14 @@
     }
 
     async function deleteBannerFromCloud(id) {
-      if (!supabaseClient) return;
+      if (!supabaseClient || !isAdminAccount()) return;
       try {
         await supabaseClient.from("banners").delete().eq("id", Number(id));
       } catch (e) {}
     }
 
     async function uploadBannerFileToStorage(file) {
-      if (!file) return "";
+      if (!file || !isAdminAccount()) return "";
       if (supabaseClient) {
         try {
           const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -2282,7 +2292,7 @@
         }
       }
 
-      if (supabaseClient) {
+      if (supabaseClient && isStaffTrayAccount()) {
         try {
           const { data } = await supabaseClient.from("staff_accounts").select("*");
           if (data && data.length) {
@@ -2305,7 +2315,7 @@
     }
 
     async function syncStaffAccountToCloud(acc) {
-      if (!supabaseClient || !acc) return;
+      if (!supabaseClient || !acc || !isStaffTrayAccount()) return;
       try {
         await supabaseClient.from("staff_accounts").upsert(
           {
@@ -2417,6 +2427,10 @@
       return Boolean(state.user && state.user.role === "warehouse");
     }
 
+    function isInventoryAccount() {
+      return isAdminAccount() || isWarehouseAccount();
+    }
+
     function isStaffTrayAccount() {
       return isAdminAccount() || isWarehouseAccount();
     }
@@ -2471,7 +2485,7 @@
 
       const urlParams = new URLSearchParams(window.location.search);
       const sharedFolioParam = (urlParams.get("orden") || "").trim();
-      if (sharedFolioParam) {
+      if (sharedFolioParam && isStaffTrayAccount()) {
         const matchOrd = state.sharedOrders.find(
           (o) => String(o.folio || "").toLowerCase() === sharedFolioParam.toLowerCase()
         );
@@ -2495,13 +2509,15 @@
           if (supabaseClient) {
             await loadProductsFromCloud();
             await loadBannersFromCloud();
-            await loadSharedOrdersFromCloud();
-            if (sharedFolioParam) {
-              const matchOrdAfterSync = state.sharedOrders.find(
-                (o) => String(o.folio || "").toLowerCase() === sharedFolioParam.toLowerCase()
-              );
-              if (matchOrdAfterSync) {
-                state.selectedTrayClientKey = buildClientGroupKey(matchOrdAfterSync.clientName, matchOrdAfterSync.phone);
+            if (isStaffTrayAccount()) {
+              await loadSharedOrdersFromCloud();
+              if (sharedFolioParam) {
+                const matchOrdAfterSync = state.sharedOrders.find(
+                  (o) => String(o.folio || "").toLowerCase() === sharedFolioParam.toLowerCase()
+                );
+                if (matchOrdAfterSync) {
+                  state.selectedTrayClientKey = buildClientGroupKey(matchOrdAfterSync.clientName, matchOrdAfterSync.phone);
+                }
               }
             }
             document.getElementById("syncStatusBadge").textContent = "● Conectado a Supabase";
@@ -2520,30 +2536,40 @@
     }
 
     function openAdminPanel() {
-      if (!isAdminAccount()) {
+      if (!isInventoryAccount()) {
         openModal("authModal");
         return;
       }
-      document.getElementById("adminWaNumber").value = state.waNumber;
-      document.getElementById("adminStoreId").value = state.tiendanubeStoreId;
-      document.getElementById("syncLogText").textContent = state.lastSyncText;
+      const admSections = document.getElementById("adminOnlySections");
+      const modalTitle = document.getElementById("opsModalTitle");
+      if (admSections) admSections.style.display = isAdminAccount() ? "block" : "none";
+      if (modalTitle) {
+        modalTitle.textContent = isAdminAccount()
+          ? "Panel Admin e Inventario · KS Cosmetics"
+          : "Bodega · Inventario y Alta de Productos";
+      }
+      if (isAdminAccount()) {
+        document.getElementById("adminWaNumber").value = state.waNumber;
+        document.getElementById("adminStoreId").value = state.tiendanubeStoreId;
+        document.getElementById("syncLogText").textContent = state.lastSyncText;
+      }
       renderAdminLists();
       document.getElementById("adminModal").classList.add("open");
     }
 
     function openModal(id) {
       if (id === "adminModal") {
+        if (!isInventoryAccount()) return;
         openAdminPanel();
         return;
       }
       if (id === "ordersTrayModal") {
+        if (!isStaffTrayAccount()) return;
         openOrdersTrayModal();
         return;
       }
-      if (id === "scannerModal" && !isWarehouseAccount()) {
-        showToast("El escáner es exclusivo de la cuenta Bodega");
-        openModal("authModal");
-        return;
+      if (id === "scannerModal") {
+        if (!isStaffTrayAccount()) return;
       }
       if (id === "cartModal") renderCart();
       if (id === "authModal") renderAuth();
@@ -2565,6 +2591,7 @@
     }
 
     async function refreshSharedOrders(notify = false) {
+      if (!isStaffTrayAccount()) return;
       await loadSharedOrdersFromCloud();
       renderOrdersTray();
       if (notify) showToast("Pedidos actualizados");
@@ -2590,17 +2617,14 @@
     }
 
     async function openOrdersTrayModal() {
-      if (!isStaffTrayAccount()) {
-        showToast("Inicia sesión como Bodega o Admin para ver pedidos de clientas");
-        openModal("authModal");
-        return;
-      }
+      if (!isStaffTrayAccount()) return;
       await loadSharedOrdersFromCloud();
       renderOrdersTray();
       document.getElementById("ordersTrayModal").classList.add("open");
     }
 
     function onTrayClientChange(clientKey) {
+      if (!isStaffTrayAccount()) return;
       state.selectedTrayClientKey = clientKey;
       savePersistentState();
       renderOrdersTrayOrders();
@@ -2647,7 +2671,7 @@
         return;
       }
 
-      const canScan = isWarehouseAccount();
+      const canScan = isStaffTrayAccount();
 
       container.innerHTML = selectedGroup.orders
         .map((ord) => {
@@ -2663,7 +2687,7 @@
                   <div class="order-line-thumb">${renderProductVisual(r)}</div>
                   <div style="min-width:0;">
                     <div class="order-line-title">${r.name}</div>
-                    <div class="order-line-sub">${r.brand}${r.shade ? ` · ${r.shade}` : ""} · Cód: <strong>${r.barcode}</strong></div>
+                    <div class="order-line-sub">${r.brand}${r.shade ? ` · ${r.shade}` : ""}${canScan ? ` · Cód: <strong>${r.barcode}</strong>` : ""}</div>
                     <div class="order-line-math">${r.qty} × $${r.unitPrice} MXN</div>
                   </div>
                 </div>
@@ -2704,6 +2728,7 @@
     }
 
     function sendExistingOrderWhatsApp(folio) {
+      if (!isStaffTrayAccount()) return;
       const ord = state.sharedOrders.find((o) => o.folio === folio);
       if (!ord) return;
       const rows = normalizeOrderRows(ord.items || [], Boolean(ord.useWholesalePricing));
@@ -2733,10 +2758,7 @@
     }
 
     function startPickSessionByFolio(folio) {
-      if (!isWarehouseAccount()) {
-        showToast("Solo la cuenta Bodega puede surtir con escáner");
-        return;
-      }
+      if (!isStaffTrayAccount()) return;
       const ord = state.sharedOrders.find((o) => String(o.folio || "") === String(folio || ""));
       if (!ord || !Array.isArray(ord.items) || !ord.items.length) {
         showToast("No se encontraron artículos en ese pedido");
@@ -2753,11 +2775,7 @@
     }
 
     function openScannerDirect() {
-      if (!isWarehouseAccount()) {
-        showToast("Solo la cuenta Bodega puede usar el escáner");
-        openModal("authModal");
-        return;
-      }
+      if (!isStaffTrayAccount()) return;
       if (state.sharedOrders.length) {
         const pending = state.sharedOrders.find(
           (o) => !isOrderFulfilled(o) && Array.isArray(o.items) && o.items.length
@@ -2788,10 +2806,7 @@
     }
 
     function openPickScannerForDraft() {
-      if (!isWarehouseAccount()) {
-        showToast("Solo la cuenta Bodega puede surtir con escáner");
-        return;
-      }
+      if (!isStaffTrayAccount()) return;
       const store = getCurrentStore();
       if (!store.cart.length) {
         showToast("Agrega productos a la bolsa primero");
@@ -2801,10 +2816,7 @@
     }
 
     function openPickScannerForSavedOrder(orderIndex) {
-      if (!isWarehouseAccount()) {
-        showToast("Solo la cuenta Bodega puede surtir con escáner");
-        return;
-      }
+      if (!isStaffTrayAccount()) return;
       const store = getCurrentStore();
       const ord = store.orders[orderIndex];
       if (!ord || !ord.items || !ord.items.length) {
@@ -2819,7 +2831,7 @@
     }
 
     function startPickSession(folio, rawItems, meta = {}) {
-      if (!isWarehouseAccount()) return;
+      if (!isStaffTrayAccount()) return;
       closeAllSubModalsBeforeScanner();
 
       const grouped = new Map();
@@ -2875,7 +2887,7 @@
     }
 
     async function markCurrentPickOrderDone() {
-      if (!pickSession.folio) return;
+      if (!isStaffTrayAccount() || !pickSession.folio) return;
       const folioActual = pickSession.folio;
       pickSession.markedDone = true;
       await updateOrderStatusInCloud(folioActual, "Surtida en Bodega ✓");
@@ -2886,12 +2898,13 @@
         renderPickChecklist();
         showToast(`✓ Orden #${folioActual} marcada como surtida. Elige siguiente pedido o clienta.`);
       } else {
-        closeScannerModal();
         showToast(`✓ Orden #${folioActual} surtida. ¡No quedan pedidos pendientes!`);
+        renderPickChecklist();
       }
     }
 
     function resetPickSession() {
+      if (!isStaffTrayAccount()) return;
       pickSession.markedDone = false;
       pickSession.lines.forEach((l) => {
         l.pickedQty = 0;
@@ -2969,18 +2982,14 @@
             nextFlowEl.innerHTML = `
               <div class="next-pick-banner">
                 <div class="next-pick-banner-title">
-                  ✓ ¡Todas las clientas y todos los pedidos están surtidos!
+                  ✓ Orden #${folioCompletado} surtida · ¡No quedan pedidos pendientes!
+                </div>
+                <div class="next-pick-actions">
+                  <button class="btn-outline" onclick="closeScannerModal()">Cerrar escáner</button>
                 </div>
               </div>
             `;
           }
-          setTimeout(() => {
-            const modalEl = document.getElementById("scannerModal");
-            if (modalEl && modalEl.classList.contains("open") && pickSession.folio === folioCompletado) {
-              closeScannerModal();
-              showToast(`✓ Todo surtido en #${folioCompletado}`);
-            }
-          }, 600);
         }
       } else if (nextFlowEl) {
         nextFlowEl.innerHTML = "";
@@ -3025,6 +3034,7 @@
     }
 
     function manualStepPick(idx, delta) {
+      if (!isStaffTrayAccount()) return;
       const line = pickSession.lines[idx];
       if (!line) return;
       const nextVal = line.pickedQty + delta;
@@ -3039,6 +3049,7 @@
     }
 
     function processBarcodeScan(rawCode) {
+      if (!isStaffTrayAccount()) return;
       const code = (rawCode || "").trim();
       if (!code) {
         setScanFeedback("Escribe o escanea un código de barras.", "scan-err");
@@ -3082,6 +3093,7 @@
     }
 
     async function toggleCameraScanner() {
+      if (!isStaffTrayAccount()) return;
       if (pickSession.cameraStream) {
         stopCameraScanner();
         return;
@@ -3256,15 +3268,15 @@
       const titleText = isAdminAccount()
         ? `${baseTitle} · Vista Administradora`
         : warehouseUser
-          ? `${baseTitle} · Surtido Bodega`
+          ? `${baseTitle} · Operación Bodega`
           : wholesaleUser
             ? `${baseTitle} · Tarifa Mayorista`
             : baseTitle;
 
       const subText = isAdminAccount()
-        ? `Sesión administradora activa (<strong>${state.user.name}</strong>). Revisa <strong>📦 Pedidos</strong> o abre el <strong>Panel Admin</strong>.`
+        ? `Sesión administradora activa (<strong>${state.user.name}</strong>). Revisa <strong>📦 Pedidos</strong> o abre <strong>⚙️ Panel Operativo</strong>.`
         : warehouseUser
-          ? `Sesión <strong>Bodega</strong> activa. Abre <strong>📦 Pedidos</strong> para elegir clienta y surtir con <strong>📷 Escáner</strong>.`
+          ? `Sesión <strong>Bodega</strong> activa. Abre <strong>📦 Pedidos</strong> para surtir, <strong>📷 Escáner</strong> o <strong>⚙️ Inventario</strong> para alta de productos.`
           : wholesaleUser
             ? `Bienvenida, <strong>${state.user.name}</strong>. Tienes precios mayoristas directos en todo el catálogo.`
             : baseSub;
@@ -3275,7 +3287,7 @@
             <h1>${titleText}</h1>
             <p>${subText}</p>
             ${wholesaleUser ? `<span class="wholesale-pill-banner">★ Acceso Mayorista Activo</span>` : ""}
-            ${warehouseUser ? `<span class="wholesale-pill-banner">📷 Escáner Bodega Activo</span>` : ""}
+            ${warehouseUser ? `<span class="wholesale-pill-banner">📦 Bodega · Pedidos, Escáner e Inventario</span>` : ""}
           </div>
           ${controlsHtml}
         </div>
@@ -3409,6 +3421,7 @@
       const grid = document.getElementById("productGrid");
       if (!grid) return;
       const wholesaleUser = isWholesaleAccount();
+      const canSeeCode = isStaffTrayAccount();
       const store = getCurrentStore();
 
       const list = state.products.filter((p) => {
@@ -3419,7 +3432,7 @@
           p.name.toLowerCase().includes(q) ||
           (p.brand && p.brand.toLowerCase().includes(q)) ||
           p.category.toLowerCase().includes(q) ||
-          (p.barcode && p.barcode.toLowerCase().includes(q)) ||
+          (canSeeCode && p.barcode && p.barcode.toLowerCase().includes(q)) ||
           p.shades.some((s) => s.name.toLowerCase().includes(q));
         const matchFav = !onlyFavs || store.favorites.includes(p.id);
         return matchCat && matchBrand && matchText && matchFav;
@@ -3520,7 +3533,7 @@
         </div>
         ${photoBannerHtml}
         <p style="font-size:12px; color:var(--primary); font-weight:700; margin-bottom:6px;">
-          Marca: ${p.brand || "General"} · Categoría: ${p.category}${isWarehouseAccount() ? ` · Código: ${p.barcode || "N/A"}` : ""}
+          Marca: ${p.brand || "General"} · Categoría: ${p.category}${isStaffTrayAccount() ? ` · Código: ${p.barcode || "N/A"}` : ""}
         </p>
         <p style="font-size:14px; margin-bottom:8px;">${p.desc}</p>
         <p style="font-size:12px; color:var(--muted); margin-bottom:10px;"><strong>Tip:</strong> ${p.tip}</p>
@@ -3689,7 +3702,7 @@
     function buildOrderSheetHtml({ folio, statusLabel, items, totalAmount, useWholesale, isDraft = false, savedIndex = null }) {
       const rows = normalizeOrderRows(items, useWholesale);
       const unitsCount = rows.reduce((sum, r) => sum + r.qty, 0);
-      const canScan = isWarehouseAccount();
+      const canScan = isStaffTrayAccount();
 
       const rowsHtml = rows
         .map(
@@ -3795,7 +3808,7 @@
         `;
         actions.innerHTML = `
           <button class="btn-primary" style="width:100%; padding:12px;" onclick="submitCustomerOrder(false, false)">
-            Confirmar Pedido (Bodega y Admin)
+            Confirmar Pedido
           </button>
         `;
         return;
@@ -3909,7 +3922,7 @@
               Confirmar como Menudeo ($${totals.retailSubtotal} MXN)
             </button>
             <button class="btn-outline" style="width:100%; padding:10px;" onclick="submitCustomerOrder(true, true)">
-              Confirmar y abrir WhatsApp (opcional)
+              Confirmar y enviar por WhatsApp
             </button>
           </div>
         `;
@@ -3917,10 +3930,10 @@
         actions.innerHTML = `
           <div style="display:flex; flex-direction:column; gap:8px;">
             <button class="btn-primary" style="width:100%; padding:12px;" onclick="submitCustomerOrder(false, false)">
-              Confirmar Pedido (Sincronizar con Bodega)
+              Confirmar Pedido
             </button>
             <button class="btn-soft" style="width:100%; padding:10px;" onclick="submitCustomerOrder(false, true)">
-              Confirmar y enviar por WhatsApp (opcional)
+              Confirmar y enviar por WhatsApp
             </button>
           </div>
         `;
@@ -4033,12 +4046,10 @@
         state.selectedTrayClientKey = buildClientGroupKey(name, phone);
 
         if (openWhatsApp) {
-          const appOrderUrl = `${window.location.origin}${window.location.pathname}?orden=${encodeURIComponent(folio)}`;
           const unitsWord = totals.totalPieces === 1 ? "unidad" : "unidades";
           const lines = [
-            `*BODEGA · Orden de ${name}*`,
+            `*Pedido de ${name}*`,
             `*Número de orden: #${folio}* · ${statusLabel}`,
-            `Abrir en app: ${appOrderUrl}`,
             `*${totals.totalPieces} ${unitsWord}*`,
             `Tel: ${phone}`,
             `Dirección: ${address}`,
@@ -4047,7 +4058,7 @@
           ];
           detailedItems.forEach((it) => {
             lines.push(`${it.emoji} *${it.name}*`);
-            lines.push(`${it.brand} · ${it.shade || "Tono"} · Cód: ${it.barcode}`);
+            lines.push(`${it.brand} · ${it.shade || "Tono"}`);
             lines.push(`${it.qty} × $${it.unitPrice} MXN — *$${it.lineTotal} MXN*`);
             lines.push(``);
           });
@@ -4066,7 +4077,7 @@
         renderCart();
         renderProducts(state.activeTab === "favorites");
         closeModal("cartModal");
-        showToast(`✓ Pedido #${folio} guardado y enviado a Bodega`);
+        showToast(`✓ Pedido #${folio} enviado`);
 
         persistOrderToCloud(newOrder).then((cloudId) => {
           if (cloudId) {
@@ -4373,7 +4384,7 @@
                   isAdm
                     ? "★ Administradora (Privilegios completos)"
                     : isWh
-                      ? "📷 Bodega (Acceso a Escáner de surtido)"
+                      ? "📦 Bodega (Pedidos, Escáner e Inventario)"
                       : isW
                         ? "★ Clienta Mayorista"
                         : "Clienta Registrada (Menudeo / Mayoreo $1,000+)"
@@ -4385,7 +4396,8 @@
           <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
             ${isAdm || isWh ? `<button class="btn-gold" onclick="closeModal('authModal'); openOrdersTrayModal();">📦 Ver Pedidos de Clientas</button>` : ""}
             ${isAdm ? `<button class="btn-primary" onclick="closeModal('authModal'); openAdminPanel();">Abrir Panel Admin</button>` : ""}
-            ${isWh ? `<button class="btn-primary" onclick="closeModal('authModal'); openScannerDirect();">📷 Abrir Escáner Bodega</button>` : ""}
+            ${isWh ? `<button class="btn-primary" onclick="closeModal('authModal'); openAdminPanel();">📦 Alta e Inventario Bodega</button>` : ""}
+            ${isWh ? `<button class="btn-soft" onclick="closeModal('authModal'); openScannerDirect();">📷 Abrir Escáner</button>` : ""}
             <button class="btn-outline" onclick="logoutDemo()">Cerrar sesión</button>
           </div>
 
@@ -4449,7 +4461,6 @@
                       <span style="font-size:12px; color:var(--muted);">Total: $${o.total} MXN · ${o.statusLabel || ""}</span>
                     </div>
                     <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                      ${isWh ? `<button class="btn-soft" onclick="openPickScannerForSavedOrder(${i});">Surtir</button>` : ""}
                       <button class="btn-outline" onclick="openSavedOrderSummary(${i})">Ver lista</button>
                       <button class="btn-soft" onclick="reorder(${i})">Repetir</button>
                     </div>
@@ -4717,7 +4728,7 @@
             closeModal("authModal");
             await loadSharedOrdersFromCloud();
             renderOrdersTray();
-            showToast(key === "admin" ? "Sesión Admin activada" : "Sesión Bodega activada · Escáner y Pedidos listos");
+            showToast(key === "admin" ? "Sesión Admin activada" : "Sesión Bodega activada · Pedidos, Escáner e Inventario listos");
           } else {
             showToast("Contraseña incorrecta");
           }
@@ -4762,6 +4773,7 @@
     function logoutDemo() {
       stopCameraScanner();
       stopNewProdBarcodeScanner();
+      clearProductPhotoEditor();
       userStores.guest = { favorites: [], cart: [], orders: [] };
       state.activeUserKey = "guest";
       state.user = null;
@@ -4793,6 +4805,7 @@
     }
 
     function saveWaNumber() {
+      if (!isAdminAccount()) return;
       const val = document.getElementById("adminWaNumber").value.replace(/\D/g, "");
       if (val.length < 10) {
         showToast("Ingresa un número válido con lada");
@@ -4804,6 +4817,7 @@
     }
 
     async function updateProductBarcode(prodId, newCode) {
+      if (!isInventoryAccount()) return;
       const p = state.products.find((item) => Number(item.id) === Number(prodId));
       if (!p) return;
       p.barcode = (newCode || "").trim() || `KS-${prodId}`;
@@ -4813,6 +4827,7 @@
     }
 
     function saveStoreId() {
+      if (!isAdminAccount()) return;
       const idVal = document.getElementById("adminStoreId").value.trim();
       if (!idVal) {
         showToast("Ingresa el ID de Tiendanube");
@@ -4826,6 +4841,7 @@
     }
 
     async function syncTiendanubeById() {
+      if (!isAdminAccount()) return;
       const idVal = document.getElementById("adminStoreId").value.trim() || state.tiendanubeStoreId;
       if (!idVal) {
         showToast("Primero escribe el ID de tienda");
@@ -4889,6 +4905,7 @@
     }
 
     function registerWholesaleClient() {
+      if (!isAdminAccount()) return;
       const name = document.getElementById("whNameInput").value.trim();
       const phone = document.getElementById("whPhoneInput").value.trim() || "Sin teléfono";
       if (!name) {
@@ -4907,6 +4924,7 @@
     }
 
     function promoteCurrentUserToWholesale() {
+      if (!isAdminAccount()) return;
       if (!state.user || state.user.role === "admin" || state.user.role === "warehouse") return;
       const existing = findWholesaleClient(state.user.name, state.user.phone);
       if (!existing) {
@@ -4918,6 +4936,7 @@
     }
 
     function removeWholesaleClient(idx) {
+      if (!isAdminAccount()) return;
       const removed = state.wholesaleClients[idx];
       state.wholesaleClients.splice(idx, 1);
       if (removed && state.user && state.user.role === "wholesale" && state.user.name.toLowerCase() === removed.name.toLowerCase()) {
@@ -4937,6 +4956,7 @@
     }
 
     function loadBannerIntoEditor(index) {
+      if (!isAdminAccount()) return;
       const b = state.banners[index];
       if (!b) return;
       document.getElementById("bannerSlotSelect").value = String(index);
@@ -4949,6 +4969,7 @@
     }
 
     async function focusBannerInCarousel(index) {
+      if (!isAdminAccount()) return;
       const target = state.banners[index];
       if (!target) return;
       if (!target.active) {
@@ -4967,6 +4988,7 @@
     }
 
     async function saveBannerSlide() {
+      if (!isAdminAccount()) return;
       const slotIndex = Math.max(0, Math.min(MAX_BANNERS - 1, Number(document.getElementById("bannerSlotSelect").value) || 0));
       const existing = state.banners[slotIndex];
 
@@ -5024,6 +5046,7 @@
     }
 
     async function toggleBannerActive(id) {
+      if (!isAdminAccount()) return;
       const item = state.banners.find((b) => Number(b.id) === Number(id));
       if (!item) return;
       item.active = !item.active;
@@ -5034,6 +5057,7 @@
     }
 
     async function deleteBanner(id) {
+      if (!isAdminAccount()) return;
       if (state.banners.length <= 1) {
         showToast("Deja al menos un banner activo");
         return;
@@ -5049,6 +5073,8 @@
     }
 
     function renderAdminLists() {
+      if (!isInventoryAccount()) return;
+
       const codeBox = document.getElementById("barcodeAdminList");
       if (codeBox) {
         codeBox.innerHTML = state.products
@@ -5057,7 +5083,7 @@
             <div class="list-row">
               <div style="flex:1; min-width:0;">
                 <strong>${p.emoji} ${p.name}</strong>
-                <div style="color:var(--muted);">${p.brand || "General"}</div>
+                <div style="color:var(--muted);">${p.brand || "General"} · Men: $${p.retail} · May: $${p.wholesale}</div>
               </div>
               <input
                 type="text"
@@ -5071,6 +5097,8 @@
           )
           .join("");
       }
+
+      if (!isAdminAccount()) return;
 
       const whBox = document.getElementById("wholesaleListContainer");
       if (whBox) {
@@ -5125,6 +5153,7 @@
     }
 
     async function addNewProduct() {
+      if (!isInventoryAccount()) return;
       const pubBtn = document.getElementById("publishProdBtn");
       try {
         stopNewProdBarcodeScanner();
@@ -5169,7 +5198,7 @@
           barcode: finalBarcode,
           retail,
           wholesale,
-          desc: "Producto agregado desde el panel de administración de KS Cosmetics Mayoreo.",
+          desc: "Producto agregado al inventario de KS Cosmetics Mayoreo.",
           tip: "Aplica sobre piel limpia y seca según el acabado deseado.",
           videoUrl,
           shades: [
@@ -5192,7 +5221,7 @@
         savePersistentState();
         renderAllViews();
         closeModal("adminModal");
-        showToast(`"${name}" publicado · Cód: ${finalBarcode}`);
+        showToast(`"${name}" dado de alta · Cód: ${finalBarcode}`);
 
         if (typeof upsertProductToCloud === "function") {
           await upsertProductToCloud(newProd);
@@ -5217,13 +5246,16 @@
       if (nCount) nCount.textContent = totalPieces;
 
       const adminBtn = document.getElementById("adminBtn");
-      if (adminBtn) adminBtn.style.display = isAdminAccount() ? "inline-flex" : "none";
+      if (adminBtn) {
+        adminBtn.style.display = isInventoryAccount() ? "inline-flex" : "none";
+        adminBtn.textContent = isAdminAccount() ? "⚙️ Panel Admin" : "📦 Inventario";
+      }
 
       const ordersTrayBtn = document.getElementById("ordersTrayBtn");
       if (ordersTrayBtn) ordersTrayBtn.style.display = isStaffTrayAccount() ? "inline-flex" : "none";
 
       const scannerBtn = document.getElementById("scannerBtn");
-      if (scannerBtn) scannerBtn.style.display = isWarehouseAccount() ? "inline-flex" : "none";
+      if (scannerBtn) scannerBtn.style.display = isStaffTrayAccount() ? "inline-flex" : "none";
 
       const roleBadge = document.getElementById("headerRoleBadge");
       const authBtn = document.getElementById("authBtn");
@@ -5242,7 +5274,7 @@
             isAdminAccount()
               ? `<span class="badge-wholesale-user">★ Admin</span>`
               : isWarehouseAccount()
-                ? `<span class="badge-wholesale-user">📷 Bodega</span>`
+                ? `<span class="badge-wholesale-user">📦 Bodega</span>`
                 : state.user.role === "wholesale"
                   ? `<span class="badge-wholesale-user">★ Mayorista</span>`
                   : "";

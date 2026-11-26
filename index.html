@@ -11,14 +11,10 @@
   <link id="pwa-manifest" rel="manifest" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    const LOGO_FILE_NAME = "logo-46177138-1729636309-182eabd421e5a76173a08457d1193aee1729636309-480-0.webp";
     (function () {
       try {
-        const iconSvg = encodeURIComponent(
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">' +
-            '<rect width="192" height="192" rx="36" fill="#c2185b"/>' +
-            '<text x="96" y="118" font-family="Arial,sans-serif" font-size="76" font-weight="bold" fill="#ffffff" text-anchor="middle">KS</text>' +
-          '</svg>'
-        );
+        const iconUrl = new URL("./" + LOGO_FILE_NAME, window.location.href).href;
         const manifest = {
           name: "KS Cosmetics Mayoreo",
           short_name: "KS Catálogo",
@@ -29,9 +25,9 @@
           theme_color: "#c2185b",
           icons: [
             {
-              src: "data:image/svg+xml," + iconSvg,
+              src: iconUrl,
               sizes: "192x192",
-              type: "image/svg+xml",
+              type: "image/webp",
               purpose: "any"
             }
           ]
@@ -101,15 +97,22 @@
     }
 
     .logo {
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary), #ec407a);
-      color: #fff;
+      background: #14080f;
+      border: 1px solid var(--border);
+      overflow: hidden;
       display: grid;
       place-items: center;
-      font-weight: 800;
-      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .brand-title { font-weight: 800; font-size: 16px; }
@@ -545,27 +548,6 @@
       color: #fff;
     }
 
-    .otp-box {
-      background: var(--warn-bg);
-      border: 1px solid #f5d67b;
-      border-radius: 12px;
-      padding: 12px;
-      margin-top: 10px;
-    }
-
-    .otp-demo-pill {
-      display: inline-block;
-      margin-top: 6px;
-      background: #fff;
-      border: 1px dashed #c2185b;
-      color: var(--primary-dark);
-      font-weight: 800;
-      font-size: 14px;
-      letter-spacing: 2px;
-      padding: 4px 10px;
-      border-radius: 8px;
-    }
-
     .admin-section {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -941,7 +923,9 @@
   <header>
     <div class="header-top">
       <div class="brand-box">
-        <div class="logo">KS</div>
+        <div class="logo">
+          <img src="./logo-46177138-1729636309-182eabd421e5a76173a08457d1193aee1729636309-480-0.webp" alt="Logo KS Cosmetics" />
+        </div>
         <div>
           <div class="brand-title">
             KS Cosmetics Mayoreo
@@ -1226,15 +1210,20 @@
   <script>
     // =========================================================
     // CONFIGURACIÓN DE BASE DE DATOS EN LA NUBE (SUPABASE)
-    // Pega tu Publishable key (sb_publishable_...) en anonKey:
+    // Reemplaza anonKey con la clave pública (anon/publishable) de tu proyecto:
     // =========================================================
     const SUPABASE_CONFIG = {
       url: "https://fuakmsdgmzmcxjcrxdzv.supabase.co",
-      anonKey: ""
+      anonKey: "TU_ANON_KEY_DE_SUPABASE_AQUI"
     };
 
+    const isValidAnonKey =
+      typeof SUPABASE_CONFIG.anonKey === "string" &&
+      SUPABASE_CONFIG.anonKey.trim().length > 20 &&
+      !SUPABASE_CONFIG.anonKey.includes("TU_ANON_KEY");
+
     const supabaseClient =
-      window.supabase && SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey
+      window.supabase && SUPABASE_CONFIG.url && isValidAnonKey
         ? window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey)
         : null;
 
@@ -1256,8 +1245,7 @@
     };
 
     const authUiState = {
-      mode: "login",
-      pendingReg: null
+      mode: "login"
     };
 
     const pickSession = {
@@ -2865,9 +2853,6 @@
 
     function setAuthMode(mode) {
       authUiState.mode = mode;
-      if (mode === "login") {
-        authUiState.pendingReg = null;
-      }
       renderAuth();
     }
 
@@ -2945,47 +2930,23 @@
       `;
 
       if (authUiState.mode === "register") {
-        const pending = authUiState.pendingReg;
         box.innerHTML = `
           ${tabsHtml}
           <div class="field">
             <label>Tu nombre o nombre de tu negocio</label>
-            <input type="text" id="regName" value="${pending ? pending.name.replace(/"/g, "&quot;") : ""}" placeholder="Ej. Mariana López" ${pending ? "disabled" : ""} />
+            <input type="text" id="regName" placeholder="Ej. Mariana López" />
           </div>
           <div class="field">
-            <label>Número de celular / WhatsApp (10 dígitos)</label>
-            <input type="tel" id="regPhone" value="${pending ? pending.phone.replace(/"/g, "&quot;") : ""}" placeholder="Ej. 9981234567" ${pending ? "disabled" : ""} />
+            <label>Número de celular (10 dígitos)</label>
+            <input type="tel" id="regPhone" placeholder="Ej. 9981234567" />
           </div>
           <div class="field">
             <label>Crea tu contraseña (para entrar desde cualquier teléfono)</label>
-            <input type="password" id="regPass" value="${pending ? pending.rawPass.replace(/"/g, "&quot;") : ""}" placeholder="Mínimo 4 caracteres" ${pending ? "disabled" : ""} />
+            <input type="password" id="regPass" placeholder="Mínimo 4 caracteres" onkeydown="if(event.key==='Enter') registerClientDirect()" />
           </div>
-          ${
-            !pending
-              ? `
-                <button class="btn-primary" style="width:100%; padding:11px;" onclick="startClientRegistration()">
-                  Enviar código de verificación
-                </button>
-              `
-              : `
-                <div class="otp-box">
-                  <div style="font-size:12px; font-weight:700; color:var(--warn);">
-                    Código enviado al número ${pending.phone}:
-                  </div>
-                  <div class="otp-demo-pill">${pending.code}</div>
-                  <div class="field" style="margin-top:10px; margin-bottom:8px;">
-                    <label>Escribe el código de 6 dígitos</label>
-                    <input type="text" id="regOtpInput" maxlength="6" placeholder="000000" />
-                  </div>
-                  <div style="display:flex; gap:8px;">
-                    <button class="btn-primary" style="flex:1; padding:10px;" onclick="verifyClientRegistration()">
-                      Verificar y crear cuenta
-                    </button>
-                    <button class="btn-outline" onclick="cancelPendingRegistration()">Corregir datos</button>
-                  </div>
-                </div>
-              `
-          }
+          <button class="btn-primary" style="width:100%; padding:11px;" onclick="registerClientDirect()">
+            Crear cuenta
+          </button>
         `;
         return;
       }
@@ -3006,7 +2967,7 @@
       `;
     }
 
-    async function startClientRegistration() {
+    async function registerClientDirect() {
       const name = document.getElementById("regName").value.trim();
       const rawPhone = document.getElementById("regPhone").value.trim();
       const digits = normalizePhoneDigits(rawPhone);
@@ -3040,46 +3001,20 @@
             .eq("phone", digits)
             .maybeSingle();
           if (data) {
-            showToast("Ese número ya existe en la nube. Inicia sesión");
+            showToast("Ese número ya existe. Inicia sesión con tu contraseña");
             setAuthMode("login");
             return;
           }
         } catch (e) {}
       }
 
-      const code = String(Math.floor(100000 + Math.random() * 900000));
-      authUiState.pendingReg = {
-        name,
-        phone: digits,
-        rawPass,
-        code
-      };
-      renderAuth();
-      showToast(`Código de verificación enviado a ${digits}`);
-    }
-
-    function cancelPendingRegistration() {
-      authUiState.pendingReg = null;
-      renderAuth();
-    }
-
-    async function verifyClientRegistration() {
-      const pending = authUiState.pendingReg;
-      if (!pending) return;
-
-      const typed = (document.getElementById("regOtpInput").value || "").trim();
-      if (typed !== pending.code) {
-        showToast("Código incorrecto, revísalo e intenta de nuevo");
-        return;
-      }
-
-      const passHash = await sha256Text(pending.rawPass);
-      const matchedWholesale = findWholesaleClient(pending.name, pending.phone);
+      const passHash = await sha256Text(rawPass);
+      const matchedWholesale = findWholesaleClient(name, digits);
       const role = matchedWholesale ? "wholesale" : "retail";
 
       const newClientRecord = {
-        name: pending.name,
-        phone: pending.phone,
+        name,
+        phone: digits,
         passHash,
         role,
         verified: true,
@@ -3100,18 +3035,17 @@
         } catch (e) {}
       }
 
-      authUiState.pendingReg = null;
       authUiState.mode = "login";
 
       applyUserSession({
-        identifier: pending.phone,
-        name: pending.name,
-        phone: pending.phone,
+        identifier: digits,
+        name,
+        phone: digits,
         role
       });
 
       closeModal("authModal");
-      showToast(`✓ Cuenta verificada y creada. ¡Bienvenida, ${pending.name}!`);
+      showToast(`✓ Cuenta creada. ¡Bienvenida, ${name}!`);
     }
 
     function applyUserSession(userObj) {

@@ -247,29 +247,79 @@
       position: relative;
       background: linear-gradient(120deg, var(--primary-dark), var(--primary));
       color: #fff;
-      border-radius: 16px;
+      border-radius: 18px;
       overflow: hidden;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
       box-shadow: var(--shadow);
-      min-height: 145px;
+      min-height: 210px;
+    }
+
+    .banner-carousel.image-mode {
+      background: #14080f;
+      min-height: 210px;
+    }
+
+    .banner-image-stage {
+      position: relative;
+      width: 100%;
+      display: block;
+    }
+
+    .banner-hero-img {
+      width: 100%;
+      height: auto;
+      min-height: 210px;
+      max-height: 440px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .banner-caption-bar {
+      background: linear-gradient(0deg, rgba(20, 8, 15, 0.88) 0%, rgba(20, 8, 15, 0.55) 75%, transparent 100%);
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 28px 16px 38px;
+      z-index: 2;
+      color: #fff;
+    }
+
+    .banner-caption-bar h1 {
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+
+    .banner-caption-bar p {
+      font-size: 13px;
+      opacity: 0.95;
     }
 
     .banner-slide-bg {
       position: relative;
-      padding: 18px 20px 38px;
-      min-height: 145px;
+      padding: 26px 22px 46px;
+      min-height: 210px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      background-size: cover;
-      background-position: center;
     }
 
-    .banner-slide-bg.has-image::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, rgba(35, 10, 24, 0.82) 0%, rgba(35, 10, 24, 0.45) 100%);
+    @media (min-width: 640px) {
+      .banner-carousel,
+      .banner-carousel.image-mode,
+      .banner-slide-bg {
+        min-height: 280px;
+      }
+      .banner-hero-img {
+        min-height: 280px;
+        max-height: 500px;
+      }
+      .banner-content h1 {
+        font-size: 23px;
+      }
+      .banner-content p {
+        font-size: 15px;
+      }
     }
 
     .banner-content {
@@ -278,8 +328,8 @@
       max-width: 720px;
     }
 
-    .banner-content h1 { font-size: 19px; margin-bottom: 4px; }
-    .banner-content p { font-size: 13px; opacity: 0.96; }
+    .banner-content h1 { font-size: 20px; margin-bottom: 6px; }
+    .banner-content p { font-size: 14px; opacity: 0.96; }
 
     .banner-controls {
       position: absolute;
@@ -289,6 +339,10 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      background: rgba(20, 8, 15, 0.42);
+      padding: 4px 8px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
     }
 
     .banner-dot-btn {
@@ -1305,20 +1359,20 @@
           </select>
         </div>
         <div class="field">
-          <label>Título del banner</label>
-          <input type="text" id="bannerTitleInput" placeholder="Ej. Nueva línea de Labiales Matte" />
-        </div>
-        <div class="field">
-          <label>Texto / promoción</label>
-          <input type="text" id="bannerSubInput" placeholder="Ej. Surtido por marca con tarifa preferencial" />
-        </div>
-        <div class="field">
-          <label>Subir imagen (se sube a Storage si hay Supabase; guarda URL en tabla banners)</label>
+          <label>Subir imagen (se muestra limpia sin letras encima si dejas vacío el texto)</label>
           <input type="file" id="bannerFileInput" accept="image/*" />
         </div>
         <div class="field">
           <label>O pega enlace directo de imagen (opcional)</label>
           <input type="url" id="bannerUrlInput" placeholder="https://..." />
+        </div>
+        <div class="field">
+          <label>Título sobre el banner (opcional — déjalo vacío si tu imagen ya tiene texto)</label>
+          <input type="text" id="bannerTitleInput" placeholder="Opcional" />
+        </div>
+        <div class="field">
+          <label>Texto / promoción adicional (opcional)</label>
+          <input type="text" id="bannerSubInput" placeholder="Opcional" />
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn-primary" id="saveBannerBtn" onclick="saveBannerSlide()">Guardar banner</button>
@@ -1687,7 +1741,7 @@
         if (data && data.length > 0) {
           state.banners = data.slice(0, MAX_BANNERS).map((b) => ({
             id: Number(b.id),
-            title: b.title || "Novedad KS Cosmetics",
+            title: b.title || "",
             subtitle: b.subtitle || "",
             imageUrl: b.image_url || "",
             active: Boolean(b.active)
@@ -1702,7 +1756,7 @@
       try {
         const rows = state.banners.slice(0, MAX_BANNERS).map((b, idx) => ({
           id: Number(b.id),
-          title: b.title,
+          title: b.title || "",
           subtitle: b.subtitle || "",
           image_url: b.imageUrl || "",
           sort_order: idx,
@@ -2333,35 +2387,9 @@
       const warehouseUser = isWarehouseAccount();
       const hasImg = Boolean(slide && slide.imageUrl);
 
-      const titleText = isAdminAccount()
-        ? `${slide.title} · Vista Administradora`
-        : warehouseUser
-          ? `${slide.title} · Surtido Bodega`
-          : wholesaleUser
-            ? `${slide.title} · Tarifa Mayorista`
-            : slide.title;
-
-      const subText = isAdminAccount()
-        ? `Sesión administradora activa (<strong>${state.user.name}</strong>). Usa el botón <strong>Panel Admin</strong> arriba para gestionar tienda, banner y mayoristas.`
-        : warehouseUser
-          ? `Sesión <strong>Bodega</strong> activa. Usa <strong>📷 Escáner</strong> arriba para surtir pedidos por código de barras.`
-          : wholesaleUser
-            ? `Bienvenida, <strong>${state.user.name}</strong>. Tienes precios mayoristas directos en todo el catálogo.`
-            : slide.subtitle;
-
-      const bgStyle = hasImg ? `style="background-image:url('${slide.imageUrl.replace(/'/g, "%27")}');"` : "";
-
-      bannerEl.innerHTML = `
-        <div class="banner-slide-bg ${hasImg ? "has-image" : ""}" ${bgStyle}>
-          <div class="banner-content">
-            <h1>${titleText}</h1>
-            <p>${subText}</p>
-            ${wholesaleUser ? `<span class="wholesale-pill-banner">★ Acceso Mayorista Activo</span>` : ""}
-            ${warehouseUser ? `<span class="wholesale-pill-banner">📷 Escáner Bodega Activo</span>` : ""}
-          </div>
-          ${
-            slides.length > 1
-              ? `
+      const controlsHtml =
+        slides.length > 1
+          ? `
             <div class="banner-controls">
               <button class="banner-arrow" onclick="prevBanner()">‹</button>
               ${slides
@@ -2373,8 +2401,65 @@
               <button class="banner-arrow" onclick="nextBanner()">›</button>
             </div>
           `
-              : ""
-          }
+          : "";
+
+      if (hasImg) {
+        bannerEl.classList.add("image-mode");
+        const cleanTitle = (slide.title || "").trim();
+        const cleanSub = (slide.subtitle || "").trim();
+        const showCaption = Boolean(cleanTitle || cleanSub);
+
+        bannerEl.innerHTML = `
+          <div class="banner-image-stage">
+            <img class="banner-hero-img" src="${slide.imageUrl.replace(/"/g, "&quot;")}" alt="${cleanTitle || "Banner promocional KS Cosmetics"}" />
+            ${
+              showCaption
+                ? `
+              <div class="banner-caption-bar">
+                ${cleanTitle ? `<h1>${cleanTitle}</h1>` : ""}
+                ${cleanSub ? `<p>${cleanSub}</p>` : ""}
+              </div>
+            `
+                : ""
+            }
+            ${controlsHtml}
+          </div>
+        `;
+        return;
+      }
+
+      bannerEl.classList.remove("image-mode");
+
+      const baseTitle = (slide.title || "").trim() || "KS Cosmetics Mayoreo";
+      const baseSub =
+        (slide.subtitle || "").trim() ||
+        "Compra libre al menudeo o activa mayoreo desde $1,000 MXN de subtotal.";
+
+      const titleText = isAdminAccount()
+        ? `${baseTitle} · Vista Administradora`
+        : warehouseUser
+          ? `${baseTitle} · Surtido Bodega`
+          : wholesaleUser
+            ? `${baseTitle} · Tarifa Mayorista`
+            : baseTitle;
+
+      const subText = isAdminAccount()
+        ? `Sesión administradora activa (<strong>${state.user.name}</strong>). Usa el botón <strong>Panel Admin</strong> arriba para gestionar tienda, banner y mayoristas.`
+        : warehouseUser
+          ? `Sesión <strong>Bodega</strong> activa. Usa <strong>📷 Escáner</strong> arriba para surtir pedidos por código de barras.`
+          : wholesaleUser
+            ? `Bienvenida, <strong>${state.user.name}</strong>. Tienes precios mayoristas directos en todo el catálogo.`
+            : baseSub;
+
+      bannerEl.innerHTML = `
+        <div class="banner-slide-bg">
+          <div class="banner-content">
+            <h1>${titleText}</h1>
+            <p>${subText}</p>
+            ${wholesaleUser ? `<span class="wholesale-pill-banner">★ Acceso Mayorista Activo</span>` : ""}
+            ${warehouseUser ? `<span class="wholesale-pill-banner">📷 Escáner Bodega Activo</span>` : ""}
+          </div>
+          ${controlsHtml}
         </div>
       `;
     }
@@ -3427,1134 +3512,4 @@
         const key = state.user.role === "admin" ? "admin" : "warehouse";
         const staff = state.staffAccounts[key];
         if (!staff || staff.passHash !== currHash) {
-          showToast("Tu contraseña actual es incorrecta");
-          return;
-        }
-        staff.passHash = nextHash;
-        await syncStaffAccountToCloud(staff);
-        savePersistentState();
-        document.getElementById("currPassInput").value = "";
-        document.getElementById("nextPassInput").value = "";
-        document.getElementById("confirmPassInput").value = "";
-        showToast("✓ Contraseña actualizada. Nadie más tiene tu nueva clave");
-        return;
-      }
-
-      const idx = state.registeredClients.findIndex(
-        (c) => normalizePhoneDigits(c.phone) === normalizePhoneDigits(state.user.phone)
-      );
-      if (idx < 0 || state.registeredClients[idx].passHash !== currHash) {
-        showToast("Tu contraseña actual es incorrecta");
-        return;
-      }
-
-      state.registeredClients[idx].passHash = nextHash;
-      state.registeredClients[idx].updatedAt = new Date().toISOString();
-
-      if (supabaseClient) {
-        try {
-          await supabaseClient
-            .from("clients")
-            .update({ pass_hash: nextHash, updated_at: new Date().toISOString() })
-            .eq("phone", normalizePhoneDigits(state.user.phone));
-        } catch (e) {}
-      }
-
-      savePersistentState();
-      document.getElementById("currPassInput").value = "";
-      document.getElementById("nextPassInput").value = "";
-      document.getElementById("confirmPassInput").value = "";
-      showToast("✓ Contraseña cambiada con éxito");
-    }
-
-    async function sendRecoveryChallenge(channel) {
-      const rawId = document.getElementById("recIdentifierInput").value.trim();
-      const customDest = (document.getElementById("recDestinationInput").value || "").trim();
-
-      if (!rawId) {
-        showToast("Escribe tu número de celular, usuario o correo");
-        return;
-      }
-
-      const found = findAccountByIdentifier(rawId);
-      if (!found) {
-        showToast("No encontramos ninguna cuenta con ese dato");
-        return;
-      }
-
-      const rec = found.record;
-      const targetPhone = normalizePhoneDigits(customDest || rec.phone || "");
-      const targetEmail = (customDest || rec.email || "").trim();
-
-      if (channel === "whatsapp" && targetPhone.length < 10) {
-        showToast("Indica o ten registrado un número de WhatsApp de 10 dígitos");
-        return;
-      }
-      if (channel === "email" && (!targetEmail || !targetEmail.includes("@"))) {
-        showToast("Indica o ten registrado un correo electrónico válido");
-        return;
-      }
-
-      const code = String(Math.floor(100000 + Math.random() * 900000));
-      const destinationLabel = channel === "whatsapp" ? targetPhone : targetEmail;
-
-      authUiState.pendingRecovery = {
-        foundKind: found.kind,
-        accountKey: found.accountKey || null,
-        clientPhone: found.kind === "client" ? normalizePhoneDigits(rec.phone) : null,
-        channel,
-        destination: destinationLabel,
-        code,
-        expiresAt: Date.now() + 15 * 60 * 1000
-      };
-      authUiState.recoveryStep = "reset";
-
-      if (supabaseClient) {
-        try {
-          await supabaseClient.from("password_resets").insert({
-            target_type: found.kind,
-            target_identifier: found.kind === "staff" ? rec.username : normalizePhoneDigits(rec.phone),
-            channel,
-            destination: destinationLabel,
-            reset_code: code,
-            expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-            used: false
-          });
-        } catch (e) {}
-      }
-
-      if (channel === "whatsapp") {
-        const msg = `Hola ${rec.displayName || rec.name || ""}, tu código de recuperación para KS Cosmetics Mayoreo es: *${code}* (válido 15 min).`;
-        const waUrl = `https://wa.me/${targetPhone.length === 10 ? "521" + targetPhone : targetPhone}?text=${encodeURIComponent(msg)}`;
-        window.open(waUrl, "_blank", "noopener");
-      } else {
-        const subj = encodeURIComponent("Código de recuperación · KS Cosmetics Mayoreo");
-        const body = encodeURIComponent(`Tu código de recuperación es: ${code} (válido por 15 minutos).`);
-        window.open(`mailto:${encodeURIComponent(targetEmail)}?subject=${subj}&body=${body}`, "_blank", "noopener");
-      }
-
-      renderAuth();
-      showToast(`Código generado para ${channel === "whatsapp" ? "WhatsApp" : "Correo"}`);
-    }
-
-    async function completePasswordReset() {
-      const pend = authUiState.pendingRecovery;
-      if (!pend || Date.now() > pend.expiresAt) {
-        showToast("El código venció. Solicita uno nuevo");
-        authUiState.recoveryStep = "request";
-        renderAuth();
-        return;
-      }
-
-      const codeEntered = (document.getElementById("recCodeInput").value || "").trim();
-      const newPass = document.getElementById("recNewPassInput").value;
-      const confirmPass = document.getElementById("recConfirmPassInput").value;
-
-      if (codeEntered !== pend.code) {
-        showToast("El código de verificación no coincide");
-        return;
-      }
-      if (!newPass || newPass.length < 4) {
-        showToast("La nueva contraseña debe tener al menos 4 caracteres");
-        return;
-      }
-      if (newPass !== confirmPass) {
-        showToast("Las contraseñas no coinciden");
-        return;
-      }
-
-      const newHash = await sha256Text(newPass);
-
-      if (pend.foundKind === "staff" && pend.accountKey && state.staffAccounts[pend.accountKey]) {
-        state.staffAccounts[pend.accountKey].passHash = newHash;
-        if (pend.channel === "whatsapp") state.staffAccounts[pend.accountKey].phone = pend.destination;
-        if (pend.channel === "email") state.staffAccounts[pend.accountKey].email = pend.destination;
-        await syncStaffAccountToCloud(state.staffAccounts[pend.accountKey]);
-      } else if (pend.foundKind === "client" && pend.clientPhone) {
-        const idx = state.registeredClients.findIndex(
-          (c) => normalizePhoneDigits(c.phone) === pend.clientPhone
-        );
-        if (idx >= 0) {
-          state.registeredClients[idx].passHash = newHash;
-          state.registeredClients[idx].updatedAt = new Date().toISOString();
-          if (supabaseClient) {
-            try {
-              await supabaseClient
-                .from("clients")
-                .update({ pass_hash: newHash, updated_at: new Date().toISOString() })
-                .eq("phone", pend.clientPhone);
-            } catch (e) {}
-          }
-        }
-      }
-
-      savePersistentState();
-      authUiState.mode = "login";
-      authUiState.recoveryStep = "request";
-      authUiState.pendingRecovery = null;
-      renderAuth();
-      showToast("✓ Contraseña restablecida. Ya puedes iniciar sesión");
-    }
-
-    function renderAuth() {
-      const box = document.getElementById("authContent");
-      const modalTitle = document.getElementById("authModalTitle");
-      const store = getCurrentStore();
-
-      if (state.user) {
-        modalTitle.textContent = "Mi Cuenta";
-        const isAdm = state.user.role === "admin";
-        const isWh = state.user.role === "warehouse";
-        const isW = state.user.role === "wholesale";
-
-        const currentUsernameVal =
-          state.user.username ||
-          (isAdm ? state.staffAccounts.admin?.username : isWh ? state.staffAccounts.warehouse?.username : "") ||
-          "";
-        const currentEmailVal = state.user.email || "";
-        const currentAddressVal = state.user.address || "";
-
-        box.innerHTML = `
-          <div class="profile-card">
-            <p><strong>${state.user.name}</strong></p>
-            ${currentUsernameVal ? `<p style="font-size:12px; color:var(--muted);">Usuario: <strong>@${currentUsernameVal}</strong></p>` : ""}
-            ${state.user.phone && state.user.phone !== "Sin teléfono" ? `<p style="font-size:12px; color:var(--muted);">Celular: <strong>${state.user.phone}</strong></p>` : ""}
-            ${currentEmailVal ? `<p style="font-size:12px; color:var(--muted);">Correo: <strong>${currentEmailVal}</strong></p>` : ""}
-            ${!isAdm && !isWh ? `<p style="font-size:12px; color:var(--muted);">Dirección: <strong>${currentAddressVal || "Sin registrar"}</strong></p>` : ""}
-            <p style="margin-top:6px;">
-              <span class="${isAdm || isW || isWh ? "badge-wholesale-user" : "badge-sync"}">
-                ${
-                  isAdm
-                    ? "★ Administradora (Privilegios completos)"
-                    : isWh
-                      ? "📷 Bodega (Acceso a Escáner de surtido)"
-                      : isW
-                        ? "★ Clienta Mayorista"
-                        : "Clienta Registrada (Menudeo / Mayoreo $1,000+)"
-                }
-              </span>
-            </p>
-          </div>
-
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
-            ${isAdm ? `<button class="btn-primary" onclick="closeModal('authModal'); openAdminPanel();">Abrir Panel Admin</button>` : ""}
-            ${isWh ? `<button class="btn-gold" onclick="closeModal('authModal'); openScannerDirect();">📷 Abrir Escáner Bodega</button>` : ""}
-            <button class="btn-outline" onclick="logoutDemo()">Cerrar sesión</button>
-          </div>
-
-          <div class="admin-section">
-            <h4>Datos de cuenta y usuario</h4>
-            <div class="field">
-              <label>Nombre completo o negocio</label>
-              <input type="text" id="profNameInput" value="${(state.user.name || "").replace(/"/g, "&quot;")}" />
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-              <div class="field">
-                <label>Nombre de usuario</label>
-                <input type="text" id="profUsernameInput" value="${currentUsernameVal.replace(/"/g, "&quot;")}" placeholder="Ej. mariana.ks" />
-              </div>
-              <div class="field">
-                <label>Correo electrónico</label>
-                <input type="email" id="profEmailInput" value="${currentEmailVal.replace(/"/g, "&quot;")}" placeholder="correo@ejemplo.com" />
-              </div>
-            </div>
-            ${
-              !isAdm && !isWh
-                ? `
-              <div class="field">
-                <label>Dirección de entrega / negocio</label>
-                <input type="text" id="profAddressInput" value="${currentAddressVal.replace(/"/g, "&quot;")}" placeholder="Calle, número, colonia, ciudad" />
-              </div>
-            `
-                : ""
-            }
-            <button class="btn-soft" onclick="saveProfileDetails()">Guardar datos</button>
-          </div>
-
-          <div class="admin-section">
-            <h4>Cambiar contraseña</h4>
-            <div class="field">
-              <label>Contraseña actual</label>
-              <input type="password" id="currPassInput" placeholder="Tu contraseña actual" />
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-              <div class="field">
-                <label>Nueva contraseña</label>
-                <input type="password" id="nextPassInput" placeholder="Mínimo 4 caracteres" />
-              </div>
-              <div class="field">
-                <label>Confirmar nueva contraseña</label>
-                <input type="password" id="confirmPassInput" placeholder="Repite la contraseña" onkeydown="if(event.key==='Enter') changeOwnPassword()" />
-              </div>
-            </div>
-            <button class="btn-primary" onclick="changeOwnPassword()">Actualizar contraseña</button>
-          </div>
-
-          <h4>Historial de pedidos (${store.orders.length})</h4>
-          ${
-            store.orders.length
-              ? store.orders
-                  .map(
-                    (o, i) => `
-                  <div class="cart-item">
-                    <div>
-                      <strong>#${o.folio}</strong> · ${o.date} · <span>${o.totalUnits || (o.items || []).reduce((s, x) => s + (x.qty || 0), 0)} uds</span><br/>
-                      <span style="font-size:12px; color:var(--muted);">Total: $${o.total} MXN</span>
-                    </div>
-                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                      ${isWh ? `<button class="btn-soft" onclick="closeModal('authModal'); openPickScannerForSavedOrder(${i});">Surtir</button>` : ""}
-                      <button class="btn-outline" onclick="openSavedOrderSummary(${i})">Ver lista</button>
-                      <button class="btn-soft" onclick="reorder(${i})">Repetir</button>
-                    </div>
-                  </div>
-                `
-                  )
-                  .join("")
-              : `<p style="font-size:13px; color:var(--muted); margin-top:6px;">Esta cuenta aún no tiene pedidos registrados.</p>`
-          }
-        `;
-        return;
-      }
-
-      if (authUiState.mode === "recover") {
-        modalTitle.textContent = "Recuperar Contraseña";
-        const pend = authUiState.pendingRecovery;
-
-        if (authUiState.recoveryStep === "reset" && pend) {
-          box.innerHTML = `
-            <div class="recovery-dispatch-box">
-              Código enviado por <strong>${pend.channel === "whatsapp" ? "WhatsApp" : "Correo electrónico"}</strong> a <strong>${pend.destination}</strong> (válido 15 min).
-            </div>
-            <div class="field">
-              <label>Código de verificación</label>
-              <input type="text" id="recCodeInput" placeholder="Ej. 123456" maxlength="8" />
-            </div>
-            <div class="field">
-              <label>Nueva contraseña</label>
-              <input type="password" id="recNewPassInput" placeholder="Mínimo 4 caracteres" />
-            </div>
-            <div class="field">
-              <label>Confirmar nueva contraseña</label>
-              <input type="password" id="recConfirmPassInput" placeholder="Repite tu nueva contraseña" onkeydown="if(event.key==='Enter') completePasswordReset()" />
-            </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <button class="btn-primary" style="flex:1; padding:11px;" onclick="completePasswordReset()">Guardar nueva contraseña</button>
-              <button class="btn-outline" onclick="authUiState.recoveryStep='request'; renderAuth();">Cambiar medio</button>
-            </div>
-            <div style="margin-top:10px;">
-              <button class="btn-link" onclick="setAuthMode('login')">← Volver a iniciar sesión</button>
-            </div>
-          `;
-          return;
-        }
-
-        box.innerHTML = `
-          <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">
-            Escribe tu número de celular, usuario o correo para enviar tu código de recuperación por WhatsApp o correo electrónico.
-          </p>
-          <div class="field">
-            <label>Celular, usuario o correo de la cuenta</label>
-            <input type="text" id="recIdentifierInput" placeholder="Ej. 9981234567 o @usuario" />
-          </div>
-          <div class="field">
-            <label>Destino de envío (opcional si ya está guardado en tu cuenta)</label>
-            <input type="text" id="recDestinationInput" placeholder="Celular a 10 dígitos o correo@ejemplo.com" />
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
-            <button class="btn-primary" style="flex:1; padding:11px;" onclick="sendRecoveryChallenge('whatsapp')">
-              💬 Enviar por WhatsApp
-            </button>
-            <button class="btn-soft" style="flex:1; padding:11px;" onclick="sendRecoveryChallenge('email')">
-              ✉️ Enviar por Correo
-            </button>
-          </div>
-          <div style="margin-top:12px;">
-            <button class="btn-link" onclick="setAuthMode('login')">← Volver a iniciar sesión</button>
-          </div>
-        `;
-        return;
-      }
-
-      modalTitle.textContent = authUiState.mode === "register" ? "Crear Cuenta de Clienta" : "Iniciar Sesión";
-
-      const tabsHtml = `
-        <div class="auth-tabs">
-          <button class="auth-tab-btn ${authUiState.mode === "login" ? "active" : ""}" onclick="setAuthMode('login')">
-            Ya tengo cuenta
-          </button>
-          <button class="auth-tab-btn ${authUiState.mode === "register" ? "active" : ""}" onclick="setAuthMode('register')">
-            Registrarme nueva
-          </button>
-        </div>
-      `;
-
-      if (authUiState.mode === "register") {
-        box.innerHTML = `
-          ${tabsHtml}
-          <div class="field">
-            <label>Tu nombre o nombre de tu negocio</label>
-            <input type="text" id="regName" placeholder="Ej. Mariana López" />
-          </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-            <div class="field">
-              <label>Número de celular (10 dígitos)</label>
-              <input type="tel" id="regPhone" placeholder="Ej. 9981234567" />
-            </div>
-            <div class="field">
-              <label>Usuario (opcional, para entrar o cambiar clave)</label>
-              <input type="text" id="regUsername" placeholder="Ej. mariana.lopez" />
-            </div>
-          </div>
-          <div class="field">
-            <label>Correo electrónico (para recuperar contraseña)</label>
-            <input type="email" id="regEmail" placeholder="Ej. mariana@correo.com" />
-          </div>
-          <div class="field">
-            <label>Dirección de entrega / negocio</label>
-            <input type="text" id="regAddress" placeholder="Calle, número, colonia, ciudad o referencias" />
-          </div>
-          <div class="field">
-            <label>Crea tu contraseña</label>
-            <input type="password" id="regPass" placeholder="Mínimo 4 caracteres" onkeydown="if(event.key==='Enter') registerClientDirect()" />
-          </div>
-          <button class="btn-primary" style="width:100%; padding:11px;" onclick="registerClientDirect()">
-            Crear cuenta
-          </button>
-        `;
-        return;
-      }
-
-      box.innerHTML = `
-        ${tabsHtml}
-        <div class="field">
-          <label>Celular, usuario o correo</label>
-          <input type="text" id="loginIdentifier" placeholder="Ej. 9981234567 o @usuario" autocomplete="username" />
-        </div>
-        <div class="field">
-          <label>Contraseña</label>
-          <input type="password" id="loginPass" placeholder="Escribe tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter') loginUnified()" />
-        </div>
-        <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
-          <button class="btn-link" onclick="setAuthMode('recover')">¿Olvidaste tu contraseña? (WhatsApp / Correo)</button>
-        </div>
-        <button class="btn-primary" style="width:100%; padding:11px;" onclick="loginUnified()">
-          Entrar a mi cuenta
-        </button>
-      `;
-    }
-
-    async function registerClientDirect() {
-      const name = document.getElementById("regName").value.trim();
-      const rawPhone = document.getElementById("regPhone").value.trim();
-      const digits = normalizePhoneDigits(rawPhone);
-      const username = normalizeUsername(document.getElementById("regUsername").value || "");
-      const email = document.getElementById("regEmail").value.trim();
-      const address = document.getElementById("regAddress").value.trim();
-      const rawPass = document.getElementById("regPass").value;
-
-      if (!name) {
-        showToast("Escribe tu nombre o boutique");
-        return;
-      }
-      if (digits.length < 10) {
-        showToast("Ingresa un celular válido de 10 dígitos");
-        return;
-      }
-      if (!rawPass || rawPass.length < 4) {
-        showToast("Crea una contraseña de al menos 4 caracteres");
-        return;
-      }
-
-      const alreadyLocal = state.registeredClients.some((c) => normalizePhoneDigits(c.phone) === digits);
-      if (alreadyLocal) {
-        showToast("Ese número ya está registrado. Inicia sesión con tu contraseña");
-        setAuthMode("login");
-        return;
-      }
-
-      if (username) {
-        const userTakenLocal = state.registeredClients.some(
-          (c) => normalizeUsername(c.username) === username
-        );
-        if (userTakenLocal) {
-          showToast("Ese nombre de usuario ya está en uso");
-          return;
-        }
-      }
-
-      if (supabaseClient) {
-        try {
-          const { data } = await supabaseClient
-            .from("clients")
-            .select("phone")
-            .eq("phone", digits)
-            .maybeSingle();
-          if (data) {
-            showToast("Ese número ya existe. Inicia sesión con tu contraseña");
-            setAuthMode("login");
-            return;
-          }
-        } catch (e) {}
-      }
-
-      const passHash = await sha256Text(rawPass);
-      const matchedWholesale = findWholesaleClient(name, digits);
-      const role = matchedWholesale ? "wholesale" : "retail";
-
-      const newClientRecord = {
-        name,
-        phone: digits,
-        username,
-        email,
-        address,
-        passHash,
-        role,
-        verified: true,
-        createdAt: new Date().toISOString()
-      };
-
-      state.registeredClients.unshift(newClientRecord);
-
-      if (supabaseClient) {
-        try {
-          await supabaseClient.from("clients").upsert({
-            phone: newClientRecord.phone,
-            username: newClientRecord.username || null,
-            email: newClientRecord.email || null,
-            name: newClientRecord.name,
-            address: newClientRecord.address || "",
-            pass_hash: newClientRecord.passHash,
-            role: newClientRecord.role,
-            verified: true
-          });
-        } catch (e) {}
-      }
-
-      authUiState.mode = "login";
-
-      applyUserSession({
-        identifier: digits,
-        name,
-        phone: digits,
-        username,
-        email,
-        address,
-        role
-      });
-
-      closeModal("authModal");
-      showToast(`✓ Cuenta creada. ¡Bienvenida, ${name}!`);
-    }
-
-    function applyUserSession(userObj) {
-      const key = buildUserKey(userObj.identifier || userObj.phone || userObj.name, userObj.role);
-      if (!userStores[key]) {
-        userStores[key] = { favorites: [], cart: [], orders: [] };
-      }
-      state.activeUserKey = key;
-      state.user = {
-        key,
-        identifier: userObj.identifier || userObj.phone || userObj.name,
-        name: userObj.name,
-        phone: userObj.phone || "Sin teléfono",
-        username: userObj.username || "",
-        email: userObj.email || "",
-        address: userObj.address || "",
-        role: userObj.role
-      };
-
-      const isStaff = state.user.role === "admin" || state.user.role === "warehouse";
-      document.getElementById("custName").value = isStaff ? "" : state.user.name;
-      document.getElementById("custPhone").value = isStaff ? "" : state.user.phone;
-      document.getElementById("custAddress").value = isStaff ? "" : (state.user.address || "");
-      document.getElementById("custDelivery").value = "";
-
-      savePersistentState();
-      renderBanner();
-      renderProducts(state.activeTab === "favorites");
-      renderCart();
-      updateBadges();
-      renderAuth();
-    }
-
-    async function loginUnified() {
-      const rawInput = document.getElementById("loginIdentifier").value.trim();
-      const rawPass = document.getElementById("loginPass").value;
-
-      if (!rawInput || !rawPass) {
-        showToast("Escribe tu celular/usuario y tu contraseña");
-        return;
-      }
-
-      const passHash = await sha256Text(rawPass);
-      const cleanUser = normalizeUsername(rawInput);
-      const cleanEmail = rawInput.toLowerCase();
-      const digits = normalizePhoneDigits(rawInput);
-
-      for (const key of ["admin", "warehouse"]) {
-        const staff = state.staffAccounts[key];
-        if (!staff) continue;
-        const staffUser = normalizeUsername(staff.username);
-        const staffPhone = normalizePhoneDigits(staff.phone);
-        const staffEmail = (staff.email || "").trim().toLowerCase();
-        const matchesStaff =
-          (cleanUser && staffUser === cleanUser) ||
-          (cleanEmail && staffEmail && staffEmail === cleanEmail) ||
-          (digits.length >= 7 && staffPhone && staffPhone === digits);
-
-        if (matchesStaff) {
-          if (staff.passHash === passHash) {
-            applyUserSession({
-              identifier: key,
-              name: staff.displayName,
-              phone: staff.phone || "Sin teléfono",
-              username: staff.username,
-              email: staff.email || "",
-              role: staff.role
-            });
-            closeModal("authModal");
-            showToast(key === "admin" ? "Sesión Admin activada" : "Sesión Bodega activada · Escáner disponible");
-          } else {
-            showToast("Contraseña incorrecta");
-          }
-          return;
-        }
-      }
-
-      let foundClient = state.registeredClients.find((c) => {
-        const matchPhone = digits.length >= 7 && normalizePhoneDigits(c.phone) === digits;
-        const matchUser = cleanUser && normalizeUsername(c.username) === cleanUser;
-        const matchEmail = cleanEmail && (c.email || "").trim().toLowerCase() === cleanEmail;
-        const matchName = (c.name || "").trim().toLowerCase() === cleanEmail;
-        return matchPhone || matchUser || matchEmail || matchName;
-      });
-
-      if (!foundClient && supabaseClient) {
-        try {
-          let query = supabaseClient.from("clients").select("*");
-          if (digits.length >= 7) {
-            query = query.eq("phone", digits);
-          } else if (cleanUser) {
-            query = query.eq("username", cleanUser);
-          }
-          const { data } = await query.maybeSingle();
-          if (data) {
-            foundClient = {
-              name: data.name,
-              phone: data.phone,
-              username: data.username || "",
-              email: data.email || "",
-              address: data.address || "",
-              passHash: data.pass_hash,
-              role: data.role || "retail"
-            };
-            state.registeredClients.unshift(foundClient);
-          }
-        } catch (e) {}
-      }
-
-      if (!foundClient) {
-        showToast("No encontramos esa cuenta. Toca 'Registrarme nueva' para crearla");
-        return;
-      }
-
-      if (foundClient.passHash !== passHash) {
-        showToast("Contraseña incorrecta");
-        return;
-      }
-
-      const matchedWholesale = findWholesaleClient(foundClient.name, foundClient.phone);
-      const finalRole = matchedWholesale ? "wholesale" : foundClient.role || "retail";
-
-      const sessionKey = buildUserKey(foundClient.phone, finalRole);
-      if (!userStores[sessionKey]) {
-        userStores[sessionKey] = { favorites: [], cart: [], orders: [] };
-      }
-      if (supabaseClient) {
-        try {
-          const { data: cloudOrders } = await supabaseClient
-            .from("orders")
-            .select("*")
-            .eq("client_phone", normalizePhoneDigits(foundClient.phone))
-            .order("created_at", { ascending: false });
-          if (cloudOrders && cloudOrders.length) {
-            userStores[sessionKey].orders = cloudOrders.map((o) => ({
-              folio: o.folio,
-              date: new Date(o.created_at).toLocaleDateString("es-MX"),
-              clientName: o.client_name,
-              phone: o.client_phone,
-              clientAddress: o.client_address || "",
-              total: o.total,
-              totalUnits: o.total_units,
-              statusLabel: o.status_label,
-              useWholesalePricing: true,
-              items: o.items || []
-            }));
-          }
-        } catch (e) {}
-      }
-
-      applyUserSession({
-        identifier: foundClient.phone,
-        name: foundClient.name,
-        phone: foundClient.phone,
-        username: foundClient.username || "",
-        email: foundClient.email || "",
-        address: foundClient.address || "",
-        role: finalRole
-      });
-      closeModal("authModal");
-      showToast(finalRole === "wholesale" ? `★ Bienvenida Mayorista, ${foundClient.name}` : `Bienvenida de vuelta, ${foundClient.name}`);
-    }
-
-    function logoutDemo() {
-      stopCameraScanner();
-      userStores.guest = { favorites: [], cart: [], orders: [] };
-      state.activeUserKey = "guest";
-      state.user = null;
-
-      document.getElementById("custName").value = "";
-      document.getElementById("custPhone").value = "";
-      document.getElementById("custAddress").value = "";
-      document.getElementById("custDelivery").value = "";
-
-      savePersistentState();
-      renderBanner();
-      renderProducts(state.activeTab === "favorites");
-      renderCart();
-      updateBadges();
-      renderAuth();
-      showToast("Sesión cerrada");
-    }
-
-    function reorder(orderIndex) {
-      const store = getCurrentStore();
-      const ord = store.orders[orderIndex];
-      if (!ord) return;
-      ord.items.forEach((it) => {
-        const existing = store.cart.find((c) => c.prodId === it.prodId && c.shade === it.shade);
-        if (existing) existing.qty += it.qty;
-        else store.cart.push({ prodId: it.prodId, shade: it.shade, qty: it.qty });
-      });
-      savePersistentState();
-      updateBadges();
-      closeModal("authModal");
-      openModal("cartModal");
-      showToast("Pedido cargado a la bolsa");
-    }
-
-    function saveWaNumber() {
-      const val = document.getElementById("adminWaNumber").value.replace(/\D/g, "");
-      if (val.length < 10) {
-        showToast("Ingresa un número válido con lada");
-        return;
-      }
-      state.waNumber = val;
-      savePersistentState();
-      showToast(`WhatsApp actualizado a ${val}`);
-    }
-
-    async function updateProductBarcode(prodId, newCode) {
-      const p = state.products.find((item) => item.id === prodId);
-      if (!p) return;
-      p.barcode = (newCode || "").trim() || `KS-${prodId}`;
-      savePersistentState();
-      await upsertProductToCloud(p);
-      showToast(`Código actualizado para ${p.name}`);
-    }
-
-    function saveStoreId() {
-      const idVal = document.getElementById("adminStoreId").value.trim();
-      if (!idVal) {
-        showToast("Ingresa el ID de Tiendanube");
-        return;
-      }
-      state.tiendanubeStoreId = idVal;
-      state.lastSyncText = `ID ${idVal} guardado · Listo para sincronizar`;
-      document.getElementById("syncLogText").textContent = state.lastSyncText;
-      savePersistentState();
-      showToast(`Store ID ${idVal} guardado`);
-    }
-
-    async function syncTiendanubeById() {
-      const idVal = document.getElementById("adminStoreId").value.trim() || state.tiendanubeStoreId;
-      if (!idVal) {
-        showToast("Primero escribe el ID de tienda");
-        return;
-      }
-      state.tiendanubeStoreId = idVal;
-
-      const sampleImported = [
-        {
-          id: 101,
-          brand: "Bissú",
-          name: "Tinta Labial Mate Fijo",
-          category: "Labios",
-          emoji: "💋",
-          barcode: "750100100107",
-          retail: 65,
-          wholesale: 45,
-          desc: "Producto sincronizado desde catálogo Tiendanube.",
-          tip: "Aplica capa delgada y deja secar unos segundos.",
-          videoUrl: "",
-          shades: [
-            { name: "Manzana", hex: "#c62828" },
-            { name: "Canela", hex: "#8d4e38" }
-          ]
-        },
-        {
-          id: 102,
-          brand: "Italia Deluxe",
-          name: "Polvo Compacto Translúcido",
-          category: "Rostro",
-          emoji: "🪞",
-          barcode: "750100100108",
-          retail: 110,
-          wholesale: 78,
-          desc: "Sincronizado por ID de tienda para sellar maquillaje sin aportar peso.",
-          tip: "Aplica a toques con borla en frente, nariz y barbilla.",
-          videoUrl: "",
-          shades: [
-            { name: "Porcelana", hex: "#f5dec8" },
-            { name: "Durazno Medio", hex: "#dfa878" }
-          ]
-        }
-      ];
-
-      for (const imp of sampleImported) {
-        if (!state.products.some((p) => p.id === imp.id)) {
-          state.products.unshift(imp);
-          state.selectedShades[imp.id] = imp.shades[0].name;
-          await upsertProductToCloud(imp);
-        }
-      }
-
-      const hora = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
-      state.lastSyncText = `Sincronizado con Store ID ${idVal} (${hora}) · ${state.products.length} productos activos`;
-      document.getElementById("syncLogText").textContent = state.lastSyncText;
-      document.getElementById("syncStatusBadge").textContent = supabaseClient ? "● Conectado a Supabase" : `● ID ${idVal} sincronizado`;
-
-      savePersistentState();
-      renderBrands();
-      renderCategories();
-      renderProducts(state.activeTab === "favorites");
-      renderAdminLists();
-      showToast(`Catálogo sincronizado con ID ${idVal}`);
-    }
-
-    function registerWholesaleClient() {
-      const name = document.getElementById("whNameInput").value.trim();
-      const phone = document.getElementById("whPhoneInput").value.trim() || "Sin teléfono";
-      if (!name) {
-        showToast("Escribe el nombre o boutique de la clienta");
-        return;
-      }
-      const existing = findWholesaleClient(name, phone);
-      if (!existing) {
-        state.wholesaleClients.unshift({ name, phone });
-      }
-      document.getElementById("whNameInput").value = "";
-      document.getElementById("whPhoneInput").value = "";
-      savePersistentState();
-      renderAdminLists();
-      showToast(`★ ${name} dada de alta como Mayorista`);
-    }
-
-    function promoteCurrentUserToWholesale() {
-      if (!state.user || state.user.role === "admin" || state.user.role === "warehouse") return;
-      const existing = findWholesaleClient(state.user.name, state.user.phone);
-      if (!existing) {
-        state.wholesaleClients.unshift({ name: state.user.name, phone: state.user.phone });
-      }
-      applyUserSession({ ...state.user, identifier: state.user.phone, role: "wholesale" });
-      renderAdminLists();
-      showToast(`★ ${state.user.name} ascendida a Clienta Mayorista`);
-    }
-
-    function removeWholesaleClient(idx) {
-      const removed = state.wholesaleClients[idx];
-      state.wholesaleClients.splice(idx, 1);
-      if (removed && state.user && state.user.role === "wholesale" && state.user.name.toLowerCase() === removed.name.toLowerCase()) {
-        applyUserSession({ ...state.user, identifier: state.user.phone, role: "retail" });
-      }
-      savePersistentState();
-      renderAdminLists();
-      showToast("Estatus mayorista retirado");
-    }
-
-    function clearBannerForm() {
-      document.getElementById("bannerSlotSelect").value = "0";
-      document.getElementById("bannerTitleInput").value = "";
-      document.getElementById("bannerSubInput").value = "";
-      document.getElementById("bannerUrlInput").value = "";
-      document.getElementById("bannerFileInput").value = "";
-    }
-
-    function loadBannerIntoEditor(index) {
-      const b = state.banners[index];
-      if (!b) return;
-      document.getElementById("bannerSlotSelect").value = String(index);
-      document.getElementById("bannerTitleInput").value = b.title || "";
-      document.getElementById("bannerSubInput").value = b.subtitle || "";
-      document.getElementById("bannerUrlInput").value =
-        b.imageUrl && !b.imageUrl.startsWith("data:") ? b.imageUrl : "";
-      document.getElementById("bannerFileInput").value = "";
-      showToast(`Cargado Banner ${index + 1} para editar y guardar`);
-    }
-
-    async function focusBannerInCarousel(index) {
-      const target = state.banners[index];
-      if (!target) return;
-      if (!target.active) {
-        target.active = true;
-        savePersistentState();
-        await saveBannersToCloud();
-      }
-      const activeSlides = getActiveBanners();
-      const activeIdx = activeSlides.findIndex((item) => item.id === target.id);
-      state.activeBannerIndex = activeIdx >= 0 ? activeIdx : 0;
-      savePersistentState();
-      renderBanner();
-      renderAdminLists();
-      closeModal("adminModal");
-      showToast(`Mostrando "${target.title}" en el banner`);
-    }
-
-    async function saveBannerSlide() {
-      const slotIndex = Math.max(0, Math.min(MAX_BANNERS - 1, Number(document.getElementById("bannerSlotSelect").value) || 0));
-      const existing = state.banners[slotIndex];
-
-      const titleInput = document.getElementById("bannerTitleInput").value.trim();
-      const subInput = document.getElementById("bannerSubInput").value.trim();
-      const urlInput = document.getElementById("bannerUrlInput").value.trim();
-      const fileInput = document.getElementById("bannerFileInput");
-
-      let resolvedImg = existing ? existing.imageUrl || "" : "";
-      if (fileInput.files && fileInput.files[0]) {
-        const uploaded = await uploadBannerFileToStorage(fileInput.files[0]);
-        if (uploaded) resolvedImg = uploaded;
-      } else if (urlInput) {
-        resolvedImg = urlInput;
-      }
-
-      const finalTitle = titleInput || (existing && existing.title) || `Banner ${slotIndex + 1}`;
-      const finalSub =
-        subInput ||
-        (existing && existing.subtitle) ||
-        "Descubre los lanzamientos y surtido disponible.";
-
-      const updatedBanner = {
-        id: existing && existing.id ? existing.id : Date.now() + slotIndex,
-        title: finalTitle,
-        subtitle: finalSub,
-        imageUrl: resolvedImg,
-        active: true
-      };
-
-      if (slotIndex < state.banners.length) {
-        state.banners[slotIndex] = updatedBanner;
-      } else {
-        state.banners.push(updatedBanner);
-      }
-      state.banners = state.banners.slice(0, MAX_BANNERS);
-
-      const activeSlides = getActiveBanners();
-      const activeIdx = activeSlides.findIndex((item) => item.id === updatedBanner.id);
-      state.activeBannerIndex = activeIdx >= 0 ? activeIdx : 0;
-
-      clearBannerForm();
-      savePersistentState();
-      await saveBannersToCloud();
-      renderBanner();
-      renderAdminLists();
-      showToast(`✓ Guardado en Banner ${slotIndex + 1} y visible en el carrusel`);
-    }
-
-    async function toggleBannerActive(id) {
-      const item = state.banners.find((b) => b.id === id);
-      if (!item) return;
-      item.active = !item.active;
-      savePersistentState();
-      await saveBannersToCloud();
-      renderBanner();
-      renderAdminLists();
-    }
-
-    async function deleteBanner(id) {
-      if (state.banners.length <= 1) {
-        showToast("Deja al menos un banner activo");
-        return;
-      }
-      state.banners = state.banners.filter((b) => b.id !== id);
-      state.activeBannerIndex = 0;
-      savePersistentState();
-      await deleteBannerFromCloud(id);
-      await saveBannersToCloud();
-      renderBanner();
-      renderAdminLists();
-      showToast("Banner eliminado");
-    }
-
-    function renderAdminLists() {
-      const codeBox = document.getElementById("barcodeAdminList");
-      if (codeBox) {
-        codeBox.innerHTML = state.products
-          .map(
-            (p) => `
-            <div class="list-row">
-              <div style="flex:1; min-width:0;">
-                <strong>${p.emoji} ${p.name}</strong>
-                <div style="color:var(--muted);">${p.brand || "General"}</div>
-              </div>
-              <input
-                type="text"
-                style="width:155px; padding:6px 8px; border-radius:8px; border:1px solid var(--border); font-size:12px;"
-                value="${(p.barcode || "").replace(/"/g, "&quot;")}"
-                onchange="updateProductBarcode(${p.id}, this.value)"
-                placeholder="Código barras"
-              />
-            </div>
-          `
-          )
-          .join("");
-      }
-
-      const whBox = document.getElementById("wholesaleListContainer");
-      const activeNormalBtn =
-        state.user && state.user.role === "retail"
-          ? `<div style="margin-bottom:8px;"><button class="btn-soft" onclick="promoteCurrentUserToWholesale()">Ascender sesión actual (${state.user.name}) a Mayorista</button></div>`
-          : "";
-
-      whBox.innerHTML =
-        activeNormalBtn +
-        (state.wholesaleClients.length
-          ? state.wholesaleClients
-              .map(
-                (c, i) => `
-              <div class="list-row">
-                <div><strong>★ ${c.name}</strong> · ${c.phone}</div>
-                <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="removeWholesaleClient(${i})">Quitar</button>
-              </div>
-            `
-              )
-              .join("")
-          : `<p style="font-size:12px; color:var(--muted);">Aún no hay mayoristas registradas.</p>`);
-
-      const quotaEl = document.getElementById("bannerQuotaLabel");
-      if (quotaEl) {
-        quotaEl.textContent = `${state.banners.length} / ${MAX_BANNERS}`;
-      }
-
-      const banBox = document.getElementById("bannerListContainer");
-      banBox.innerHTML = state.banners
-        .slice(0, MAX_BANNERS)
-        .map(
-          (b, idx) => `
-          <div class="list-row">
-            <div style="min-width:0; flex:1;">
-              <strong>Banner ${idx + 1}: ${b.title}</strong> ${b.imageUrl ? "🖼️" : "📝"}
-              <div style="color:var(--muted);">${b.active ? "Visible" : "Oculto"}${b.imageUrl ? " · Con imagen" : ""}</div>
-            </div>
-            <div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">
-              <button class="btn-gold" style="padding:4px 8px; font-size:11px;" onclick="focusBannerInCarousel(${idx})">Ver en banner</button>
-              <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="loadBannerIntoEditor(${idx})">Editar</button>
-              <button class="btn-soft" style="padding:4px 8px; font-size:11px;" onclick="toggleBannerActive(${b.id})">${b.active ? "Ocultar" : "Mostrar"}</button>
-              <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="deleteBanner(${b.id})">Borrar</button>
-            </div>
-          </div>
-        `
-        )
-        .join("");
-    }
-
-    async function addNewProduct() {
-      const name = document.getElementById("newProdName").value.trim();
-      const brand = document.getElementById("newProdBrand").value.trim() || "KS Studio";
-      const category = document.getElementById("newProdCat").value;
-      const retail = Number(document.getElementById("newProdRetail").value) || 80;
-      const wholesale = Number(document.getElementById("newProdWholesale").value) || 55;
-      const barcode = document.getElementById("newProdBarcode").value.trim();
-      const videoUrl = document.getElementById("newProdVideo").value.trim();
-
-      if (!name) {
-        showToast("Escribe el nombre del cosmético");
-        return;
-      }
-
-      const newId = Date.now();
-      const newProd = {
-        id: newId,
-        brand,
-        name,
-        category,
-        emoji: "✨",
-        barcode: barcode || `KS-${String(newId).slice(-6)}`,
-        retail,
-        wholesale,
-        desc: "Producto agregado desde el panel de administración de KS Cosmetics Mayoreo.",
-        tip: "Aplica sobre piel limpia y seca según el acabado deseado.",
-        videoUrl,
-        shades: [
-          { name: "Tono Clásico", hex: "#d81b60" },
-          { name: "Tono Natural", hex: "#e5989b" }
-        ]
-      };
-
-      state.products.unshift(newProd);
-      state.selectedShades[newId] = "Tono Clásico";
-      document.getElementById("newProdName").value = "";
-      document.getElementById("newProdBrand").value = "";
-      document.getElementById("newProdBarcode").value = "";
-      document.getElementById("newProdVideo").value = "";
-
-      savePersistentState();
-      await upsertProductToCloud(newProd);
-
-      renderBrands();
-      renderCategories();
-      renderProducts();
-      renderAdminLists();
-      closeModal("adminModal");
-      showToast(`"${name}" (${brand}) publicado`);
-    }
-
-    function updateBadges() {
-      const store = getCurrentStore();
-      const totalPieces = store.cart.reduce((acc, item) => acc + item.qty, 0);
-      document.getElementById("headerCartCount").textContent = totalPieces;
-      document.getElementById("navCartCount").textContent = totalPieces;
-
-      const adminBtn = document.getElementById("adminBtn");
-      adminBtn.style.display = isAdminAccount() ? "inline-flex" : "none";
-
-      const scannerBtn = document.getElementById("scannerBtn");
-      scannerBtn.style.display = isWarehouseAccount() ? "inline-flex" : "none";
-
-      const roleBadge = document.getElementById("headerRoleBadge");
-      if (state.user) {
-        const shortLabel = isAdminAccount()
-          ? "Admin"
-          : isWarehouseAccount()
-            ? "Bodega"
-            : state.user.name.split(" ")[0];
-        document.getElementById("authBtn").textContent = shortLabel;
-        document.getElementById("navAccountLabel").textContent = shortLabel;
-        roleBadge.innerHTML =
-          isAdminAccount()
-            ? `<span class="badge-wholesale-user">★ Admin</span>`
-            : isWarehouseAccount()
-              ? `<span class="badge-wholesale-user">📷 Bodega</span>`
-              : state.user.role === "wholesale"
-                ? `<span class="badge-wholesale-user">★ Mayorista</span>`
-                : "";
-      } else {
-        document.getElementById("authBtn").textContent = "Entrar / Registro";
-        document.getElementById("navAccountLabel").textContent = "Cuenta";
-        roleBadge.innerHTML = "";
-      }
-    }
-
-    init();
-  </script>
-</body>
-</html>
+          showToast("Tu contraseña actual es incorrecta

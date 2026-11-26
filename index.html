@@ -251,12 +251,12 @@
       overflow: hidden;
       margin-bottom: 16px;
       box-shadow: var(--shadow);
-      min-height: 210px;
+      min-height: 220px;
     }
 
     .banner-carousel.image-mode {
       background: #14080f;
-      min-height: 210px;
+      min-height: 220px;
     }
 
     .banner-image-stage {
@@ -268,8 +268,8 @@
     .banner-hero-img {
       width: 100%;
       height: auto;
-      min-height: 210px;
-      max-height: 440px;
+      min-height: 220px;
+      max-height: 460px;
       object-fit: cover;
       display: block;
     }
@@ -297,8 +297,8 @@
 
     .banner-slide-bg {
       position: relative;
-      padding: 26px 22px 46px;
-      min-height: 210px;
+      padding: 28px 22px 48px;
+      min-height: 220px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -308,11 +308,11 @@
       .banner-carousel,
       .banner-carousel.image-mode,
       .banner-slide-bg {
-        min-height: 280px;
+        min-height: 290px;
       }
       .banner-hero-img {
-        min-height: 280px;
-        max-height: 500px;
+        min-height: 290px;
+        max-height: 520px;
       }
       .banner-content h1 {
         font-size: 23px;
@@ -339,7 +339,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      background: rgba(20, 8, 15, 0.42);
+      background: rgba(20, 8, 15, 0.48);
       padding: 4px 8px;
       border-radius: 999px;
       backdrop-filter: blur(4px);
@@ -737,13 +737,8 @@
       font-size: 13px;
     }
 
-    .profile-card p {
-      margin-bottom: 4px;
-    }
-
-    .profile-card p:last-child {
-      margin-bottom: 0;
-    }
+    .profile-card p { margin-bottom: 4px; }
+    .profile-card p:last-child { margin-bottom: 0; }
 
     .admin-section {
       background: var(--bg);
@@ -829,11 +824,7 @@
       border-bottom: 1px solid var(--border);
     }
 
-    .order-folio {
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--ink);
-    }
+    .order-folio { font-size: 15px; font-weight: 800; color: var(--ink); }
 
     .order-units-pill {
       display: inline-block;
@@ -865,9 +856,7 @@
       border-bottom: 1px solid #f5e3eb;
     }
 
-    .order-line-row:last-child {
-      border-bottom: none;
-    }
+    .order-line-row:last-child { border-bottom: none; }
 
     .order-line-left {
       display: flex;
@@ -898,17 +887,8 @@
       text-overflow: ellipsis;
     }
 
-    .order-line-sub {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .order-line-math {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-      margin-top: 2px;
-    }
+    .order-line-sub { font-size: 11px; color: var(--muted); }
+    .order-line-math { font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 2px; }
 
     .order-line-amount {
       font-size: 14px;
@@ -986,10 +966,7 @@
       background: #fff;
     }
 
-    .pick-row.done {
-      background: var(--ok-bg);
-      border-color: #a5d6a7;
-    }
+    .pick-row.done { background: var(--ok-bg); border-color: #a5d6a7; }
 
     .pick-row-top {
       display: flex;
@@ -1008,10 +985,7 @@
       white-space: nowrap;
     }
 
-    .pick-row.done .pick-counter-pill {
-      background: #1b5e20;
-      color: #fff;
-    }
+    .pick-row.done .pick-counter-pill { background: #1b5e20; color: #fff; }
 
     .pick-bar-wrap {
       height: 7px;
@@ -1021,15 +995,8 @@
       margin-top: 8px;
     }
 
-    .pick-bar-fill {
-      height: 100%;
-      background: var(--primary);
-      transition: width 0.2s ease;
-    }
-
-    .pick-row.done .pick-bar-fill {
-      background: #2e7d32;
-    }
+    .pick-bar-fill { height: 100%; background: var(--primary); transition: width 0.2s ease; }
+    .pick-row.done .pick-bar-fill { background: #2e7d32; }
 
     .summary-box {
       background: var(--bg);
@@ -1040,35 +1007,12 @@
       font-size: 13px;
     }
 
-    .status-banner {
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin-bottom: 10px;
-      font-size: 12px;
-      font-weight: 700;
-    }
+    .status-banner { border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 12px; font-weight: 700; }
+    .status-retail { background: var(--soft); color: var(--primary-dark); }
+    .status-pending-total { background: var(--warn-bg); color: var(--warn); }
+    .status-wholesale-ok { background: var(--ok-bg); color: var(--ok); }
 
-    .status-retail {
-      background: var(--soft);
-      color: var(--primary-dark);
-    }
-
-    .status-pending-total {
-      background: var(--warn-bg);
-      color: var(--warn);
-    }
-
-    .status-wholesale-ok {
-      background: var(--ok-bg);
-      color: var(--ok);
-    }
-
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
     .summary-total {
       display: flex;
       justify-content: space-between;
@@ -1092,10 +1036,7 @@
       transition: transform 0.35s ease, filter 0.35s ease;
     }
 
-    .swatch-preview.animating {
-      transform: scale(1.03) skewX(-4deg);
-      filter: brightness(1.08);
-    }
+    .swatch-preview.animating { transform: scale(1.03) skewX(-4deg); filter: brightness(1.08); }
 
     .video-box {
       background: #180b12;
@@ -1298,7 +1239,6 @@
         <button class="close-btn" onclick="closeModal('adminModal')">✕</button>
       </div>
 
-      <!-- 1. WhatsApp -->
       <div class="admin-section">
         <h4>WhatsApp de recepción de pedidos</h4>
         <div class="field">
@@ -1308,13 +1248,11 @@
         <button class="btn-soft" onclick="saveWaNumber()">Guardar WhatsApp</button>
       </div>
 
-      <!-- 2. Códigos de barras de productos -->
       <div class="admin-section">
         <h4>Códigos de barras de productos (para surtido en Bodega)</h4>
         <div id="barcodeAdminList"></div>
       </div>
 
-      <!-- 3. Sincronización Tiendanube por Store ID -->
       <div class="admin-section">
         <h4>Sincronización Tiendanube por Store ID</h4>
         <div class="field">
@@ -1328,7 +1266,6 @@
         <p id="syncLogText" style="font-size:12px; color:var(--muted); margin-top:8px;"></p>
       </div>
 
-      <!-- 4. Alta y ascenso de clientas mayoristas -->
       <div class="admin-section">
         <h4>Alta y ascenso de Clientas Mayoristas</h4>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -1345,7 +1282,6 @@
         <div id="wholesaleListContainer" style="margin-top:10px;"></div>
       </div>
 
-      <!-- 5. Banner de marca y productos (máximo 5) -->
       <div class="admin-section">
         <h4>Banner de marca y productos · <span id="bannerQuotaLabel">0 / 5</span></h4>
         <div class="field">
@@ -1381,7 +1317,6 @@
         <div id="bannerListContainer" style="margin-top:12px;"></div>
       </div>
 
-      <!-- 6. Agregar producto rápido -->
       <div class="admin-section">
         <h4>Agregar producto rápido</h4>
         <div class="field">
@@ -1442,10 +1377,14 @@
       SUPABASE_CONFIG.anonKey.trim().length > 20 &&
       !SUPABASE_CONFIG.anonKey.includes("TU_ANON_KEY");
 
-    const supabaseClient =
-      window.supabase && SUPABASE_CONFIG.url && isValidAnonKey
-        ? window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey)
-        : null;
+    let supabaseClient = null;
+    try {
+      if (window.supabase && SUPABASE_CONFIG.url && isValidAnonKey) {
+        supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+      }
+    } catch (e) {
+      supabaseClient = null;
+    }
 
     const STORAGE_KEY = "ks_cosmetics_app_v4";
     const MAX_BANNERS = 5;
@@ -1831,21 +1770,6 @@
                 };
               }
             });
-          } else {
-            for (const key of ["admin", "warehouse"]) {
-              const acc = state.staffAccounts[key];
-              await supabaseClient.from("staff_accounts").upsert(
-                {
-                  account_key: acc.accountKey,
-                  username: acc.username,
-                  display_name: acc.displayName,
-                  email: acc.email || "",
-                  phone: acc.phone || "",
-                  pass_hash: acc.passHash
-                },
-                { onConflict: "account_key" }
-              );
-            }
           }
         } catch (e) {}
       }
@@ -1872,13 +1796,14 @@
 
     async function sha256Text(text) {
       try {
-        const msgBuffer = new TextEncoder().encode(text);
-        const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-      } catch (e) {
-        return btoa(unescape(encodeURIComponent(text)));
-      }
+        if (window.crypto && window.crypto.subtle) {
+          const msgBuffer = new TextEncoder().encode(text);
+          const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+        }
+      } catch (e) {}
+      return btoa(unescape(encodeURIComponent(text)));
     }
 
     function normalizePhoneDigits(phone) {
@@ -1926,30 +1851,26 @@
         const parsed = JSON.parse(raw);
         if (parsed && parsed.state) {
           Object.assign(state, parsed.state);
-          if (!Array.isArray(state.registeredClients)) {
-            state.registeredClients = [];
-          }
-          if (!Array.isArray(state.banners)) {
-            state.banners = [];
+          if (!Array.isArray(state.registeredClients)) state.registeredClients = [];
+          if (!Array.isArray(state.banners) || !state.banners.length) {
+            state.banners = [
+              {
+                id: 1,
+                title: "Catálogo de Cosméticos · Menudeo y Mayoreo",
+                subtitle: "Compra libre al menudeo o activa mayoreo desde $1,000 MXN de subtotal.",
+                imageUrl: "",
+                active: true
+              }
+            ];
           } else {
             state.banners = state.banners.slice(0, MAX_BANNERS);
           }
-          if (!state.staffAccounts) {
-            state.staffAccounts = {};
-          }
+          if (!state.staffAccounts) state.staffAccounts = {};
           if (!Array.isArray(state.products) || !state.products.length) {
             state.products = DEFAULT_PRODUCTS.map((p) => ({ ...p }));
           }
-          if (state.user && state.user.name) {
-            const lowerName = state.user.name.toLowerCase();
-            if (lowerName.includes("admin")) {
-              state.user.role = "admin";
-              state.activeUserKey = buildUserKey(state.user.identifier || "admin", "admin");
-            } else if (lowerName === "bodega") {
-              state.user.role = "warehouse";
-              state.activeUserKey = buildUserKey(state.user.identifier || "warehouse", "warehouse");
-            }
-          }
+          if (!state.activeCategory) state.activeCategory = "Todos";
+          if (!state.activeBrand) state.activeBrand = "Todas";
         }
         if (parsed && parsed.userStores) {
           Object.assign(userStores, parsed.userStores);
@@ -1991,32 +1912,46 @@
       });
     }
 
-    async function init() {
-      loadPersistentState();
-      await ensureStaffHashesInitialized();
-      if (supabaseClient) {
-        await loadProductsFromCloud();
-        await loadBannersFromCloud();
-        document.getElementById("syncStatusBadge").textContent = "● Conectado a Supabase";
-      }
+    function renderAllViews() {
       state.products.forEach((p) => {
+        if (!Array.isArray(p.shades) || !p.shades.length) {
+          p.shades = [{ name: "Tono Clásico", hex: "#d81b60" }];
+        }
         if (!state.selectedShades[p.id]) {
           state.selectedShades[p.id] = p.shades[0].name;
         }
       });
+      renderBanner();
+      renderBrands();
+      renderCategories();
+      renderProducts(state.activeTab === "favorites");
+      renderCart();
+      renderAuth();
+      renderAdminLists();
+      updateBadges();
+    }
+
+    function init() {
+      loadPersistentState();
       document.getElementById("adminWaNumber").value = state.waNumber;
       document.getElementById("adminStoreId").value = state.tiendanubeStoreId;
       document.getElementById("syncLogText").textContent = state.lastSyncText;
       window.addEventListener("scroll", syncHeaderScrollState, { passive: true });
       syncHeaderScrollState();
-      renderBanner();
-      renderBrands();
-      renderCategories();
-      renderProducts();
-      renderCart();
-      renderAuth();
-      renderAdminLists();
-      updateBadges();
+
+      renderAllViews();
+
+      (async () => {
+        try {
+          await ensureStaffHashesInitialized();
+          if (supabaseClient) {
+            await loadProductsFromCloud();
+            await loadBannersFromCloud();
+            document.getElementById("syncStatusBadge").textContent = "● Conectado a Supabase";
+            renderAllViews();
+          }
+        } catch (e) {}
+      })();
     }
 
     function showToast(msg) {
@@ -2284,7 +2219,7 @@
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         document.getElementById("scannerCamStatus").textContent =
-          "Este navegador no permite abrir cámara aquí. Usa la entrada de código o simulación rápida.";
+          "Este navegador no permite abrir cámara aquí. Usa la entrada de código o simulación rápida abajo.";
         return;
       }
 
@@ -2359,7 +2294,7 @@
       document.querySelectorAll(".nav-item").forEach((b) => b.classList.remove("active"));
       if (tab === "catalog") {
         document.getElementById("navCatalog").classList.add("active");
-        renderProducts();
+        renderProducts(false);
       } else if (tab === "favorites") {
         document.getElementById("navFavorites").classList.add("active");
         renderProducts(true);
@@ -2373,19 +2308,32 @@
     }
 
     function getActiveBanners() {
-      const capped = state.banners.slice(0, MAX_BANNERS);
-      const active = capped.filter((b) => b.active);
+      const capped = Array.isArray(state.banners) && state.banners.length
+        ? state.banners.slice(0, MAX_BANNERS)
+        : [
+            {
+              id: 1,
+              title: "Catálogo de Cosméticos · Menudeo y Mayoreo",
+              subtitle: "Compra libre al menudeo o activa mayoreo desde $1,000 MXN de subtotal.",
+              imageUrl: "",
+              active: true
+            }
+          ];
+      const active = capped.filter((b) => b && b.active);
       return active.length ? active : capped.slice(0, 1);
     }
 
     function renderBanner() {
       const bannerEl = document.getElementById("promoBanner");
+      if (!bannerEl) return;
       const slides = getActiveBanners();
-      if (state.activeBannerIndex >= slides.length) state.activeBannerIndex = 0;
+      if (state.activeBannerIndex >= slides.length || state.activeBannerIndex < 0) {
+        state.activeBannerIndex = 0;
+      }
       const slide = slides[state.activeBannerIndex] || slides[0];
       const wholesaleUser = isWholesaleAccount();
       const warehouseUser = isWarehouseAccount();
-      const hasImg = Boolean(slide && slide.imageUrl);
+      const hasImg = Boolean(slide && slide.imageUrl && String(slide.imageUrl).trim().length > 0);
 
       const controlsHtml =
         slides.length > 1
@@ -2411,7 +2359,7 @@
 
         bannerEl.innerHTML = `
           <div class="banner-image-stage">
-            <img class="banner-hero-img" src="${slide.imageUrl.replace(/"/g, "&quot;")}" alt="${cleanTitle || "Banner promocional KS Cosmetics"}" />
+            <img class="banner-hero-img" src="${slide.imageUrl.replace(/"/g, "&quot;")}" alt="${cleanTitle || "Banner promocional KS Cosmetics"}" onerror="this.closest('#promoBanner').classList.remove('image-mode');" />
             ${
               showCaption
                 ? `
@@ -2430,9 +2378,9 @@
 
       bannerEl.classList.remove("image-mode");
 
-      const baseTitle = (slide.title || "").trim() || "KS Cosmetics Mayoreo";
+      const baseTitle = (slide && slide.title ? slide.title : "").trim() || "KS Cosmetics Mayoreo";
       const baseSub =
-        (slide.subtitle || "").trim() ||
+        (slide && slide.subtitle ? slide.subtitle : "").trim() ||
         "Compra libre al menudeo o activa mayoreo desde $1,000 MXN de subtotal.";
 
       const titleText = isAdminAccount()
@@ -2489,6 +2437,7 @@
         a.localeCompare(b, "es")
       );
       const select = document.getElementById("brandFilter");
+      if (!select) return;
       if (!brands.includes(state.activeBrand) && state.activeBrand !== "Todas") {
         state.activeBrand = "Todas";
       }
@@ -2514,8 +2463,9 @@
     }
 
     function renderCategories() {
-      const cats = ["Todos", ...new Set(state.products.map((p) => p.category))];
+      const cats = ["Todos", ...new Set(state.products.map((p) => p.category).filter(Boolean))];
       const wrap = document.getElementById("categoryTabs");
+      if (!wrap) return;
       wrap.innerHTML = cats
         .map(
           (c) =>
@@ -2531,7 +2481,7 @@
       document.getElementById("navFavorites").classList.remove("active");
       savePersistentState();
       renderCategories();
-      renderProducts();
+      renderProducts(false);
     }
 
     function selectShade(prodId, shadeName) {
@@ -2584,8 +2534,10 @@
     }
 
     function renderProducts(onlyFavs = false) {
-      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      const searchEl = document.getElementById("searchInput");
+      const q = (searchEl ? searchEl.value : "").trim().toLowerCase();
       const grid = document.getElementById("productGrid");
+      if (!grid) return;
       const wholesaleUser = isWholesaleAccount();
       const store = getCurrentStore();
 
@@ -3085,6 +3037,7 @@
       const summary = document.getElementById("cartSummaryBox");
       const actions = document.getElementById("checkoutActions");
       const ownerBadge = document.getElementById("cartOwnerBadge");
+      if (!container || !preview || !summary || !actions || !ownerBadge) return;
       const wholesaleUser = isWholesaleAccount();
       const store = getCurrentStore();
 
@@ -3119,6 +3072,7 @@
       container.innerHTML = store.cart
         .map((item, idx) => {
           const p = state.products.find((prod) => prod.id === item.prodId);
+          if (!p) return "";
           const unitPrice = totals.useWholesalePricing ? p.wholesale : p.retail;
           return `
             <div class="cart-item">
@@ -3407,7 +3361,7 @@
       const newName = (document.getElementById("profNameInput").value || "").trim();
       const newUsername = normalizeUsername(document.getElementById("profUsernameInput").value || "");
       const newEmail = (document.getElementById("profEmailInput").value || "").trim();
-      const newAddress = (document.getElementById("profAddressInput").value || "").trim();
+      const newAddress = (document.getElementById("profAddressInput")?.value || "").trim();
 
       if (!newName) {
         showToast("El nombre no puede quedar vacío");
@@ -3440,35 +3394,10 @@
         (c) => normalizePhoneDigits(c.phone) === normalizePhoneDigits(state.user.phone)
       );
       if (idx >= 0) {
-        if (newUsername) {
-          const dupUser = state.registeredClients.some(
-            (c, i) => i !== idx && normalizeUsername(c.username) === newUsername
-          );
-          if (dupUser) {
-            showToast("Ese nombre de usuario ya está ocupado por otra cuenta");
-            return;
-          }
-        }
         state.registeredClients[idx].name = newName;
         state.registeredClients[idx].username = newUsername;
         state.registeredClients[idx].email = newEmail;
         state.registeredClients[idx].address = newAddress;
-        state.registeredClients[idx].updatedAt = new Date().toISOString();
-
-        if (supabaseClient) {
-          try {
-            await supabaseClient
-              .from("clients")
-              .update({
-                name: newName,
-                username: newUsername || null,
-                email: newEmail || null,
-                address: newAddress,
-                updated_at: new Date().toISOString()
-              })
-              .eq("phone", normalizePhoneDigits(state.user.phone));
-          } catch (e) {}
-        }
       }
 
       state.user.name = newName;
@@ -3512,4 +3441,1002 @@
         const key = state.user.role === "admin" ? "admin" : "warehouse";
         const staff = state.staffAccounts[key];
         if (!staff || staff.passHash !== currHash) {
-          showToast("Tu contraseña actual es incorrecta
+          showToast("Tu contraseña actual es incorrecta");
+          return;
+        }
+        staff.passHash = nextHash;
+        await syncStaffAccountToCloud(staff);
+        savePersistentState();
+        showToast("✓ Contraseña actualizada");
+        return;
+      }
+
+      const idx = state.registeredClients.findIndex(
+        (c) => normalizePhoneDigits(c.phone) === normalizePhoneDigits(state.user.phone)
+      );
+      if (idx < 0 || state.registeredClients[idx].passHash !== currHash) {
+        showToast("Tu contraseña actual es incorrecta");
+        return;
+      }
+
+      state.registeredClients[idx].passHash = nextHash;
+      savePersistentState();
+      showToast("✓ Contraseña cambiada con éxito");
+    }
+
+    async function sendRecoveryChallenge(channel) {
+      const rawId = document.getElementById("recIdentifierInput").value.trim();
+      const customDest = (document.getElementById("recDestinationInput").value || "").trim();
+
+      if (!rawId) {
+        showToast("Escribe tu número de celular, usuario o correo");
+        return;
+      }
+
+      const found = findAccountByIdentifier(rawId);
+      if (!found) {
+        showToast("No encontramos ninguna cuenta con ese dato");
+        return;
+      }
+
+      const rec = found.record;
+      const targetPhone = normalizePhoneDigits(customDest || rec.phone || "");
+      const targetEmail = (customDest || rec.email || "").trim();
+
+      if (channel === "whatsapp" && targetPhone.length < 10) {
+        showToast("Indica o ten registrado un número de WhatsApp de 10 dígitos");
+        return;
+      }
+      if (channel === "email" && (!targetEmail || !targetEmail.includes("@"))) {
+        showToast("Indica o ten registrado un correo electrónico válido");
+        return;
+      }
+
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      const destinationLabel = channel === "whatsapp" ? targetPhone : targetEmail;
+
+      authUiState.pendingRecovery = {
+        foundKind: found.kind,
+        accountKey: found.accountKey || null,
+        clientPhone: found.kind === "client" ? normalizePhoneDigits(rec.phone) : null,
+        channel,
+        destination: destinationLabel,
+        code,
+        expiresAt: Date.now() + 15 * 60 * 1000
+      };
+      authUiState.recoveryStep = "reset";
+
+      if (channel === "whatsapp") {
+        const msg = `Hola ${rec.displayName || rec.name || ""}, tu código de recuperación para KS Cosmetics Mayoreo es: *${code}* (válido 15 min).`;
+        const waUrl = `https://wa.me/${targetPhone.length === 10 ? "521" + targetPhone : targetPhone}?text=${encodeURIComponent(msg)}`;
+        window.open(waUrl, "_blank", "noopener");
+      } else {
+        const subj = encodeURIComponent("Código de recuperación · KS Cosmetics Mayoreo");
+        const body = encodeURIComponent(`Tu código de recuperación es: ${code} (válido por 15 minutos).`);
+        window.open(`mailto:${encodeURIComponent(targetEmail)}?subject=${subj}&body=${body}`, "_blank", "noopener");
+      }
+
+      renderAuth();
+      showToast(`Código generado para ${channel === "whatsapp" ? "WhatsApp" : "Correo"}`);
+    }
+
+    async function completePasswordReset() {
+      const pend = authUiState.pendingRecovery;
+      if (!pend || Date.now() > pend.expiresAt) {
+        showToast("El código venció. Solicita uno nuevo");
+        authUiState.recoveryStep = "request";
+        renderAuth();
+        return;
+      }
+
+      const codeEntered = (document.getElementById("recCodeInput").value || "").trim();
+      const newPass = document.getElementById("recNewPassInput").value;
+      const confirmPass = document.getElementById("recConfirmPassInput").value;
+
+      if (codeEntered !== pend.code) {
+        showToast("El código de verificación no coincide");
+        return;
+      }
+      if (!newPass || newPass.length < 4) {
+        showToast("La nueva contraseña debe tener al menos 4 caracteres");
+        return;
+      }
+      if (newPass !== confirmPass) {
+        showToast("Las contraseñas no coinciden");
+        return;
+      }
+
+      const newHash = await sha256Text(newPass);
+
+      if (pend.foundKind === "staff" && pend.accountKey && state.staffAccounts[pend.accountKey]) {
+        state.staffAccounts[pend.accountKey].passHash = newHash;
+        await syncStaffAccountToCloud(state.staffAccounts[pend.accountKey]);
+      } else if (pend.foundKind === "client" && pend.clientPhone) {
+        const idx = state.registeredClients.findIndex(
+          (c) => normalizePhoneDigits(c.phone) === pend.clientPhone
+        );
+        if (idx >= 0) {
+          state.registeredClients[idx].passHash = newHash;
+        }
+      }
+
+      savePersistentState();
+      authUiState.mode = "login";
+      authUiState.recoveryStep = "request";
+      authUiState.pendingRecovery = null;
+      renderAuth();
+      showToast("✓ Contraseña restablecida. Ya puedes iniciar sesión");
+    }
+
+    function renderAuth() {
+      const box = document.getElementById("authContent");
+      const modalTitle = document.getElementById("authModalTitle");
+      if (!box || !modalTitle) return;
+      const store = getCurrentStore();
+
+      if (state.user) {
+        modalTitle.textContent = "Mi Cuenta";
+        const isAdm = state.user.role === "admin";
+        const isWh = state.user.role === "warehouse";
+        const isW = state.user.role === "wholesale";
+
+        const currentUsernameVal =
+          state.user.username ||
+          (isAdm ? state.staffAccounts.admin?.username : isWh ? state.staffAccounts.warehouse?.username : "") ||
+          "";
+        const currentEmailVal = state.user.email || "";
+        const currentAddressVal = state.user.address || "";
+
+        box.innerHTML = `
+          <div class="profile-card">
+            <p><strong>${state.user.name}</strong></p>
+            ${currentUsernameVal ? `<p style="font-size:12px; color:var(--muted);">Usuario: <strong>@${currentUsernameVal}</strong></p>` : ""}
+            ${state.user.phone && state.user.phone !== "Sin teléfono" ? `<p style="font-size:12px; color:var(--muted);">Celular: <strong>${state.user.phone}</strong></p>` : ""}
+            ${currentEmailVal ? `<p style="font-size:12px; color:var(--muted);">Correo: <strong>${currentEmailVal}</strong></p>` : ""}
+            ${!isAdm && !isWh ? `<p style="font-size:12px; color:var(--muted);">Dirección: <strong>${currentAddressVal || "Sin registrar"}</strong></p>` : ""}
+            <p style="margin-top:6px;">
+              <span class="${isAdm || isW || isWh ? "badge-wholesale-user" : "badge-sync"}">
+                ${
+                  isAdm
+                    ? "★ Administradora (Privilegios completos)"
+                    : isWh
+                      ? "📷 Bodega (Acceso a Escáner de surtido)"
+                      : isW
+                        ? "★ Clienta Mayorista"
+                        : "Clienta Registrada (Menudeo / Mayoreo $1,000+)"
+                }
+              </span>
+            </p>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+            ${isAdm ? `<button class="btn-primary" onclick="closeModal('authModal'); openAdminPanel();">Abrir Panel Admin</button>` : ""}
+            ${isWh ? `<button class="btn-gold" onclick="closeModal('authModal'); openScannerDirect();">📷 Abrir Escáner Bodega</button>` : ""}
+            <button class="btn-outline" onclick="logoutDemo()">Cerrar sesión</button>
+          </div>
+
+          <div class="admin-section">
+            <h4>Datos de cuenta y usuario</h4>
+            <div class="field">
+              <label>Nombre completo o negocio</label>
+              <input type="text" id="profNameInput" value="${(state.user.name || "").replace(/"/g, "&quot;")}" />
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <div class="field">
+                <label>Nombre de usuario</label>
+                <input type="text" id="profUsernameInput" value="${currentUsernameVal.replace(/"/g, "&quot;")}" placeholder="Ej. mariana.ks" />
+              </div>
+              <div class="field">
+                <label>Correo electrónico</label>
+                <input type="email" id="profEmailInput" value="${currentEmailVal.replace(/"/g, "&quot;")}" placeholder="correo@ejemplo.com" />
+              </div>
+            </div>
+            ${
+              !isAdm && !isWh
+                ? `
+              <div class="field">
+                <label>Dirección de entrega / negocio</label>
+                <input type="text" id="profAddressInput" value="${currentAddressVal.replace(/"/g, "&quot;")}" placeholder="Calle, número, colonia, ciudad" />
+              </div>
+            `
+                : ""
+            }
+            <button class="btn-soft" onclick="saveProfileDetails()">Guardar datos</button>
+          </div>
+
+          <div class="admin-section">
+            <h4>Cambiar contraseña</h4>
+            <div class="field">
+              <label>Contraseña actual</label>
+              <input type="password" id="currPassInput" placeholder="Tu contraseña actual" />
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <div class="field">
+                <label>Nueva contraseña</label>
+                <input type="password" id="nextPassInput" placeholder="Mínimo 4 caracteres" />
+              </div>
+              <div class="field">
+                <label>Confirmar nueva contraseña</label>
+                <input type="password" id="confirmPassInput" placeholder="Repite la contraseña" onkeydown="if(event.key==='Enter') changeOwnPassword()" />
+              </div>
+            </div>
+            <button class="btn-primary" onclick="changeOwnPassword()">Actualizar contraseña</button>
+          </div>
+
+          <h4>Historial de pedidos (${store.orders.length})</h4>
+          ${
+            store.orders.length
+              ? store.orders
+                  .map(
+                    (o, i) => `
+                  <div class="cart-item">
+                    <div>
+                      <strong>#${o.folio}</strong> · ${o.date} · <span>${o.totalUnits || (o.items || []).reduce((s, x) => s + (x.qty || 0), 0)} uds</span><br/>
+                      <span style="font-size:12px; color:var(--muted);">Total: $${o.total} MXN</span>
+                    </div>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                      ${isWh ? `<button class="btn-soft" onclick="closeModal('authModal'); openPickScannerForSavedOrder(${i});">Surtir</button>` : ""}
+                      <button class="btn-outline" onclick="openSavedOrderSummary(${i})">Ver lista</button>
+                      <button class="btn-soft" onclick="reorder(${i})">Repetir</button>
+                    </div>
+                  </div>
+                `
+                  )
+                  .join("")
+              : `<p style="font-size:13px; color:var(--muted); margin-top:6px;">Esta cuenta aún no tiene pedidos registrados.</p>`
+          }
+        `;
+        return;
+      }
+
+      if (authUiState.mode === "recover") {
+        modalTitle.textContent = "Recuperar Contraseña";
+        const pend = authUiState.pendingRecovery;
+
+        if (authUiState.recoveryStep === "reset" && pend) {
+          box.innerHTML = `
+            <div class="recovery-dispatch-box">
+              Código enviado por <strong>${pend.channel === "whatsapp" ? "WhatsApp" : "Correo electrónico"}</strong> a <strong>${pend.destination}</strong> (válido 15 min).
+            </div>
+            <div class="field">
+              <label>Código de verificación</label>
+              <input type="text" id="recCodeInput" placeholder="Ej. 123456" maxlength="8" />
+            </div>
+            <div class="field">
+              <label>Nueva contraseña</label>
+              <input type="password" id="recNewPassInput" placeholder="Mínimo 4 caracteres" />
+            </div>
+            <div class="field">
+              <label>Confirmar nueva contraseña</label>
+              <input type="password" id="recConfirmPassInput" placeholder="Repite tu nueva contraseña" onkeydown="if(event.key==='Enter') completePasswordReset()" />
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn-primary" style="flex:1; padding:11px;" onclick="completePasswordReset()">Guardar nueva contraseña</button>
+              <button class="btn-outline" onclick="authUiState.recoveryStep='request'; renderAuth();">Cambiar medio</button>
+            </div>
+            <div style="margin-top:10px;">
+              <button class="btn-link" onclick="setAuthMode('login')">← Volver a iniciar sesión</button>
+            </div>
+          `;
+          return;
+        }
+
+        box.innerHTML = `
+          <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">
+            Escribe tu número de celular, usuario o correo para enviar tu código de recuperación por WhatsApp o correo electrónico.
+          </p>
+          <div class="field">
+            <label>Celular, usuario o correo de la cuenta</label>
+            <input type="text" id="recIdentifierInput" placeholder="Ej. 9981234567 o @usuario" />
+          </div>
+          <div class="field">
+            <label>Destino de envío (opcional si ya está guardado en tu cuenta)</label>
+            <input type="text" id="recDestinationInput" placeholder="Celular a 10 dígitos o correo@ejemplo.com" />
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+            <button class="btn-primary" style="flex:1; padding:11px;" onclick="sendRecoveryChallenge('whatsapp')">
+              💬 Enviar por WhatsApp
+            </button>
+            <button class="btn-soft" style="flex:1; padding:11px;" onclick="sendRecoveryChallenge('email')">
+              ✉️ Enviar por Correo
+            </button>
+          </div>
+          <div style="margin-top:12px;">
+            <button class="btn-link" onclick="setAuthMode('login')">← Volver a iniciar sesión</button>
+          </div>
+        `;
+        return;
+      }
+
+      modalTitle.textContent = authUiState.mode === "register" ? "Crear Cuenta de Clienta" : "Iniciar Sesión";
+
+      const tabsHtml = `
+        <div class="auth-tabs">
+          <button class="auth-tab-btn ${authUiState.mode === "login" ? "active" : ""}" onclick="setAuthMode('login')">
+            Ya tengo cuenta
+          </button>
+          <button class="auth-tab-btn ${authUiState.mode === "register" ? "active" : ""}" onclick="setAuthMode('register')">
+            Registrarme nueva
+          </button>
+        </div>
+      `;
+
+      if (authUiState.mode === "register") {
+        box.innerHTML = `
+          ${tabsHtml}
+          <div class="field">
+            <label>Tu nombre o nombre de tu negocio</label>
+            <input type="text" id="regName" placeholder="Ej. Mariana López" />
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div class="field">
+              <label>Número de celular (10 dígitos)</label>
+              <input type="tel" id="regPhone" placeholder="Ej. 9981234567" />
+            </div>
+            <div class="field">
+              <label>Usuario (opcional)</label>
+              <input type="text" id="regUsername" placeholder="Ej. mariana.lopez" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Correo electrónico</label>
+            <input type="email" id="regEmail" placeholder="Ej. mariana@correo.com" />
+          </div>
+          <div class="field">
+            <label>Dirección de entrega / negocio</label>
+            <input type="text" id="regAddress" placeholder="Calle, número, colonia, ciudad o referencias" />
+          </div>
+          <div class="field">
+            <label>Crea tu contraseña</label>
+            <input type="password" id="regPass" placeholder="Mínimo 4 caracteres" onkeydown="if(event.key==='Enter') registerClientDirect()" />
+          </div>
+          <button class="btn-primary" style="width:100%; padding:11px;" onclick="registerClientDirect()">
+            Crear cuenta
+          </button>
+        `;
+        return;
+      }
+
+      box.innerHTML = `
+        ${tabsHtml}
+        <div class="field">
+          <label>Celular, usuario o correo</label>
+          <input type="text" id="loginIdentifier" placeholder="Ej. 9981234567 o @usuario" autocomplete="username" />
+        </div>
+        <div class="field">
+          <label>Contraseña</label>
+          <input type="password" id="loginPass" placeholder="Escribe tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter') loginUnified()" />
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+          <button class="btn-link" onclick="setAuthMode('recover')">¿Olvidaste tu contraseña? (WhatsApp / Correo)</button>
+        </div>
+        <button class="btn-primary" style="width:100%; padding:11px;" onclick="loginUnified()">
+          Entrar a mi cuenta
+        </button>
+      `;
+    }
+
+    async function registerClientDirect() {
+      const name = document.getElementById("regName").value.trim();
+      const rawPhone = document.getElementById("regPhone").value.trim();
+      const digits = normalizePhoneDigits(rawPhone);
+      const username = normalizeUsername(document.getElementById("regUsername").value || "");
+      const email = document.getElementById("regEmail").value.trim();
+      const address = document.getElementById("regAddress").value.trim();
+      const rawPass = document.getElementById("regPass").value;
+
+      if (!name) {
+        showToast("Escribe tu nombre o boutique");
+        return;
+      }
+      if (digits.length < 10) {
+        showToast("Ingresa un celular válido de 10 dígitos");
+        return;
+      }
+      if (!rawPass || rawPass.length < 4) {
+        showToast("Crea una contraseña de al menos 4 caracteres");
+        return;
+      }
+
+      const alreadyLocal = state.registeredClients.some((c) => normalizePhoneDigits(c.phone) === digits);
+      if (alreadyLocal) {
+        showToast("Ese número ya está registrado. Inicia sesión con tu contraseña");
+        setAuthMode("login");
+        return;
+      }
+
+      const passHash = await sha256Text(rawPass);
+      const matchedWholesale = findWholesaleClient(name, digits);
+      const role = matchedWholesale ? "wholesale" : "retail";
+
+      const newClientRecord = {
+        name,
+        phone: digits,
+        username,
+        email,
+        address,
+        passHash,
+        role,
+        verified: true,
+        createdAt: new Date().toISOString()
+      };
+
+      state.registeredClients.unshift(newClientRecord);
+      authUiState.mode = "login";
+
+      applyUserSession({
+        identifier: digits,
+        name,
+        phone: digits,
+        username,
+        email,
+        address,
+        role
+      });
+
+      closeModal("authModal");
+      showToast(`✓ Cuenta creada. ¡Bienvenida, ${name}!`);
+    }
+
+    function applyUserSession(userObj) {
+      const key = buildUserKey(userObj.identifier || userObj.phone || userObj.name, userObj.role);
+      if (!userStores[key]) {
+        userStores[key] = { favorites: [], cart: [], orders: [] };
+      }
+      state.activeUserKey = key;
+      state.user = {
+        key,
+        identifier: userObj.identifier || userObj.phone || userObj.name,
+        name: userObj.name,
+        phone: userObj.phone || "Sin teléfono",
+        username: userObj.username || "",
+        email: userObj.email || "",
+        address: userObj.address || "",
+        role: userObj.role
+      };
+
+      const isStaff = state.user.role === "admin" || state.user.role === "warehouse";
+      document.getElementById("custName").value = isStaff ? "" : state.user.name;
+      document.getElementById("custPhone").value = isStaff ? "" : state.user.phone;
+      document.getElementById("custAddress").value = isStaff ? "" : (state.user.address || "");
+      document.getElementById("custDelivery").value = "";
+
+      savePersistentState();
+      renderAllViews();
+    }
+
+    async function loginUnified() {
+      const rawInput = document.getElementById("loginIdentifier").value.trim();
+      const rawPass = document.getElementById("loginPass").value;
+
+      if (!rawInput || !rawPass) {
+        showToast("Escribe tu celular/usuario y tu contraseña");
+        return;
+      }
+
+      const passHash = await sha256Text(rawPass);
+      const cleanUser = normalizeUsername(rawInput);
+      const cleanEmail = rawInput.toLowerCase();
+      const digits = normalizePhoneDigits(rawInput);
+
+      for (const key of ["admin", "warehouse"]) {
+        const staff = state.staffAccounts[key];
+        if (!staff) continue;
+        const staffUser = normalizeUsername(staff.username);
+        const staffPhone = normalizePhoneDigits(staff.phone);
+        const staffEmail = (staff.email || "").trim().toLowerCase();
+        const matchesStaff =
+          (cleanUser && staffUser === cleanUser) ||
+          (cleanEmail && staffEmail && staffEmail === cleanEmail) ||
+          (digits.length >= 7 && staffPhone && staffPhone === digits);
+
+        if (matchesStaff) {
+          if (staff.passHash === passHash) {
+            applyUserSession({
+              identifier: key,
+              name: staff.displayName,
+              phone: staff.phone || "Sin teléfono",
+              username: staff.username,
+              email: staff.email || "",
+              role: staff.role
+            });
+            closeModal("authModal");
+            showToast(key === "admin" ? "Sesión Admin activada" : "Sesión Bodega activada · Escáner disponible");
+          } else {
+            showToast("Contraseña incorrecta");
+          }
+          return;
+        }
+      }
+
+      const foundClient = state.registeredClients.find((c) => {
+        const matchPhone = digits.length >= 7 && normalizePhoneDigits(c.phone) === digits;
+        const matchUser = cleanUser && normalizeUsername(c.username) === cleanUser;
+        const matchEmail = cleanEmail && (c.email || "").trim().toLowerCase() === cleanEmail;
+        const matchName = (c.name || "").trim().toLowerCase() === cleanEmail;
+        return matchPhone || matchUser || matchEmail || matchName;
+      });
+
+      if (!foundClient) {
+        showToast("No encontramos esa cuenta. Toca 'Registrarme nueva' para crearla");
+        return;
+      }
+
+      if (foundClient.passHash !== passHash) {
+        showToast("Contraseña incorrecta");
+        return;
+      }
+
+      const matchedWholesale = findWholesaleClient(foundClient.name, foundClient.phone);
+      const finalRole = matchedWholesale ? "wholesale" : foundClient.role || "retail";
+
+      applyUserSession({
+        identifier: foundClient.phone,
+        name: foundClient.name,
+        phone: foundClient.phone,
+        username: foundClient.username || "",
+        email: foundClient.email || "",
+        address: foundClient.address || "",
+        role: finalRole
+      });
+      closeModal("authModal");
+      showToast(finalRole === "wholesale" ? `★ Bienvenida Mayorista, ${foundClient.name}` : `Bienvenida de vuelta, ${foundClient.name}`);
+    }
+
+    function logoutDemo() {
+      stopCameraScanner();
+      userStores.guest = { favorites: [], cart: [], orders: [] };
+      state.activeUserKey = "guest";
+      state.user = null;
+
+      document.getElementById("custName").value = "";
+      document.getElementById("custPhone").value = "";
+      document.getElementById("custAddress").value = "";
+      document.getElementById("custDelivery").value = "";
+
+      savePersistentState();
+      renderAllViews();
+      showToast("Sesión cerrada");
+    }
+
+    function reorder(orderIndex) {
+      const store = getCurrentStore();
+      const ord = store.orders[orderIndex];
+      if (!ord) return;
+      ord.items.forEach((it) => {
+        const existing = store.cart.find((c) => c.prodId === it.prodId && c.shade === it.shade);
+        if (existing) existing.qty += it.qty;
+        else store.cart.push({ prodId: it.prodId, shade: it.shade, qty: it.qty });
+      });
+      savePersistentState();
+      updateBadges();
+      closeModal("authModal");
+      openModal("cartModal");
+      showToast("Pedido cargado a la bolsa");
+    }
+
+    function saveWaNumber() {
+      const val = document.getElementById("adminWaNumber").value.replace(/\D/g, "");
+      if (val.length < 10) {
+        showToast("Ingresa un número válido con lada");
+        return;
+      }
+      state.waNumber = val;
+      savePersistentState();
+      showToast(`WhatsApp actualizado a ${val}`);
+    }
+
+    async function updateProductBarcode(prodId, newCode) {
+      const p = state.products.find((item) => item.id === prodId);
+      if (!p) return;
+      p.barcode = (newCode || "").trim() || `KS-${prodId}`;
+      savePersistentState();
+      await upsertProductToCloud(p);
+      showToast(`Código actualizado para ${p.name}`);
+    }
+
+    function saveStoreId() {
+      const idVal = document.getElementById("adminStoreId").value.trim();
+      if (!idVal) {
+        showToast("Ingresa el ID de Tiendanube");
+        return;
+      }
+      state.tiendanubeStoreId = idVal;
+      state.lastSyncText = `ID ${idVal} guardado · Listo para sincronizar`;
+      document.getElementById("syncLogText").textContent = state.lastSyncText;
+      savePersistentState();
+      showToast(`Store ID ${idVal} guardado`);
+    }
+
+    async function syncTiendanubeById() {
+      const idVal = document.getElementById("adminStoreId").value.trim() || state.tiendanubeStoreId;
+      if (!idVal) {
+        showToast("Primero escribe el ID de tienda");
+        return;
+      }
+      state.tiendanubeStoreId = idVal;
+
+      const sampleImported = [
+        {
+          id: 101,
+          brand: "Bissú",
+          name: "Tinta Labial Mate Fijo",
+          category: "Labios",
+          emoji: "💋",
+          barcode: "750100100107",
+          retail: 65,
+          wholesale: 45,
+          desc: "Producto sincronizado desde catálogo Tiendanube.",
+          tip: "Aplica capa delgada y deja secar unos segundos.",
+          videoUrl: "",
+          shades: [
+            { name: "Manzana", hex: "#c62828" },
+            { name: "Canela", hex: "#8d4e38" }
+          ]
+        },
+        {
+          id: 102,
+          brand: "Italia Deluxe",
+          name: "Polvo Compacto Translúcido",
+          category: "Rostro",
+          emoji: "🪞",
+          barcode: "750100100108",
+          retail: 110,
+          wholesale: 78,
+          desc: "Sincronizado por ID de tienda para sellar maquillaje sin aportar peso.",
+          tip: "Aplica a toques con borla en frente, nariz y barbilla.",
+          videoUrl: "",
+          shades: [
+            { name: "Porcelana", hex: "#f5dec8" },
+            { name: "Durazno Medio", hex: "#dfa878" }
+          ]
+        }
+      ];
+
+      for (const imp of sampleImported) {
+        if (!state.products.some((p) => p.id === imp.id)) {
+          state.products.unshift(imp);
+          state.selectedShades[imp.id] = imp.shades[0].name;
+          await upsertProductToCloud(imp);
+        }
+      }
+
+      const hora = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+      state.lastSyncText = `Sincronizado con Store ID ${idVal} (${hora}) · ${state.products.length} productos activos`;
+      document.getElementById("syncLogText").textContent = state.lastSyncText;
+      savePersistentState();
+      renderAllViews();
+      showToast(`Catálogo sincronizado con ID ${idVal}`);
+    }
+
+    function registerWholesaleClient() {
+      const name = document.getElementById("whNameInput").value.trim();
+      const phone = document.getElementById("whPhoneInput").value.trim() || "Sin teléfono";
+      if (!name) {
+        showToast("Escribe el nombre o boutique de la clienta");
+        return;
+      }
+      const existing = findWholesaleClient(name, phone);
+      if (!existing) {
+        state.wholesaleClients.unshift({ name, phone });
+      }
+      document.getElementById("whNameInput").value = "";
+      document.getElementById("whPhoneInput").value = "";
+      savePersistentState();
+      renderAdminLists();
+      showToast(`★ ${name} dada de alta como Mayorista`);
+    }
+
+    function promoteCurrentUserToWholesale() {
+      if (!state.user || state.user.role === "admin" || state.user.role === "warehouse") return;
+      const existing = findWholesaleClient(state.user.name, state.user.phone);
+      if (!existing) {
+        state.wholesaleClients.unshift({ name: state.user.name, phone: state.user.phone });
+      }
+      applyUserSession({ ...state.user, identifier: state.user.phone, role: "wholesale" });
+      renderAdminLists();
+      showToast(`★ ${state.user.name} ascendida a Clienta Mayorista`);
+    }
+
+    function removeWholesaleClient(idx) {
+      const removed = state.wholesaleClients[idx];
+      state.wholesaleClients.splice(idx, 1);
+      if (removed && state.user && state.user.role === "wholesale" && state.user.name.toLowerCase() === removed.name.toLowerCase()) {
+        applyUserSession({ ...state.user, identifier: state.user.phone, role: "retail" });
+      }
+      savePersistentState();
+      renderAdminLists();
+      showToast("Estatus mayorista retirado");
+    }
+
+    function clearBannerForm() {
+      document.getElementById("bannerSlotSelect").value = "0";
+      document.getElementById("bannerTitleInput").value = "";
+      document.getElementById("bannerSubInput").value = "";
+      document.getElementById("bannerUrlInput").value = "";
+      document.getElementById("bannerFileInput").value = "";
+    }
+
+    function loadBannerIntoEditor(index) {
+      const b = state.banners[index];
+      if (!b) return;
+      document.getElementById("bannerSlotSelect").value = String(index);
+      document.getElementById("bannerTitleInput").value = b.title || "";
+      document.getElementById("bannerSubInput").value = b.subtitle || "";
+      document.getElementById("bannerUrlInput").value =
+        b.imageUrl && !b.imageUrl.startsWith("data:") ? b.imageUrl : "";
+      document.getElementById("bannerFileInput").value = "";
+      showToast(`Cargado Banner ${index + 1} para editar y guardar`);
+    }
+
+    async function focusBannerInCarousel(index) {
+      const target = state.banners[index];
+      if (!target) return;
+      if (!target.active) {
+        target.active = true;
+        savePersistentState();
+        await saveBannersToCloud();
+      }
+      const activeSlides = getActiveBanners();
+      const activeIdx = activeSlides.findIndex((item) => item.id === target.id);
+      state.activeBannerIndex = activeIdx >= 0 ? activeIdx : 0;
+      savePersistentState();
+      renderBanner();
+      renderAdminLists();
+      closeModal("adminModal");
+      showToast(`Mostrando Banner ${index + 1} en el carrusel`);
+    }
+
+    async function saveBannerSlide() {
+      const slotIndex = Math.max(0, Math.min(MAX_BANNERS - 1, Number(document.getElementById("bannerSlotSelect").value) || 0));
+      const existing = state.banners[slotIndex];
+
+      const titleInput = document.getElementById("bannerTitleInput").value.trim();
+      const subInput = document.getElementById("bannerSubInput").value.trim();
+      const urlInput = document.getElementById("bannerUrlInput").value.trim();
+      const fileInput = document.getElementById("bannerFileInput");
+
+      let resolvedImg = existing ? existing.imageUrl || "" : "";
+      if (fileInput.files && fileInput.files[0]) {
+        const uploaded = await uploadBannerFileToStorage(fileInput.files[0]);
+        if (uploaded) resolvedImg = uploaded;
+      } else if (urlInput) {
+        resolvedImg = urlInput;
+      }
+
+      if (!resolvedImg && !titleInput && !subInput) {
+        showToast("Sube una imagen, pega un enlace o escribe un título");
+        return;
+      }
+
+      const finalTitle = resolvedImg
+        ? titleInput
+        : titleInput || (existing && existing.title) || "KS Cosmetics Mayoreo";
+
+      const finalSub = resolvedImg
+        ? subInput
+        : subInput || (existing && existing.subtitle) || "";
+
+      const updatedBanner = {
+        id: existing && existing.id ? existing.id : Date.now() + slotIndex,
+        title: finalTitle,
+        subtitle: finalSub,
+        imageUrl: resolvedImg,
+        active: true
+      };
+
+      if (slotIndex < state.banners.length) {
+        state.banners[slotIndex] = updatedBanner;
+      } else {
+        state.banners.push(updatedBanner);
+      }
+      state.banners = state.banners.slice(0, MAX_BANNERS);
+
+      const activeSlides = getActiveBanners();
+      const activeIdx = activeSlides.findIndex((item) => item.id === updatedBanner.id);
+      state.activeBannerIndex = activeIdx >= 0 ? activeIdx : 0;
+
+      clearBannerForm();
+      savePersistentState();
+      await saveBannersToCloud();
+      renderBanner();
+      renderAdminLists();
+      showToast(`✓ Guardado en Banner ${slotIndex + 1} y visible en el carrusel`);
+    }
+
+    async function toggleBannerActive(id) {
+      const item = state.banners.find((b) => b.id === id);
+      if (!item) return;
+      item.active = !item.active;
+      savePersistentState();
+      await saveBannersToCloud();
+      renderBanner();
+      renderAdminLists();
+    }
+
+    async function deleteBanner(id) {
+      if (state.banners.length <= 1) {
+        showToast("Deja al menos un banner activo");
+        return;
+      }
+      state.banners = state.banners.filter((b) => b.id !== id);
+      state.activeBannerIndex = 0;
+      savePersistentState();
+      await deleteBannerFromCloud(id);
+      await saveBannersToCloud();
+      renderBanner();
+      renderAdminLists();
+      showToast("Banner eliminado");
+    }
+
+    function renderAdminLists() {
+      const codeBox = document.getElementById("barcodeAdminList");
+      if (codeBox) {
+        codeBox.innerHTML = state.products
+          .map(
+            (p) => `
+            <div class="list-row">
+              <div style="flex:1; min-width:0;">
+                <strong>${p.emoji} ${p.name}</strong>
+                <div style="color:var(--muted);">${p.brand || "General"}</div>
+              </div>
+              <input
+                type="text"
+                style="width:155px; padding:6px 8px; border-radius:8px; border:1px solid var(--border); font-size:12px;"
+                value="${(p.barcode || "").replace(/"/g, "&quot;")}"
+                onchange="updateProductBarcode(${p.id}, this.value)"
+                placeholder="Código barras"
+              />
+            </div>
+          `
+          )
+          .join("");
+      }
+
+      const whBox = document.getElementById("wholesaleListContainer");
+      if (whBox) {
+        const activeNormalBtn =
+          state.user && state.user.role === "retail"
+            ? `<div style="margin-bottom:8px;"><button class="btn-soft" onclick="promoteCurrentUserToWholesale()">Ascender sesión actual (${state.user.name}) a Mayorista</button></div>`
+            : "";
+
+        whBox.innerHTML =
+          activeNormalBtn +
+          (state.wholesaleClients.length
+            ? state.wholesaleClients
+                .map(
+                  (c, i) => `
+                <div class="list-row">
+                  <div><strong>★ ${c.name}</strong> · ${c.phone}</div>
+                  <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="removeWholesaleClient(${i})">Quitar</button>
+                </div>
+              `
+                )
+                .join("")
+            : `<p style="font-size:12px; color:var(--muted);">Aún no hay mayoristas registradas.</p>`);
+      }
+
+      const quotaEl = document.getElementById("bannerQuotaLabel");
+      if (quotaEl) {
+        quotaEl.textContent = `${state.banners.length} / ${MAX_BANNERS}`;
+      }
+
+      const banBox = document.getElementById("bannerListContainer");
+      if (banBox) {
+        banBox.innerHTML = state.banners
+          .slice(0, MAX_BANNERS)
+          .map(
+            (b, idx) => `
+            <div class="list-row">
+              <div style="min-width:0; flex:1;">
+                <strong>Banner ${idx + 1}${b.title ? `: ${b.title}` : " (Solo imagen)"}</strong> ${b.imageUrl ? "🖼️" : "📝"}
+                <div style="color:var(--muted);">${b.active ? "Visible" : "Oculto"}${b.imageUrl ? " · Imagen limpia" : ""}</div>
+              </div>
+              <div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">
+                <button class="btn-gold" style="padding:4px 8px; font-size:11px;" onclick="focusBannerInCarousel(${idx})">Ver en banner</button>
+                <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="loadBannerIntoEditor(${idx})">Editar</button>
+                <button class="btn-soft" style="padding:4px 8px; font-size:11px;" onclick="toggleBannerActive(${b.id})">${b.active ? "Ocultar" : "Mostrar"}</button>
+                <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="deleteBanner(${b.id})">Borrar</button>
+              </div>
+            </div>
+          `
+          )
+          .join("");
+      }
+    }
+
+    async function addNewProduct() {
+      const name = document.getElementById("newProdName").value.trim();
+      const brand = document.getElementById("newProdBrand").value.trim() || "KS Studio";
+      const category = document.getElementById("newProdCat").value;
+      const retail = Number(document.getElementById("newProdRetail").value) || 80;
+      const wholesale = Number(document.getElementById("newProdWholesale").value) || 55;
+      const barcode = document.getElementById("newProdBarcode").value.trim();
+      const videoUrl = document.getElementById("newProdVideo").value.trim();
+
+      if (!name) {
+        showToast("Escribe el nombre del cosmético");
+        return;
+      }
+
+      const newId = Date.now();
+      const newProd = {
+        id: newId,
+        brand,
+        name,
+        category,
+        emoji: "✨",
+        barcode: barcode || `KS-${String(newId).slice(-6)}`,
+        retail,
+        wholesale,
+        desc: "Producto agregado desde el panel de administración de KS Cosmetics Mayoreo.",
+        tip: "Aplica sobre piel limpia y seca según el acabado deseado.",
+        videoUrl,
+        shades: [
+          { name: "Tono Clásico", hex: "#d81b60" },
+          { name: "Tono Natural", hex: "#e5989b" }
+        ]
+      };
+
+      state.products.unshift(newProd);
+      state.selectedShades[newId] = "Tono Clásico";
+      document.getElementById("newProdName").value = "";
+      document.getElementById("newProdBrand").value = "";
+      document.getElementById("newProdBarcode").value = "";
+      document.getElementById("newProdVideo").value = "";
+
+      savePersistentState();
+      await upsertProductToCloud(newProd);
+
+      renderAllViews();
+      closeModal("adminModal");
+      showToast(`"${name}" (${brand}) publicado`);
+    }
+
+    function updateBadges() {
+      const store = getCurrentStore();
+      const totalPieces = store.cart.reduce((acc, item) => acc + item.qty, 0);
+      const hCount = document.getElementById("headerCartCount");
+      const nCount = document.getElementById("navCartCount");
+      if (hCount) hCount.textContent = totalPieces;
+      if (nCount) nCount.textContent = totalPieces;
+
+      const adminBtn = document.getElementById("adminBtn");
+      if (adminBtn) adminBtn.style.display = isAdminAccount() ? "inline-flex" : "none";
+
+      const scannerBtn = document.getElementById("scannerBtn");
+      if (scannerBtn) scannerBtn.style.display = isWarehouseAccount() ? "inline-flex" : "none";
+
+      const roleBadge = document.getElementById("headerRoleBadge");
+      const authBtn = document.getElementById("authBtn");
+      const navAccLbl = document.getElementById("navAccountLabel");
+
+      if (state.user) {
+        const shortLabel = isAdminAccount()
+          ? "Admin"
+          : isWarehouseAccount()
+            ? "Bodega"
+            : state.user.name.split(" ")[0];
+        if (authBtn) authBtn.textContent = shortLabel;
+        if (navAccLbl) navAccLbl.textContent = shortLabel;
+        if (roleBadge) {
+          roleBadge.innerHTML =
+            isAdminAccount()
+              ? `<span class="badge-wholesale-user">★ Admin</span>`
+              : isWarehouseAccount()
+                ? `<span class="badge-wholesale-user">📷 Bodega</span>`
+                : state.user.role === "wholesale"
+                  ? `<span class="badge-wholesale-user">★ Mayorista</span>`
+                  : "";
+        }
+      } else {
+        if (authBtn) authBtn.textContent = "Entrar / Registro";
+        if (navAccLbl) navAccLbl.textContent = "Cuenta";
+        if (roleBadge) roleBadge.innerHTML = "";
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

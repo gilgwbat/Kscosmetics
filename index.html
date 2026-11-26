@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="KS Catálogo" />
   <link id="pwa-manifest" rel="manifest" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     (function () {
       try {
@@ -40,7 +41,7 @@
       } catch (e) {}
     })();
   </script>
-  <title>KS Cosmetics Mayoreo — Demo App</title>
+  <title>KS Cosmetics Mayoreo</title>
   <style>
     :root {
       --bg: #fdf6f9;
@@ -519,6 +520,52 @@
       font-weight: 800;
     }
 
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: var(--bg);
+      padding: 5px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+
+    .auth-tab-btn {
+      padding: 9px 10px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .auth-tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .otp-box {
+      background: var(--warn-bg);
+      border: 1px solid #f5d67b;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .otp-demo-pill {
+      display: inline-block;
+      margin-top: 6px;
+      background: #fff;
+      border: 1px dashed #c2185b;
+      color: var(--primary-dark);
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 2px;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
     .admin-section {
       background: var(--bg);
       border: 1px solid var(--border);
@@ -701,7 +748,6 @@
       flex-wrap: wrap;
     }
 
-    /* Estilos Modo Surtido y Escáner */
     .scanner-camera-box {
       position: relative;
       background: #14080f;
@@ -901,12 +947,13 @@
             KS Cosmetics Mayoreo
             <span id="headerRoleBadge"></span>
           </div>
-          <div class="brand-sub">kscosmeticsmayoreo.com · <span class="badge-sync" id="syncStatusBadge">● Sincronizado con Tiendanube</span></div>
+          <div class="brand-sub">kscosmeticsmayoreo.com · <span class="badge-sync" id="syncStatusBadge">● Catálogo activo</span></div>
         </div>
       </div>
       <div class="header-actions">
-        <button class="btn-soft" id="authBtn" onclick="openModal('authModal')">Entrar</button>
-        <button class="btn-outline" id="adminBtn" style="display:none;" onclick="openModal('adminModal')">Admin</button>
+        <button class="btn-gold" id="scannerBtn" style="display:none;" onclick="openScannerDirect()">📷 Escáner</button>
+        <button class="btn-soft" id="authBtn" onclick="openModal('authModal')">Entrar / Registro</button>
+        <button class="btn-primary" id="adminBtn" style="display:none;" onclick="openAdminPanel()">⚙️ Panel Admin</button>
         <button class="btn-primary" onclick="openModal('cartModal')">
           Bolsa <span class="cart-count" id="headerCartCount">0</span>
         </button>
@@ -963,11 +1010,11 @@
     <div class="modal" id="orderSummaryContent"></div>
   </div>
 
-  <!-- Modal Surtido con Escáner de Código de Barras -->
+  <!-- Modal Surtido con Escáner de Código de Barras (Exclusivo Bodega) -->
   <div class="modal-backdrop" id="scannerModal" onclick="backdropClose(event, 'scannerModal')">
     <div class="modal">
       <div class="modal-head">
-        <h3 id="scannerTitle">📷 Surtido con Escáner</h3>
+        <h3 id="scannerTitle">📷 Surtido Bodega · Escáner</h3>
         <button class="close-btn" onclick="closeScannerModal()">✕</button>
       </div>
 
@@ -1001,7 +1048,7 @@
       </div>
 
       <div id="scanFeedbackBox" class="scan-feedback scan-info">
-        Listo para escanear: cada lectura suma 1 unidad (1 de N, 2 de N...).
+        Listo para surtir en Bodega: cada lectura suma 1 unidad (1 de N, 2 de N...).
       </div>
 
       <div id="pickChecklistContainer"></div>
@@ -1027,7 +1074,7 @@
       </div>
       <div class="field">
         <label>Teléfono de contacto</label>
-        <input type="tel" id="custPhone" placeholder="Ej. 998 123 4567" />
+        <input type="tel" id="custPhone" placeholder="998 123 4567" />
       </div>
       <div class="field">
         <label>Tipo de entrega / Zona</label>
@@ -1037,11 +1084,11 @@
     </div>
   </div>
 
-  <!-- Modal Cuenta / Login Único -->
+  <!-- Modal Cuenta / Registro + Login -->
   <div class="modal-backdrop" id="authModal" onclick="backdropClose(event, 'authModal')">
     <div class="modal">
       <div class="modal-head">
-        <h3>Iniciar Sesión</h3>
+        <h3 id="authModalTitle">Mi Cuenta</h3>
         <button class="close-btn" onclick="closeModal('authModal')">✕</button>
       </div>
       <div id="authContent"></div>
@@ -1068,7 +1115,7 @@
 
       <!-- 2. Códigos de barras de productos -->
       <div class="admin-section">
-        <h4>Códigos de barras de productos (para surtido)</h4>
+        <h4>Códigos de barras de productos (para surtido en Bodega)</h4>
         <div id="barcodeAdminList"></div>
       </div>
 
@@ -1177,25 +1224,158 @@
   <div class="toast" id="toast"></div>
 
   <script>
+    // =========================================================
+    // CONFIGURACIÓN DE BASE DE DATOS EN LA NUBE (SUPABASE)
+    // Pega tu Publishable key (sb_publishable_...) en anonKey:
+    // =========================================================
+    const SUPABASE_CONFIG = {
+      url: "https://fuakmsdgmzmcxjcrxdzv.supabase.co",
+      anonKey: ""
+    };
+
+    const supabaseClient =
+      window.supabase && SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey
+        ? window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey)
+        : null;
+
+    const STORAGE_KEY = "ks_cosmetics_app_v2";
     const WHOLESALE_THRESHOLD = 1000;
     const ADMIN_AUTH = {
       user: "kscosmetics",
       pass: "ks2026",
       displayName: "KS Cosmetics (Admin)"
     };
+    const WAREHOUSE_AUTH = {
+      user: "bodega",
+      pass: "bodega2026",
+      displayName: "Bodega"
+    };
 
     const userStores = {
       guest: { favorites: [], cart: [], orders: [] }
     };
 
+    const authUiState = {
+      mode: "login",
+      pendingReg: null
+    };
+
     const pickSession = {
       folio: "",
-      lines: [], // { key, prodId, name, brand, shade, emoji, barcode, targetQty, pickedQty }
+      lines: [],
       cameraStream: null,
       scanTimer: null,
       lastCodeTime: 0,
       lastCodeValue: ""
     };
+
+    const DEFAULT_PRODUCTS = [
+      {
+        id: 1,
+        brand: "KS Studio",
+        name: "Labial Matte Terciopelo",
+        category: "Labios",
+        emoji: "💄",
+        barcode: "750100100101",
+        retail: 75,
+        wholesale: 52,
+        desc: "Acabado aterciopelado de larga duración sin resecar. Ideal para reventa o surtido.",
+        tip: "Aplica con el centro del labio y difumina suavemente hacia las comisuras.",
+        videoUrl: "https://www.tiktok.com/@kscosmeticsmayoreo/video/7310000000000000001",
+        shades: [
+          { name: "Rojo Cereza", hex: "#b71c1c" },
+          { name: "Nude Canela", hex: "#b06e56" },
+          { name: "Rosa Berry", hex: "#ad1457" }
+        ]
+      },
+      {
+        id: 2,
+        brand: "Bella Glow",
+        name: "Rubor Líquido Pétalo",
+        category: "Rostro",
+        emoji: "🌸",
+        barcode: "750100100102",
+        retail: 95,
+        wholesale: 68,
+        desc: "Pigmento líquido modulable que deja efecto jugoso natural en mejillas y labios.",
+        tip: "Usa 1 o 2 puntos pequeños y difumina con yema de dedo o esponja húmeda.",
+        videoUrl: "https://www.youtube.com/shorts/dQw4w9WgXcQ",
+        shades: [
+          { name: "Durazno Glow", hex: "#f48fb1" },
+          { name: "Coral Sunset", hex: "#ff7043" },
+          { name: "Ciruela Rosé", hex: "#8e24aa" }
+        ]
+      },
+      {
+        id: 3,
+        brand: "Velvet Skin",
+        name: "Base Líquida Mate HD",
+        category: "Rostro",
+        emoji: "✨",
+        barcode: "750100100103",
+        retail: 140,
+        wholesale: 105,
+        desc: "Cobertura media a alta con control de brillo para climas cálidos y jornadas largas.",
+        tip: "Agita antes de usar y sella con polvo translúcido en zona T.",
+        videoUrl: "",
+        shades: [
+          { name: "Luz 01", hex: "#f3d5be" },
+          { name: "Arena 02", hex: "#e0b08b" },
+          { name: "Miel 03", hex: "#c68b59" }
+        ]
+      },
+      {
+        id: 4,
+        brand: "Mirada Pro",
+        name: "Delineador Líquido Precisión",
+        category: "Ojos",
+        emoji: "🖤",
+        barcode: "750100100104",
+        retail: 65,
+        wholesale: 44,
+        desc: "Punta fina flexible negro intenso para trazo firme desde el primer pase.",
+        tip: "Apoya el codo en una superficie firme y traza primero el rabillo exterior.",
+        videoUrl: "",
+        shades: [
+          { name: "Negro Carbón", hex: "#1c1917" },
+          { name: "Espresso", hex: "#4e342e" }
+        ]
+      },
+      {
+        id: 5,
+        brand: "Brow Lab",
+        name: "Gel Fijador de Cejas",
+        category: "Cejas y Cuidado",
+        emoji: "🌿",
+        barcode: "750100100105",
+        retail: 70,
+        wholesale: 48,
+        desc: "Fijación flexible sin residuos blancos para peinado laminado o natural.",
+        tip: "Cepilla hacia arriba y presiona suavemente con el mango del cepillo.",
+        videoUrl: "",
+        shades: [
+          { name: "Transparente", hex: "#e0f2f1" },
+          { name: "Cacao Suave", hex: "#5d4037" }
+        ]
+      },
+      {
+        id: 6,
+        brand: "KS Studio",
+        name: "Aceite Labial Hidratante",
+        category: "Labios",
+        emoji: "🍯",
+        barcode: "750100100106",
+        retail: 80,
+        wholesale: 55,
+        desc: "Brillo espejo no pegajoso con sensación confortable para uso diario.",
+        tip: "Úsalo solo para un brillo natural o encima de tu labial matte favorito.",
+        videoUrl: "",
+        shades: [
+          { name: "Fresa Cristal", hex: "#ec407a" },
+          { name: "Caramelo", hex: "#c68642" }
+        ]
+      }
+    ];
 
     const state = {
       waNumber: "5219986490581",
@@ -1207,6 +1387,7 @@
       activeUserKey: "guest",
       draftFolio: "KS-7835",
       user: null,
+      registeredClients: [],
       selectedShades: {},
       activeBannerIndex: 0,
       banners: [
@@ -1228,117 +1409,157 @@
       wholesaleClients: [
         { name: "Boutique Valeria", phone: "998 876 5432" }
       ],
-      products: [
-        {
-          id: 1,
-          brand: "KS Studio",
-          name: "Labial Matte Terciopelo",
-          category: "Labios",
-          emoji: "💄",
-          barcode: "750100100101",
-          retail: 75,
-          wholesale: 52,
-          desc: "Acabado aterciopelado de larga duración sin resecar. Ideal para reventa o surtido.",
-          tip: "Aplica con el centro del labio y difumina suavemente hacia las comisuras.",
-          videoUrl: "https://www.tiktok.com/@kscosmeticsmayoreo/video/7310000000000000001",
-          shades: [
-            { name: "Rojo Cereza", hex: "#b71c1c" },
-            { name: "Nude Canela", hex: "#b06e56" },
-            { name: "Rosa Berry", hex: "#ad1457" }
-          ]
-        },
-        {
-          id: 2,
-          brand: "Bella Glow",
-          name: "Rubor Líquido Pétalo",
-          category: "Rostro",
-          emoji: "🌸",
-          barcode: "750100100102",
-          retail: 95,
-          wholesale: 68,
-          desc: "Pigmento líquido modulable que deja efecto jugoso natural en mejillas y labios.",
-          tip: "Usa 1 o 2 puntos pequeños y difumina con yema de dedo o esponja húmeda.",
-          videoUrl: "https://www.youtube.com/shorts/dQw4w9WgXcQ",
-          shades: [
-            { name: "Durazno Glow", hex: "#f48fb1" },
-            { name: "Coral Sunset", hex: "#ff7043" },
-            { name: "Ciruela Rosé", hex: "#8e24aa" }
-          ]
-        },
-        {
-          id: 3,
-          brand: "Velvet Skin",
-          name: "Base Líquida Mate HD",
-          category: "Rostro",
-          emoji: "✨",
-          barcode: "750100100103",
-          retail: 140,
-          wholesale: 105,
-          desc: "Cobertura media a alta con control de brillo para climas cálidos y jornadas largas.",
-          tip: "Agita antes de usar y sella con polvo translúcido en zona T.",
-          videoUrl: "",
-          shades: [
-            { name: "Luz 01", hex: "#f3d5be" },
-            { name: "Arena 02", hex: "#e0b08b" },
-            { name: "Miel 03", hex: "#c68b59" }
-          ]
-        },
-        {
-          id: 4,
-          brand: "Mirada Pro",
-          name: "Delineador Líquido Precisión",
-          category: "Ojos",
-          emoji: "🖤",
-          barcode: "750100100104",
-          retail: 65,
-          wholesale: 44,
-          desc: "Punta fina flexible negro intenso para trazo firme desde el primer pase.",
-          tip: "Apoya el codo en una superficie firme y traza primero el rabillo exterior.",
-          videoUrl: "",
-          shades: [
-            { name: "Negro Carbón", hex: "#1c1917" },
-            { name: "Espresso", hex: "#4e342e" }
-          ]
-        },
-        {
-          id: 5,
-          brand: "Brow Lab",
-          name: "Gel Fijador de Cejas",
-          category: "Cejas y Cuidado",
-          emoji: "🌿",
-          barcode: "750100100105",
-          retail: 70,
-          wholesale: 48,
-          desc: "Fijación flexible sin residuos blancos para peinado laminado o natural.",
-          tip: "Cepilla hacia arriba y presiona suavemente con el mango del cepillo.",
-          videoUrl: "",
-          shades: [
-            { name: "Transparente", hex: "#e0f2f1" },
-            { name: "Cacao Suave", hex: "#5d4037" }
-          ]
-        },
-        {
-          id: 6,
-          brand: "KS Studio",
-          name: "Aceite Labial Hidratante",
-          category: "Labios",
-          emoji: "🍯",
-          barcode: "750100100106",
-          retail: 80,
-          wholesale: 55,
-          desc: "Brillo espejo no pegajoso con sensación confortable para uso diario.",
-          tip: "Úsalo solo para un brillo natural o encima de tu labial matte favorito.",
-          videoUrl: "",
-          shades: [
-            { name: "Fresa Cristal", hex: "#ec407a" },
-            { name: "Caramelo", hex: "#c68642" }
-          ]
-        }
-      ]
+      products: DEFAULT_PRODUCTS.map((p) => ({ ...p }))
     };
+
+    function toDbProduct(p) {
+      return {
+        id: Number(p.id),
+        brand: p.brand || "KS Studio",
+        name: p.name,
+        category: p.category,
+        emoji: p.emoji || "✨",
+        barcode: p.barcode || `KS-${p.id}`,
+        retail: Number(p.retail) || 0,
+        wholesale: Number(p.wholesale) || 0,
+        description: p.desc || "",
+        tip: p.tip || "",
+        video_url: p.videoUrl || "",
+        shades: Array.isArray(p.shades) ? p.shades : []
+      };
+    }
+
+    function fromDbProduct(row) {
+      const shades =
+        Array.isArray(row.shades) && row.shades.length
+          ? row.shades
+          : [
+              { name: "Tono Clásico", hex: "#d81b60" },
+              { name: "Tono Natural", hex: "#e5989b" }
+            ];
+      return {
+        id: Number(row.id),
+        brand: row.brand || "KS Studio",
+        name: row.name,
+        category: row.category || "Labios",
+        emoji: row.emoji || "✨",
+        barcode: row.barcode || `KS-${row.id}`,
+        retail: Number(row.retail) || 0,
+        wholesale: Number(row.wholesale) || 0,
+        desc: row.description || "",
+        tip: row.tip || "",
+        videoUrl: row.video_url || "",
+        shades
+      };
+    }
+
+    async function upsertProductToCloud(productObj) {
+      if (!supabaseClient) return;
+      try {
+        await supabaseClient.from("products").upsert(toDbProduct(productObj), { onConflict: "id" });
+      } catch (e) {}
+    }
+
+    async function loadProductsFromCloud() {
+      if (!supabaseClient) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from("products")
+          .select("*")
+          .order("id", { ascending: false });
+        if (error) return;
+        if (data && data.length > 0) {
+          state.products = data.map(fromDbProduct);
+          state.products.forEach((p) => {
+            if (!state.selectedShades[p.id] && p.shades.length) {
+              state.selectedShades[p.id] = p.shades[0].name;
+            }
+          });
+          savePersistentState();
+        } else {
+          for (const item of state.products) {
+            await upsertProductToCloud(item);
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function sha256Text(text) {
+      try {
+        const msgBuffer = new TextEncoder().encode(text);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+      } catch (e) {
+        return btoa(unescape(encodeURIComponent(text)));
+      }
+    }
+
+    function normalizePhoneDigits(phone) {
+      return (phone || "").replace(/\D/g, "");
+    }
+
+    function savePersistentState() {
+      try {
+        const payload = {
+          state: {
+            waNumber: state.waNumber,
+            tiendanubeStoreId: state.tiendanubeStoreId,
+            lastSyncText: state.lastSyncText,
+            activeCategory: state.activeCategory,
+            activeBrand: state.activeBrand,
+            activeUserKey: state.activeUserKey,
+            draftFolio: state.draftFolio,
+            user: state.user,
+            registeredClients: state.registeredClients,
+            selectedShades: state.selectedShades,
+            activeBannerIndex: state.activeBannerIndex,
+            banners: state.banners,
+            wholesaleClients: state.wholesaleClients,
+            products: state.products
+          },
+          userStores
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch (e) {}
+    }
+
+    function loadPersistentState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.state) {
+          Object.assign(state, parsed.state);
+          if (!Array.isArray(state.registeredClients)) {
+            state.registeredClients = [];
+          }
+          if (!Array.isArray(state.products) || !state.products.length) {
+            state.products = DEFAULT_PRODUCTS.map((p) => ({ ...p }));
+          }
+          if (state.user && state.user.name) {
+            const lowerName = state.user.name.toLowerCase();
+            if (lowerName.includes("admin")) {
+              state.user.role = "admin";
+              state.activeUserKey = buildUserKey(state.user.name, "admin");
+            } else if (lowerName === "bodega") {
+              state.user.role = "warehouse";
+              state.activeUserKey = buildUserKey(state.user.name, "warehouse");
+            }
+          }
+        }
+        if (parsed && parsed.userStores) {
+          Object.assign(userStores, parsed.userStores);
+        }
+      } catch (e) {}
+    }
 
     function isAdminAccount() {
       return Boolean(state.user && state.user.role === "admin");
+    }
+
+    function isWarehouseAccount() {
+      return Boolean(state.user && state.user.role === "warehouse");
     }
 
     function isWholesaleAccount() {
@@ -1353,23 +1574,30 @@
       return userStores[key];
     }
 
-    function buildUserKey(name, role) {
-      return role + ":" + name.trim().toLowerCase().replace(/\s+/g, "_");
+    function buildUserKey(identifier, role) {
+      return role + ":" + identifier.trim().toLowerCase().replace(/\s+/g, "_");
     }
 
     function findWholesaleClient(name, phone) {
       const cleanName = (name || "").trim().toLowerCase();
-      const cleanPhone = (phone || "").replace(/\D/g, "");
+      const cleanPhone = normalizePhoneDigits(phone);
       return state.wholesaleClients.find((c) => {
         const matchName = cleanName && c.name.trim().toLowerCase() === cleanName;
-        const matchPhone = cleanPhone && cleanPhone.length >= 7 && c.phone.replace(/\D/g, "") === cleanPhone;
+        const matchPhone = cleanPhone && cleanPhone.length >= 7 && normalizePhoneDigits(c.phone) === cleanPhone;
         return matchName || matchPhone;
       });
     }
 
-    function init() {
+    async function init() {
+      loadPersistentState();
+      if (supabaseClient) {
+        await loadProductsFromCloud();
+        document.getElementById("syncStatusBadge").textContent = "● Conectado a Supabase";
+      }
       state.products.forEach((p) => {
-        state.selectedShades[p.id] = p.shades[0].name;
+        if (!state.selectedShades[p.id]) {
+          state.selectedShades[p.id] = p.shades[0].name;
+        }
       });
       document.getElementById("adminWaNumber").value = state.waNumber;
       document.getElementById("adminStoreId").value = state.tiendanubeStoreId;
@@ -1389,17 +1617,33 @@
       el.textContent = msg;
       el.classList.add("show");
       clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+      window._toastTimer = setTimeout(() => el.classList.remove("show"), 2800);
+    }
+
+    function openAdminPanel() {
+      if (!isAdminAccount()) {
+        openModal("authModal");
+        return;
+      }
+      document.getElementById("adminWaNumber").value = state.waNumber;
+      document.getElementById("adminStoreId").value = state.tiendanubeStoreId;
+      document.getElementById("syncLogText").textContent = state.lastSyncText;
+      renderAdminLists();
+      document.getElementById("adminModal").classList.add("open");
     }
 
     function openModal(id) {
-      if (id === "adminModal" && !isAdminAccount()) {
+      if (id === "adminModal") {
+        openAdminPanel();
+        return;
+      }
+      if (id === "scannerModal" && !isWarehouseAccount()) {
+        showToast("El escáner es exclusivo de la cuenta Bodega");
         openModal("authModal");
         return;
       }
       if (id === "cartModal") renderCart();
       if (id === "authModal") renderAuth();
-      if (id === "adminModal") renderAdminLists();
       document.getElementById(id).classList.add("open");
     }
 
@@ -1414,8 +1658,34 @@
       if (e.target.id === id) closeModal(id);
     }
 
-    // --- MODO SURTIDO Y ESCÁNER (1 DE N, 2 DE N) ---
+    function openScannerDirect() {
+      if (!isWarehouseAccount()) {
+        showToast("Solo la cuenta Bodega puede usar el escáner");
+        openModal("authModal");
+        return;
+      }
+      const store = getCurrentStore();
+      if (store.cart.length) {
+        startPickSession(state.draftFolio, store.cart);
+        return;
+      }
+      if (store.orders.length && store.orders[0].items && store.orders[0].items.length) {
+        startPickSession(store.orders[0].folio, store.orders[0].items);
+        return;
+      }
+      const demoItems = [
+        { prodId: 1, shade: "Rojo Cereza", qty: 2 },
+        { prodId: 2, shade: "Durazno Glow", qty: 3 }
+      ];
+      startPickSession("BODEGA-01", demoItems);
+      showToast("Orden de prueba cargada para surtir en Bodega");
+    }
+
     function openPickScannerForDraft() {
+      if (!isWarehouseAccount()) {
+        showToast("Solo la cuenta Bodega puede surtir con escáner");
+        return;
+      }
       const store = getCurrentStore();
       if (!store.cart.length) {
         showToast("Agrega productos a la bolsa primero");
@@ -1425,6 +1695,10 @@
     }
 
     function openPickScannerForSavedOrder(orderIndex) {
+      if (!isWarehouseAccount()) {
+        showToast("Solo la cuenta Bodega puede surtir con escáner");
+        return;
+      }
       const store = getCurrentStore();
       const ord = store.orders[orderIndex];
       if (!ord || !ord.items || !ord.items.length) {
@@ -1435,6 +1709,7 @@
     }
 
     function startPickSession(folio, rawItems) {
+      if (!isWarehouseAccount()) return;
       const grouped = new Map();
       rawItems.forEach((it) => {
         const p = state.products.find((prod) => prod.id === it.prodId);
@@ -1451,7 +1726,7 @@
             brand: it.brand || (p && p.brand) || "General",
             shade,
             emoji: it.emoji || (p && p.emoji) || "✨",
-            barcode: (p && p.barcode) || `KS-${it.prodId}`,
+            barcode: it.barcode || (p && p.barcode) || `KS-${it.prodId}`,
             targetQty: qty,
             pickedQty: 0
           });
@@ -1463,9 +1738,9 @@
       pickSession.lastCodeValue = "";
       pickSession.lastCodeTime = 0;
 
-      document.getElementById("scannerTitle").textContent = `📷 Surtido Orden #${folio}`;
+      document.getElementById("scannerTitle").textContent = `📷 Surtido Bodega · Orden #${folio}`;
       document.getElementById("manualBarcodeInput").value = "";
-      setScanFeedback("Listo para escanear: cada código leído suma 1 unidad (1 de N, 2 de N...).", "scan-info");
+      setScanFeedback("Listo para surtir en Bodega: cada código leído suma 1 unidad (1 de N, 2 de N...).", "scan-info");
 
       const simSelect = document.getElementById("simBarcodeSelect");
       simSelect.innerHTML = pickSession.lines
@@ -1501,8 +1776,8 @@
 
       const headerSummary = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13px;">
-          <strong>Avance de la orden: ${totalPicked} de ${totalTarget} unidades</strong>
-          <span class="badge-sync">${totalPicked === totalTarget && totalTarget > 0 ? "✓ ORDEN COMPLETA" : "En surtido"}</span>
+          <strong>Avance de surtido: ${totalPicked} de ${totalTarget} unidades</strong>
+          <span class="badge-sync">${totalPicked === totalTarget && totalTarget > 0 ? "✓ ORDEN SURTIDA" : "En surtido"}</span>
         </div>
       `;
 
@@ -1543,7 +1818,7 @@
       const nextVal = line.pickedQty + delta;
       if (nextVal < 0) return;
       if (nextVal > line.targetQty) {
-        setScanFeedback(`Ya completaste ${line.targetQty} de ${line.targetQty} en "${line.name}".`, "scan-err");
+        setScanFeedback(`Ya surtiste ${line.targetQty} de ${line.targetQty} en "${line.name}".`, "scan-err");
         return;
       }
       line.pickedQty = nextVal;
@@ -1574,18 +1849,17 @@
         return;
       }
 
-      // Prioriza el renglón que aún le faltan piezas
       const pendingLine = candidates.find((l) => l.pickedQty < l.targetQty);
       if (!pendingLine) {
         const ref = candidates[0];
-        setScanFeedback(`Ya escaneaste todo: ${ref.targetQty} de ${ref.targetQty} de "${ref.name}".`, "scan-err");
+        setScanFeedback(`Ya surtiste todo: ${ref.targetQty} de ${ref.targetQty} de "${ref.name}".`, "scan-err");
         return;
       }
 
       pendingLine.pickedQty += 1;
       const completedNow = pendingLine.pickedQty === pendingLine.targetQty;
       setScanFeedback(
-        `${pendingLine.emoji} ${pendingLine.name} (${pendingLine.shade}): ${pendingLine.pickedQty} de ${pendingLine.targetQty}${completedNow ? " — ¡LISTO!" : ""}`,
+        `${pendingLine.emoji} ${pendingLine.name} (${pendingLine.shade}): ${pendingLine.pickedQty} de ${pendingLine.targetQty}${completedNow ? " — ¡SURTIDO!" : ""}`,
         "scan-ok"
       );
       if (navigator.vibrate) {
@@ -1702,19 +1976,24 @@
       if (state.activeBannerIndex >= slides.length) state.activeBannerIndex = 0;
       const slide = slides[state.activeBannerIndex] || slides[0];
       const wholesaleUser = isWholesaleAccount();
+      const warehouseUser = isWarehouseAccount();
       const hasImg = Boolean(slide && slide.imageUrl);
 
       const titleText = isAdminAccount()
         ? `${slide.title} · Vista Administradora`
-        : wholesaleUser
-          ? `${slide.title} · Tarifa Mayorista`
-          : slide.title;
+        : warehouseUser
+          ? `${slide.title} · Surtido Bodega`
+          : wholesaleUser
+            ? `${slide.title} · Tarifa Mayorista`
+            : slide.title;
 
       const subText = isAdminAccount()
-        ? `Sesión administradora activa (<strong>${state.user.name}</strong>). Usa el botón Admin arriba para gestionar tienda, banner y mayoristas.`
-        : wholesaleUser
-          ? `Bienvenida, <strong>${state.user.name}</strong>. Tienes precios mayoristas directos en todo el catálogo.`
-          : slide.subtitle;
+        ? `Sesión administradora activa (<strong>${state.user.name}</strong>). Usa el botón <strong>Panel Admin</strong> arriba para gestionar tienda, banner y mayoristas.`
+        : warehouseUser
+          ? `Sesión <strong>Bodega</strong> activa. Usa <strong>📷 Escáner</strong> arriba para surtir pedidos por código de barras.`
+          : wholesaleUser
+            ? `Bienvenida, <strong>${state.user.name}</strong>. Tienes precios mayoristas directos en todo el catálogo.`
+            : slide.subtitle;
 
       const bgStyle = hasImg ? `style="background-image:url('${slide.imageUrl.replace(/'/g, "%27")}');"` : "";
 
@@ -1724,6 +2003,7 @@
             <h1>${titleText}</h1>
             <p>${subText}</p>
             ${wholesaleUser ? `<span class="wholesale-pill-banner">★ Acceso Mayorista Activo</span>` : ""}
+            ${warehouseUser ? `<span class="wholesale-pill-banner">📷 Escáner Bodega Activo</span>` : ""}
           </div>
           ${
             slides.length > 1
@@ -1747,18 +2027,21 @@
 
     function goBanner(idx) {
       state.activeBannerIndex = idx;
+      savePersistentState();
       renderBanner();
     }
 
     function prevBanner() {
       const slides = getActiveBanners();
       state.activeBannerIndex = (state.activeBannerIndex - 1 + slides.length) % slides.length;
+      savePersistentState();
       renderBanner();
     }
 
     function nextBanner() {
       const slides = getActiveBanners();
       state.activeBannerIndex = (state.activeBannerIndex + 1) % slides.length;
+      savePersistentState();
       renderBanner();
     }
 
@@ -1787,6 +2070,7 @@
 
     function selectBrand(brand) {
       state.activeBrand = brand;
+      savePersistentState();
       renderProducts(state.activeTab === "favorites");
     }
 
@@ -1806,12 +2090,14 @@
       state.activeTab = "catalog";
       document.getElementById("navCatalog").classList.add("active");
       document.getElementById("navFavorites").classList.remove("active");
+      savePersistentState();
       renderCategories();
       renderProducts();
     }
 
     function selectShade(prodId, shadeName) {
       state.selectedShades[prodId] = shadeName;
+      savePersistentState();
       renderProducts(state.activeTab === "favorites");
     }
 
@@ -1826,6 +2112,7 @@
         store.favorites.push(prodId);
         showToast("Guardado en favoritos");
       }
+      savePersistentState();
       renderProducts(state.activeTab === "favorites");
     }
 
@@ -1924,7 +2211,7 @@
           <button class="close-btn" onclick="closeModal('detailModal')">✕</button>
         </div>
         <p style="font-size:12px; color:var(--primary); font-weight:700; margin-bottom:6px;">
-          Marca: ${p.brand || "General"} · Categoría: ${p.category} · Código: ${p.barcode || "N/A"}
+          Marca: ${p.brand || "General"} · Categoría: ${p.category}${isWarehouseAccount() ? ` · Código: ${p.barcode || "N/A"}` : ""}
         </p>
         <p style="font-size:14px; margin-bottom:8px;">${p.desc}</p>
         <p style="font-size:12px; color:var(--muted); margin-bottom:10px;"><strong>Tip:</strong> ${p.tip}</p>
@@ -1978,6 +2265,7 @@
       } else {
         store.cart.push({ prodId, shade, qty: 1 });
       }
+      savePersistentState();
       updateBadges();
       showToast(`Agregado: ${p.name} (${shade})`);
     }
@@ -1988,6 +2276,7 @@
       if (!item) return;
       item.qty += delta;
       if (item.qty <= 0) store.cart.splice(index, 1);
+      savePersistentState();
       updateBadges();
       renderCart();
     }
@@ -1995,6 +2284,7 @@
     function clearCart() {
       const store = getCurrentStore();
       store.cart = [];
+      savePersistentState();
       updateBadges();
       renderCart();
       showToast("Bolsa limpiada");
@@ -2062,6 +2352,7 @@
         const brand = it.brand || (p && p.brand) || "General";
         const shade = it.shade || "";
         const emoji = it.emoji || (p && p.emoji) || "✨";
+        const barcode = it.barcode || (p && p.barcode) || `KS-${it.prodId}`;
         const qty = Number(it.qty) || 1;
         const unitPrice =
           typeof it.unitPrice === "number"
@@ -2072,7 +2363,7 @@
                 : p.retail
               : 0;
         const lineTotal = typeof it.lineTotal === "number" ? it.lineTotal : unitPrice * qty;
-        return { name, brand, shade, emoji, qty, unitPrice, lineTotal };
+        return { name, brand, shade, emoji, barcode, qty, unitPrice, lineTotal };
       });
     }
 
@@ -2082,7 +2373,7 @@
 
       const width = 760;
       const headerHeight = 148;
-      const rowHeight = 104;
+      const rowHeight = 116;
       const footerHeight = 96;
       const padding = 28;
       const height = padding * 2 + headerHeight + rows.length * rowHeight + footerHeight;
@@ -2129,7 +2420,7 @@
       let currentY = cardY + headerHeight;
       rows.forEach((r, idx) => {
         const boxX = cardX + 24;
-        const boxY = currentY + 14;
+        const boxY = currentY + 16;
         const boxSize = 64;
 
         ctx.fillStyle = "#fce4ec";
@@ -2149,20 +2440,20 @@
         const textX = boxX + boxSize + 18;
         ctx.fillStyle = "#23121c";
         ctx.font = "bold 19px system-ui, -apple-system, sans-serif";
-        ctx.fillText(r.name, textX, currentY + 34);
+        ctx.fillText(r.name, textX, currentY + 32);
 
         ctx.fillStyle = "#6f5564";
         ctx.font = "14px system-ui, -apple-system, sans-serif";
-        ctx.fillText(`${r.brand}${r.shade ? ` · ${r.shade}` : ""}`, textX, currentY + 58);
+        ctx.fillText(`${r.brand}${r.shade ? ` · ${r.shade}` : ""} · Cód: ${r.barcode}`, textX, currentY + 56);
 
         ctx.fillStyle = "#880e4f";
         ctx.font = "bold 16px system-ui, -apple-system, sans-serif";
-        ctx.fillText(`Cant: ${r.qty}  ×  $${r.unitPrice} MXN`, textX, currentY + 82);
+        ctx.fillText(`Cant: ${r.qty}  ×  $${r.unitPrice} MXN`, textX, currentY + 84);
 
         ctx.textAlign = "right";
         ctx.fillStyle = "#23121c";
         ctx.font = "bold 20px system-ui, -apple-system, sans-serif";
-        ctx.fillText(`$${r.lineTotal} MXN`, cardX + cardW - 24, currentY + 54);
+        ctx.fillText(`$${r.lineTotal} MXN`, cardX + cardW - 24, currentY + 56);
         ctx.textAlign = "left";
 
         if (idx < rows.length - 1) {
@@ -2229,6 +2520,7 @@
     function buildOrderSheetHtml({ folio, statusLabel, items, totalAmount, useWholesale, isDraft = false, savedIndex = null }) {
       const rows = normalizeOrderRows(items, useWholesale);
       const unitsCount = rows.reduce((sum, r) => sum + r.qty, 0);
+      const canScan = isWarehouseAccount();
 
       const rowsHtml = rows
         .map(
@@ -2238,7 +2530,7 @@
                 <div class="order-line-thumb">${r.emoji}</div>
                 <div style="min-width:0;">
                   <div class="order-line-title">${r.name}</div>
-                  <div class="order-line-sub">${r.brand}${r.shade ? ` · ${r.shade}` : ""}</div>
+                  <div class="order-line-sub">${r.brand}${r.shade ? ` · ${r.shade}` : ""}${canScan ? ` · Cód: ${r.barcode}` : ""}</div>
                   <div class="order-line-math">${r.qty} × $${r.unitPrice} MXN</div>
                 </div>
               </div>
@@ -2248,11 +2540,13 @@
         )
         .join("");
 
-      const scanBtnHtml = isDraft
-        ? `<button class="btn-soft" style="width:100%;" onclick="openPickScannerForDraft()">📷 Surtir con Escáner (1 de N)</button>`
-        : savedIndex !== null
-          ? `<button class="btn-soft" style="width:100%;" onclick="openPickScannerForSavedOrder(${savedIndex})">📷 Surtir con Escáner (1 de N)</button>`
-          : "";
+      const scanBtnHtml = canScan
+        ? isDraft
+          ? `<button class="btn-soft" style="width:100%;" onclick="openPickScannerForDraft()">📷 Surtir con Escáner (1 de N)</button>`
+          : savedIndex !== null
+            ? `<button class="btn-soft" style="width:100%;" onclick="openPickScannerForSavedOrder(${savedIndex})">📷 Surtir con Escáner (1 de N)</button>`
+            : ""
+        : "";
 
       return `
         <div class="order-sheet">
@@ -2361,11 +2655,13 @@
 
       const statusText = isAdminAccount()
         ? "Vista Admin"
-        : totals.wholesaleUser
-          ? "Tarifa Mayorista"
-          : totals.meetsFinalWholesaleTotal
-            ? "Mayoreo ($1,000+)"
-            : "Borrador · Menudeo";
+        : isWarehouseAccount()
+          ? "Orden Bodega"
+          : totals.wholesaleUser
+            ? "Tarifa Mayorista"
+            : totals.meetsFinalWholesaleTotal
+              ? "Mayoreo ($1,000+)"
+              : "Borrador · Menudeo";
 
       preview.innerHTML = buildOrderSheetHtml({
         folio: state.draftFolio,
@@ -2449,6 +2745,21 @@
       }
     }
 
+    async function persistOrderToCloud(orderRecord) {
+      if (!supabaseClient || !state.user) return;
+      try {
+        await supabaseClient.from("orders").insert({
+          folio: orderRecord.folio,
+          client_phone: normalizePhoneDigits(state.user.phone),
+          client_name: state.user.name,
+          total: orderRecord.total,
+          total_units: orderRecord.totalUnits,
+          status_label: orderRecord.statusLabel,
+          items: orderRecord.items
+        });
+      } catch (e) {}
+    }
+
     async function sendWhatsAppOrder(forceRetail = false) {
       const store = getCurrentStore();
       if (!store.cart.length) {
@@ -2463,7 +2774,7 @@
         return;
       }
 
-      const name = document.getElementById("custName").value.trim() || "Clienta Demo";
+      const name = document.getElementById("custName").value.trim() || "Clienta";
       const phone = document.getElementById("custPhone").value.trim() || "Sin especificar";
       const delivery = document.getElementById("custDelivery").value.trim() || "Por coordinar";
       const folio = state.draftFolio || ("KS-" + Math.floor(1000 + Math.random() * 9000));
@@ -2471,11 +2782,13 @@
 
       const statusLabel = isAdminAccount()
         ? "Pedido Admin"
-        : totals.wholesaleUser
-          ? "Clienta Mayorista"
-          : totals.meetsFinalWholesaleTotal
-            ? "Mayoreo ($1,000+)"
-            : "Menudeo";
+        : isWarehouseAccount()
+          ? "Orden Bodega"
+          : totals.wholesaleUser
+            ? "Clienta Mayorista"
+            : totals.meetsFinalWholesaleTotal
+              ? "Mayoreo ($1,000+)"
+              : "Menudeo";
 
       const unitsWord = totals.totalPieces === 1 ? "unidad" : "unidades";
 
@@ -2491,16 +2804,18 @@
       const detailedItems = store.cart.map((item) => {
         const p = state.products.find((prod) => prod.id === item.prodId);
         const brand = p.brand || "General";
+        const barcode = p.barcode || `KS-${p.id}`;
         const unit = totals.useWholesalePricing ? p.wholesale : p.retail;
         const lineTotal = unit * item.qty;
         lines.push(`${p.emoji} *${p.name}*`);
-        lines.push(`${brand} · ${item.shade}`);
+        lines.push(`${brand} · ${item.shade} · Cód: ${barcode}`);
         lines.push(`${item.qty} × $${unit} MXN — *$${lineTotal} MXN*`);
         lines.push(``);
         return {
           ...item,
           name: p.name,
           brand,
+          barcode,
           emoji: p.emoji,
           unitPrice: unit,
           lineTotal
@@ -2515,7 +2830,7 @@
       if (totals.savings > 0) lines.push(`Ahorro mayoreo: -$${totals.savings} MXN`);
       lines.push(`*Total: $${totals.finalTotal} MXN*`);
 
-      store.orders.unshift({
+      const newOrder = {
         folio,
         date: new Date().toLocaleDateString("es-MX"),
         total: totals.finalTotal,
@@ -2523,7 +2838,10 @@
         statusLabel,
         useWholesalePricing: totals.useWholesalePricing,
         items: detailedItems
-      });
+      };
+
+      store.orders.unshift(newOrder);
+      await persistOrderToCloud(newOrder);
 
       await dispatchOrderImageAutomatic({
         folio,
@@ -2537,6 +2855,7 @@
       const url = `https://wa.me/${cleanWa}?text=${encodeURIComponent(lines.join("\n"))}`;
 
       store.cart = [];
+      savePersistentState();
       updateBadges();
       renderCart();
       closeModal("cartModal");
@@ -2544,25 +2863,46 @@
       showToast(`Imagen y pedido #${folio} enviados al flujo de WhatsApp`);
     }
 
+    function setAuthMode(mode) {
+      authUiState.mode = mode;
+      if (mode === "login") {
+        authUiState.pendingReg = null;
+      }
+      renderAuth();
+    }
+
     function renderAuth() {
       const box = document.getElementById("authContent");
+      const modalTitle = document.getElementById("authModalTitle");
       const store = getCurrentStore();
 
       if (state.user) {
+        modalTitle.textContent = "Mi Cuenta";
         const isAdm = state.user.role === "admin";
+        const isWh = state.user.role === "warehouse";
         const isW = state.user.role === "wholesale";
         box.innerHTML = `
-          <p style="margin-bottom:6px;">
+          <p style="margin-bottom:4px;">
             Sesión activa: <strong>${state.user.name}</strong>
           </p>
+          ${state.user.phone && state.user.phone !== "Sin teléfono" ? `<p style="font-size:12px; color:var(--muted); margin-bottom:8px;">Teléfono registrado: <strong>${state.user.phone}</strong></p>` : ""}
           <p style="margin-bottom:12px;">
             Perfil:
-            <span class="${isAdm || isW ? "badge-wholesale-user" : "badge-sync"}">
-              ${isAdm ? "★ Administradora" : isW ? "★ Clienta Mayorista" : "Clienta Menudeo"}
+            <span class="${isAdm || isW || isWh ? "badge-wholesale-user" : "badge-sync"}">
+              ${
+                isAdm
+                  ? "★ Administradora (Privilegios completos)"
+                  : isWh
+                    ? "📷 Bodega (Acceso a Escáner de surtido)"
+                    : isW
+                      ? "★ Clienta Mayorista"
+                      : "Clienta Registrada (Menudeo / Mayoreo $1,000+)"
+              }
             </span>
           </p>
           <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
-            ${isAdm ? `<button class="btn-primary" onclick="closeModal('authModal'); openModal('adminModal');">Abrir Panel Admin</button>` : ""}
+            ${isAdm ? `<button class="btn-primary" onclick="closeModal('authModal'); openAdminPanel();">Abrir Panel Admin</button>` : ""}
+            ${isWh ? `<button class="btn-gold" onclick="closeModal('authModal'); openScannerDirect();">📷 Abrir Escáner Bodega</button>` : ""}
             <button class="btn-outline" onclick="logoutDemo()">Cerrar sesión</button>
           </div>
           <h4>Historial de pedidos (${store.orders.length})</h4>
@@ -2577,7 +2917,7 @@
                       <span style="font-size:12px; color:var(--muted);">Total: $${o.total} MXN</span>
                     </div>
                     <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                      <button class="btn-soft" onclick="closeModal('authModal'); openPickScannerForSavedOrder(${i});">Surtir</button>
+                      ${isWh ? `<button class="btn-soft" onclick="closeModal('authModal'); openPickScannerForSavedOrder(${i});">Surtir</button>` : ""}
                       <button class="btn-outline" onclick="openSavedOrderSummary(${i})">Ver lista</button>
                       <button class="btn-soft" onclick="reorder(${i})">Repetir</button>
                     </div>
@@ -2591,27 +2931,191 @@
         return;
       }
 
+      modalTitle.textContent = authUiState.mode === "register" ? "Crear Cuenta de Clienta" : "Iniciar Sesión";
+
+      const tabsHtml = `
+        <div class="auth-tabs">
+          <button class="auth-tab-btn ${authUiState.mode === "login" ? "active" : ""}" onclick="setAuthMode('login')">
+            Ya tengo cuenta
+          </button>
+          <button class="auth-tab-btn ${authUiState.mode === "register" ? "active" : ""}" onclick="setAuthMode('register')">
+            Registrarme nueva
+          </button>
+        </div>
+      `;
+
+      if (authUiState.mode === "register") {
+        const pending = authUiState.pendingReg;
+        box.innerHTML = `
+          ${tabsHtml}
+          <div class="field">
+            <label>Tu nombre o nombre de tu negocio</label>
+            <input type="text" id="regName" value="${pending ? pending.name.replace(/"/g, "&quot;") : ""}" placeholder="Ej. Mariana López" ${pending ? "disabled" : ""} />
+          </div>
+          <div class="field">
+            <label>Número de celular / WhatsApp (10 dígitos)</label>
+            <input type="tel" id="regPhone" value="${pending ? pending.phone.replace(/"/g, "&quot;") : ""}" placeholder="Ej. 9981234567" ${pending ? "disabled" : ""} />
+          </div>
+          <div class="field">
+            <label>Crea tu contraseña (para entrar desde cualquier teléfono)</label>
+            <input type="password" id="regPass" value="${pending ? pending.rawPass.replace(/"/g, "&quot;") : ""}" placeholder="Mínimo 4 caracteres" ${pending ? "disabled" : ""} />
+          </div>
+          ${
+            !pending
+              ? `
+                <button class="btn-primary" style="width:100%; padding:11px;" onclick="startClientRegistration()">
+                  Enviar código de verificación
+                </button>
+              `
+              : `
+                <div class="otp-box">
+                  <div style="font-size:12px; font-weight:700; color:var(--warn);">
+                    Código enviado al número ${pending.phone}:
+                  </div>
+                  <div class="otp-demo-pill">${pending.code}</div>
+                  <div class="field" style="margin-top:10px; margin-bottom:8px;">
+                    <label>Escribe el código de 6 dígitos</label>
+                    <input type="text" id="regOtpInput" maxlength="6" placeholder="000000" />
+                  </div>
+                  <div style="display:flex; gap:8px;">
+                    <button class="btn-primary" style="flex:1; padding:10px;" onclick="verifyClientRegistration()">
+                      Verificar y crear cuenta
+                    </button>
+                    <button class="btn-outline" onclick="cancelPendingRegistration()">Corregir datos</button>
+                  </div>
+                </div>
+              `
+          }
+        `;
+        return;
+      }
+
       box.innerHTML = `
+        ${tabsHtml}
         <div class="field">
-          <label>Usuario o nombre</label>
-          <input type="text" id="loginName" placeholder="Escribe tu usuario o nombre" autocomplete="username" />
+          <label>Número de celular registrado o usuario</label>
+          <input type="text" id="loginIdentifier" placeholder="Ej. 9981234567" autocomplete="username" />
         </div>
         <div class="field">
           <label>Contraseña</label>
-          <input type="password" id="loginPass" placeholder="Escribe tu contraseña" autocomplete="current-password" />
-        </div>
-        <div class="field">
-          <label>Teléfono (opcional para clientas)</label>
-          <input type="tel" id="loginPhone" placeholder="998 000 0000" />
+          <input type="password" id="loginPass" placeholder="Escribe tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter') loginUnified()" />
         </div>
         <button class="btn-primary" style="width:100%; padding:11px;" onclick="loginUnified()">
-          Iniciar sesión
+          Entrar a mi cuenta
         </button>
       `;
     }
 
+    async function startClientRegistration() {
+      const name = document.getElementById("regName").value.trim();
+      const rawPhone = document.getElementById("regPhone").value.trim();
+      const digits = normalizePhoneDigits(rawPhone);
+      const rawPass = document.getElementById("regPass").value;
+
+      if (!name) {
+        showToast("Escribe tu nombre o boutique");
+        return;
+      }
+      if (digits.length < 10) {
+        showToast("Ingresa un celular válido de 10 dígitos");
+        return;
+      }
+      if (!rawPass || rawPass.length < 4) {
+        showToast("Crea una contraseña de al menos 4 caracteres");
+        return;
+      }
+
+      const alreadyLocal = state.registeredClients.some((c) => normalizePhoneDigits(c.phone) === digits);
+      if (alreadyLocal) {
+        showToast("Ese número ya está registrado. Inicia sesión con tu contraseña");
+        setAuthMode("login");
+        return;
+      }
+
+      if (supabaseClient) {
+        try {
+          const { data } = await supabaseClient
+            .from("clients")
+            .select("phone")
+            .eq("phone", digits)
+            .maybeSingle();
+          if (data) {
+            showToast("Ese número ya existe en la nube. Inicia sesión");
+            setAuthMode("login");
+            return;
+          }
+        } catch (e) {}
+      }
+
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      authUiState.pendingReg = {
+        name,
+        phone: digits,
+        rawPass,
+        code
+      };
+      renderAuth();
+      showToast(`Código de verificación enviado a ${digits}`);
+    }
+
+    function cancelPendingRegistration() {
+      authUiState.pendingReg = null;
+      renderAuth();
+    }
+
+    async function verifyClientRegistration() {
+      const pending = authUiState.pendingReg;
+      if (!pending) return;
+
+      const typed = (document.getElementById("regOtpInput").value || "").trim();
+      if (typed !== pending.code) {
+        showToast("Código incorrecto, revísalo e intenta de nuevo");
+        return;
+      }
+
+      const passHash = await sha256Text(pending.rawPass);
+      const matchedWholesale = findWholesaleClient(pending.name, pending.phone);
+      const role = matchedWholesale ? "wholesale" : "retail";
+
+      const newClientRecord = {
+        name: pending.name,
+        phone: pending.phone,
+        passHash,
+        role,
+        verified: true,
+        createdAt: new Date().toISOString()
+      };
+
+      state.registeredClients.unshift(newClientRecord);
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from("clients").upsert({
+            phone: newClientRecord.phone,
+            name: newClientRecord.name,
+            pass_hash: newClientRecord.passHash,
+            role: newClientRecord.role,
+            verified: true
+          });
+        } catch (e) {}
+      }
+
+      authUiState.pendingReg = null;
+      authUiState.mode = "login";
+
+      applyUserSession({
+        identifier: pending.phone,
+        name: pending.name,
+        phone: pending.phone,
+        role
+      });
+
+      closeModal("authModal");
+      showToast(`✓ Cuenta verificada y creada. ¡Bienvenida, ${pending.name}!`);
+    }
+
     function applyUserSession(userObj) {
-      const key = buildUserKey(userObj.name, userObj.role);
+      const key = buildUserKey(userObj.identifier || userObj.phone || userObj.name, userObj.role);
       if (!userStores[key]) {
         userStores[key] = { favorites: [], cart: [], orders: [] };
       }
@@ -2623,10 +3127,13 @@
         role: userObj.role
       };
 
-      document.getElementById("custName").value = state.user.role === "admin" ? "" : state.user.name;
-      document.getElementById("custPhone").value = state.user.role === "admin" ? "" : state.user.phone;
+      document.getElementById("custName").value =
+        state.user.role === "admin" || state.user.role === "warehouse" ? "" : state.user.name;
+      document.getElementById("custPhone").value =
+        state.user.role === "admin" || state.user.role === "warehouse" ? "" : state.user.phone;
       document.getElementById("custDelivery").value = "";
 
+      savePersistentState();
       renderBanner();
       renderProducts(state.activeTab === "favorites");
       renderCart();
@@ -2634,48 +3141,127 @@
       renderAuth();
     }
 
-    function loginUnified() {
-      const rawName = document.getElementById("loginName").value.trim();
+    async function loginUnified() {
+      const rawInput = document.getElementById("loginIdentifier").value.trim();
       const rawPass = document.getElementById("loginPass").value;
-      const phone = document.getElementById("loginPhone").value.trim();
 
-      if (!rawName) {
-        showToast("Escribe tu usuario o nombre");
+      if (!rawInput || !rawPass) {
+        showToast("Escribe tu número o usuario y tu contraseña");
         return;
       }
 
-      const cleanUser = rawName.toLowerCase();
+      const cleanUser = rawInput.toLowerCase();
 
       if (cleanUser === ADMIN_AUTH.user.toLowerCase()) {
         if (rawPass === ADMIN_AUTH.pass) {
           applyUserSession({
+            identifier: ADMIN_AUTH.user,
             name: ADMIN_AUTH.displayName,
-            phone: phone || "Sin teléfono",
+            phone: "Sin teléfono",
             role: "admin"
           });
           closeModal("authModal");
-          showToast("Sesión de administradora iniciada");
+          showToast("Sesión Admin activada");
         } else {
           showToast("Contraseña incorrecta");
         }
         return;
       }
 
-      const matchedWholesale = findWholesaleClient(rawName, phone);
-      const role = matchedWholesale ? "wholesale" : "retail";
-      const displayName = matchedWholesale ? matchedWholesale.name : rawName;
-      const finalPhone = phone || (matchedWholesale ? matchedWholesale.phone : "Sin teléfono");
+      if (cleanUser === WAREHOUSE_AUTH.user.toLowerCase()) {
+        if (rawPass === WAREHOUSE_AUTH.pass) {
+          applyUserSession({
+            identifier: WAREHOUSE_AUTH.user,
+            name: WAREHOUSE_AUTH.displayName,
+            phone: "Sin teléfono",
+            role: "warehouse"
+          });
+          closeModal("authModal");
+          showToast("Sesión Bodega activada · Escáner disponible");
+        } else {
+          showToast("Contraseña de Bodega incorrecta");
+        }
+        return;
+      }
+
+      const digits = normalizePhoneDigits(rawInput);
+      const passHash = await sha256Text(rawPass);
+
+      let foundClient = state.registeredClients.find((c) => {
+        const matchPhone = digits.length >= 7 && normalizePhoneDigits(c.phone) === digits;
+        const matchName = c.name.trim().toLowerCase() === cleanUser;
+        return matchPhone || matchName;
+      });
+
+      if (!foundClient && supabaseClient) {
+        try {
+          const { data } = await supabaseClient
+            .from("clients")
+            .select("*")
+            .eq("phone", digits)
+            .maybeSingle();
+          if (data) {
+            foundClient = {
+              name: data.name,
+              phone: data.phone,
+              passHash: data.pass_hash,
+              role: data.role || "retail"
+            };
+            state.registeredClients.unshift(foundClient);
+          }
+        } catch (e) {}
+      }
+
+      if (!foundClient) {
+        showToast("No encontramos esa cuenta. Toca 'Registrarme nueva' para crearla");
+        return;
+      }
+
+      if (foundClient.passHash !== passHash) {
+        showToast("Contraseña incorrecta");
+        return;
+      }
+
+      const matchedWholesale = findWholesaleClient(foundClient.name, foundClient.phone);
+      const finalRole = matchedWholesale ? "wholesale" : foundClient.role || "retail";
+
+      const sessionKey = buildUserKey(foundClient.phone, finalRole);
+      if (!userStores[sessionKey]) {
+        userStores[sessionKey] = { favorites: [], cart: [], orders: [] };
+      }
+      if (supabaseClient) {
+        try {
+          const { data: cloudOrders } = await supabaseClient
+            .from("orders")
+            .select("*")
+            .eq("client_phone", normalizePhoneDigits(foundClient.phone))
+            .order("created_at", { ascending: false });
+          if (cloudOrders && cloudOrders.length) {
+            userStores[sessionKey].orders = cloudOrders.map((o) => ({
+              folio: o.folio,
+              date: new Date(o.created_at).toLocaleDateString("es-MX"),
+              total: o.total,
+              totalUnits: o.total_units,
+              statusLabel: o.status_label,
+              useWholesalePricing: true,
+              items: o.items || []
+            }));
+          }
+        } catch (e) {}
+      }
 
       applyUserSession({
-        name: displayName,
-        phone: finalPhone,
-        role
+        identifier: foundClient.phone,
+        name: foundClient.name,
+        phone: foundClient.phone,
+        role: finalRole
       });
       closeModal("authModal");
-      showToast(role === "wholesale" ? `★ Bienvenida Mayorista, ${displayName}` : `Bienvenida, ${displayName}`);
+      showToast(finalRole === "wholesale" ? `★ Bienvenida Mayorista, ${foundClient.name}` : `Bienvenida de vuelta, ${foundClient.name}`);
     }
 
     function logoutDemo() {
+      stopCameraScanner();
       userStores.guest = { favorites: [], cart: [], orders: [] };
       state.activeUserKey = "guest";
       state.user = null;
@@ -2684,6 +3270,7 @@
       document.getElementById("custPhone").value = "";
       document.getElementById("custDelivery").value = "";
 
+      savePersistentState();
       renderBanner();
       renderProducts(state.activeTab === "favorites");
       renderCart();
@@ -2701,6 +3288,7 @@
         if (existing) existing.qty += it.qty;
         else store.cart.push({ prodId: it.prodId, shade: it.shade, qty: it.qty });
       });
+      savePersistentState();
       updateBadges();
       closeModal("authModal");
       openModal("cartModal");
@@ -2714,13 +3302,16 @@
         return;
       }
       state.waNumber = val;
+      savePersistentState();
       showToast(`WhatsApp actualizado a ${val}`);
     }
 
-    function updateProductBarcode(prodId, newCode) {
+    async function updateProductBarcode(prodId, newCode) {
       const p = state.products.find((item) => item.id === prodId);
       if (!p) return;
       p.barcode = (newCode || "").trim() || `KS-${prodId}`;
+      savePersistentState();
+      await upsertProductToCloud(p);
       showToast(`Código actualizado para ${p.name}`);
     }
 
@@ -2733,10 +3324,11 @@
       state.tiendanubeStoreId = idVal;
       state.lastSyncText = `ID ${idVal} guardado · Listo para sincronizar`;
       document.getElementById("syncLogText").textContent = state.lastSyncText;
+      savePersistentState();
       showToast(`Store ID ${idVal} guardado`);
     }
 
-    function syncTiendanubeById() {
+    async function syncTiendanubeById() {
       const idVal = document.getElementById("adminStoreId").value.trim() || state.tiendanubeStoreId;
       if (!idVal) {
         showToast("Primero escribe el ID de tienda");
@@ -2781,18 +3373,20 @@
         }
       ];
 
-      sampleImported.forEach((imp) => {
+      for (const imp of sampleImported) {
         if (!state.products.some((p) => p.id === imp.id)) {
           state.products.unshift(imp);
           state.selectedShades[imp.id] = imp.shades[0].name;
+          await upsertProductToCloud(imp);
         }
-      });
+      }
 
       const hora = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
       state.lastSyncText = `Sincronizado con Store ID ${idVal} (${hora}) · ${state.products.length} productos activos`;
       document.getElementById("syncLogText").textContent = state.lastSyncText;
-      document.getElementById("syncStatusBadge").textContent = `● ID ${idVal} sincronizado`;
+      document.getElementById("syncStatusBadge").textContent = supabaseClient ? "● Conectado a Supabase" : `● ID ${idVal} sincronizado`;
 
+      savePersistentState();
       renderBrands();
       renderCategories();
       renderProducts(state.activeTab === "favorites");
@@ -2813,17 +3407,18 @@
       }
       document.getElementById("whNameInput").value = "";
       document.getElementById("whPhoneInput").value = "";
+      savePersistentState();
       renderAdminLists();
       showToast(`★ ${name} dada de alta como Mayorista`);
     }
 
     function promoteCurrentUserToWholesale() {
-      if (!state.user || state.user.role === "admin") return;
+      if (!state.user || state.user.role === "admin" || state.user.role === "warehouse") return;
       const existing = findWholesaleClient(state.user.name, state.user.phone);
       if (!existing) {
         state.wholesaleClients.unshift({ name: state.user.name, phone: state.user.phone });
       }
-      applyUserSession({ ...state.user, role: "wholesale" });
+      applyUserSession({ ...state.user, identifier: state.user.phone, role: "wholesale" });
       renderAdminLists();
       showToast(`★ ${state.user.name} ascendida a Clienta Mayorista`);
     }
@@ -2832,8 +3427,9 @@
       const removed = state.wholesaleClients[idx];
       state.wholesaleClients.splice(idx, 1);
       if (removed && state.user && state.user.role === "wholesale" && state.user.name.toLowerCase() === removed.name.toLowerCase()) {
-        applyUserSession({ ...state.user, role: "retail" });
+        applyUserSession({ ...state.user, identifier: state.user.phone, role: "retail" });
       }
+      savePersistentState();
       renderAdminLists();
       showToast("Estatus mayorista retirado");
     }
@@ -2859,6 +3455,7 @@
         document.getElementById("bannerSubInput").value = "";
         document.getElementById("bannerUrlInput").value = "";
         fileInput.value = "";
+        savePersistentState();
         renderBanner();
         renderAdminLists();
         showToast("Banner agregado");
@@ -2877,6 +3474,7 @@
       const item = state.banners.find((b) => b.id === id);
       if (!item) return;
       item.active = !item.active;
+      savePersistentState();
       renderBanner();
       renderAdminLists();
     }
@@ -2888,6 +3486,7 @@
       }
       state.banners = state.banners.filter((b) => b.id !== id);
       state.activeBannerIndex = 0;
+      savePersistentState();
       renderBanner();
       renderAdminLists();
       showToast("Banner eliminado");
@@ -2957,7 +3556,7 @@
         .join("");
     }
 
-    function addNewProduct() {
+    async function addNewProduct() {
       const name = document.getElementById("newProdName").value.trim();
       const brand = document.getElementById("newProdBrand").value.trim() || "KS Studio";
       const category = document.getElementById("newProdCat").value;
@@ -2972,7 +3571,7 @@
       }
 
       const newId = Date.now();
-      state.products.unshift({
+      const newProd = {
         id: newId,
         brand,
         name,
@@ -2988,13 +3587,18 @@
           { name: "Tono Clásico", hex: "#d81b60" },
           { name: "Tono Natural", hex: "#e5989b" }
         ]
-      });
+      };
 
+      state.products.unshift(newProd);
       state.selectedShades[newId] = "Tono Clásico";
       document.getElementById("newProdName").value = "";
       document.getElementById("newProdBrand").value = "";
       document.getElementById("newProdBarcode").value = "";
       document.getElementById("newProdVideo").value = "";
+
+      savePersistentState();
+      await upsertProductToCloud(newProd);
+
       renderBrands();
       renderCategories();
       renderProducts();
@@ -3012,22 +3616,28 @@
       const adminBtn = document.getElementById("adminBtn");
       adminBtn.style.display = isAdminAccount() ? "inline-flex" : "none";
 
+      const scannerBtn = document.getElementById("scannerBtn");
+      scannerBtn.style.display = isWarehouseAccount() ? "inline-flex" : "none";
+
       const roleBadge = document.getElementById("headerRoleBadge");
       if (state.user) {
-        document.getElementById("authBtn").textContent = isAdminAccount()
+        const shortLabel = isAdminAccount()
           ? "Admin"
-          : state.user.name.split(" ")[0];
-        document.getElementById("navAccountLabel").textContent = isAdminAccount()
-          ? "Admin"
-          : state.user.name.split(" ")[0];
+          : isWarehouseAccount()
+            ? "Bodega"
+            : state.user.name.split(" ")[0];
+        document.getElementById("authBtn").textContent = shortLabel;
+        document.getElementById("navAccountLabel").textContent = shortLabel;
         roleBadge.innerHTML =
           isAdminAccount()
             ? `<span class="badge-wholesale-user">★ Admin</span>`
-            : state.user.role === "wholesale"
-              ? `<span class="badge-wholesale-user">★ Mayorista</span>`
-              : "";
+            : isWarehouseAccount()
+              ? `<span class="badge-wholesale-user">📷 Bodega</span>`
+              : state.user.role === "wholesale"
+                ? `<span class="badge-wholesale-user">★ Mayorista</span>`
+                : "";
       } else {
-        document.getElementById("authBtn").textContent = "Entrar";
+        document.getElementById("authBtn").textContent = "Entrar / Registro";
         document.getElementById("navAccountLabel").textContent = "Cuenta";
         roleBadge.innerHTML = "";
       }
